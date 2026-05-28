@@ -1,30 +1,44 @@
 import { Geist, Geist_Mono, Inter } from "next/font/google"
 
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/components/providers/theme-provider"
+import { cn } from "@/lib/utils"
+import Script from "next/script"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'})
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
 const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
+    subsets: ["latin"],
+    variable: "--font-mono",
 })
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode
+    children: React.ReactNode
 }>) {
-  return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
-    >
-      <body>
-        <ThemeProvider>{children}</ThemeProvider>
-      </body>
-    </html>
-  )
+    return (
+        <html
+            lang="en"
+            suppressHydrationWarning
+            className={cn(
+                "antialiased",
+                fontMono.variable,
+                "font-sans",
+                inter.variable
+            )}
+        >
+            <body>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="dark"
+                    enableSystem={false}
+                    disableTransitionOnChange
+                >
+                    <TooltipProvider>{children}</TooltipProvider>
+                </ThemeProvider>
+            </body>
+        </html>
+    )
 }
