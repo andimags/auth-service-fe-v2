@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useSession } from "next-auth/react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -13,11 +14,20 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
+
 import { HugeiconsIcon } from "@hugeicons/react"
 import { CommandIcon } from "@hugeicons/core-free-icons"
-import { sidebarData as data } from "@/constants/sidebarData"
+import { sidebarData } from "@/constants/sidebarData"
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
+    const { data: session } = useSession()
+
+    const user = {
+        name: session?.user?.name ?? "Guest",
+        email: session?.user?.email ?? "",
+        avatar: session?.user?.image ?? "/avatars/default.jpg",
+    }
+
     return (
         <Sidebar collapsible="offcanvas" {...props}>
             <SidebarHeader>
@@ -41,11 +51,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
+
             <SidebarContent>
-                <NavMain items={data.navMain} />
+                <NavMain items={sidebarData.navMain} />
             </SidebarContent>
+
             <SidebarFooter>
-                <NavUser user={data.user} />
+                <NavUser user={user} />
             </SidebarFooter>
         </Sidebar>
     )

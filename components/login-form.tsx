@@ -1,6 +1,5 @@
 "use client"
 
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
     Field,
@@ -10,16 +9,53 @@ import {
     FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { HugeiconsIcon } from "@hugeicons/react"
+import { cn } from "@/lib/utils"
 import { LayoutBottomIcon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 export function LoginForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const router = useRouter()
+
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+
+        const formData = new FormData(event.currentTarget)
+        const email = String(formData.get("email") ?? "")
+        const password = String(formData.get("password") ?? "")
+        const apiKey = String(formData.get("api-key") ?? "")
+
+        setError(null)
+        setIsLoading(true)
+
+        const result = await signIn("credentials", {
+            redirect: false,
+            email,
+            password,
+            api_key: apiKey,
+            callbackUrl: "/",
+        })
+
+        setIsLoading(false)
+
+        if (result?.error) {
+            setError(result.error)
+            return
+        }
+
+        router.push(result?.url ?? "/")
+    }
+
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
-            <form>
+            <form onSubmit={handleSubmit}>
                 <FieldGroup>
                     <div className="flex flex-col items-center gap-2 text-center">
                         <a
@@ -49,6 +85,7 @@ export function LoginForm({
                         <FieldLabel htmlFor="email">Email</FieldLabel>
                         <Input
                             id="email"
+                            name="email"
                             type="email"
                             placeholder="m@example.com"
                             required
@@ -56,24 +93,33 @@ export function LoginForm({
                     </Field>
                     <div className="flex gap-4">
                         <Field>
-                            <FieldLabel htmlFor="email">Password</FieldLabel>
+                            <FieldLabel htmlFor="password">Password</FieldLabel>
                             <Input
                                 id="password"
+                                name="password"
                                 type="password"
                                 required
                             />
                         </Field>
                         <Field>
-                            <FieldLabel htmlFor="email">API Key</FieldLabel>
+                            <FieldLabel htmlFor="api-key">API Key</FieldLabel>
                             <Input
                                 id="api-key"
+                                name="api-key"
                                 type="password"
                                 required
                             />
                         </Field>
                     </div>
+                    {error ? (
+                        <div className="rounded-md border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-700">
+                            {error}
+                        </div>
+                    ) : null}
                     <Field>
-                        <Button type="submit">Login</Button>
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading ? "Signing in..." : "Login"}
+                        </Button>
                     </Field>
                     <FieldSeparator>Or</FieldSeparator>
                     <Field className="grid gap-4 sm:grid-cols-2">
@@ -105,9 +151,7 @@ export function LoginForm({
                 </FieldGroup>
             </form>
             <FieldDescription className="px-6 text-center">
-                By clicking continue, you agree to our{" "}
-                <a href="#">Terms of Service</a> and{" "}
-                <a href="#">Privacy Policy</a>.
+                By clicking continue, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
             </FieldDescription>
         </div>
     )

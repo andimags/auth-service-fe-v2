@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider"
 import { cn } from "@/lib/utils"
 import Script from "next/script"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { SessionProvider } from "@/components/providers/session-provider"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -36,7 +37,11 @@ export default function RootLayout({
                     enableSystem={false}
                     disableTransitionOnChange
                 >
-                    <TooltipProvider>{children}</TooltipProvider>
+                    <TooltipProvider>
+                        <SessionProvider>
+                            {children}
+                        </SessionProvider>
+                    </TooltipProvider>
                 </ThemeProvider>
             </body>
         </html>
