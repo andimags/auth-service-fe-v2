@@ -1,85 +1,79 @@
-# Rules for This Repository
+# Repository Rules & Architecture
 
-## Architecture Rule (STRICT)
+## Stack
+- Next.js 14 App Router
+- TypeScript
+- All backend communication via internal API routes
+
+---
+
+## ⚠️ Core Architecture Rule (STRICT — No Exceptions)
 
 ALL backend requests must go through Next.js API routes.
 
-❌ NEVER call backend directly from client components  
-❌ NEVER use external backend URLs in client code  
+| ❌ Never | ✅ Always |
+|----------|-----------|
+| Call backend directly from client components | Call `/api/*` routes from client |
+| Use external backend URLs in client code | Proxy requests through `app/api/**/route.ts` |
+| Put fetch/axios calls to backend in components | Keep backend logic inside route files only |
 
-✅ ONLY call internal API routes from the client:
-
-/api/*
-
-Flow:
-Client → Next.js API Route → Backend API
+**Required flow:**
 
 ---
 
-## API Route Location Rule
+## API Route Rules
 
-All backend communication must be implemented inside:
+- All backend communication lives in `app/api/**/route.ts`
+- Each route acts as a proxy — receive, forward, return, handle errors
+- No backend URLs or fetch logic outside of route files
 
-app/api/**/route.ts
+**Standard API route pattern:**
+```ts
+// app/api/users/route.ts
+import { NextRequest, NextResponse } from 'next/server'
 
-Each route acts as a proxy to the backend.
+export async function GET(req: NextRequest) {
+  try {
+    const res = await fetch(`${process.env.BACKEND_URL}/users`, {
+      headers: { Authorization: req.headers.get('authorization') ?? '' },
+    })
+    const data = await res.json()
+    return NextResponse.json(data, { status: res.status })
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+  }
+}
+```
 
 ---
 
-## Client Rule
+## Client Component Rules
 
-Client components are ONLY allowed to:
-- call /api/*
-- handle UI logic
-- handle state and rendering
+Client components may ONLY:
+- Call internal `/api/*` routes
+- Handle UI logic, state, and rendering
 
-No backend logic in client components.
-
----
-
-## API Pattern Rule
-
-Every API route must:
-- receive request from client
-- forward request to backend
-- return backend response
-- handle errors consistently
+Client components must NEVER:
+- Contain backend URLs
+- Directly call external APIs
+- Hold fetch logic targeting the backend
 
 ---
 
 ## Naming Conventions
 
-### Files & Folders
-- API routes: kebab-case folders when needed
-- Example: app/api/user-profile/route.ts
-
-### Components
-- PascalCase
-- Example: UserTable.tsx, RoleModal.tsx
-
-### Hooks
-- camelCase starting with "use"
-- Example: useUsers, useAuth
-
-### API functions (inside route files or helpers)
-- camelCase verbs
-- Example: getUsers, createUser, deleteUser
-
-### Variables
-- camelCase only
-
----
-
-## Code Structure Rule
-
-- Keep API logic inside route.ts only
-- Avoid scattering fetch logic across components
-- Centralize backend communication through API routes
-- Keep client components clean and UI-focused only
+| Type | Convention | Example |
+|------|-----------|---------|
+| API route folders | kebab-case | `app/api/user-profile/route.ts` |
+| Components | PascalCase | `UserTable.tsx`, `RoleModal.tsx` |
+| Hooks | camelCase + `use` prefix | `useUsers`, `useAuth` |
+| API functions | camelCase verbs | `getUsers`, `createUser` |
+| Variables | camelCase | `userData`, `isLoading` |
 
 ---
 
 ## Consistency Rule
 
-If a pattern is used once in the codebase, reuse it everywhere.
-No duplicate patterns for API handling.
+If a pattern exists in the codebase, replicate it exactly.
+Do not introduce new patterns for problems already solved.
+One pattern per concern — no duplicates.
