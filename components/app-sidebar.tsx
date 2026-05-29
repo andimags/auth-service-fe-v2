@@ -1,7 +1,7 @@
 "use client"
 
-import * as React from "react"
 import { useSession } from "next-auth/react"
+import * as React from "react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -15,9 +15,9 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-import { HugeiconsIcon } from "@hugeicons/react"
-import { CommandIcon } from "@hugeicons/core-free-icons"
 import { sidebarData } from "@/constants/sidebarData"
+import { CommandIcon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     const { data: session } = useSession()
