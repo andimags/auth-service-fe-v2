@@ -26,9 +26,9 @@ export async function AppSidebar(
     const session = await getServerSession(authOptions)
 
     const user = {
-        name: session?.user?.name ?? "Guest",
+        name: session?.user?.username ?? "Guest",
         email: session?.user?.email ?? "",
-        avatar: session?.user?.image ?? "/avatars/default.jpg",
+        avatar: "/avatars/default.jpg",
     }
 
     return (

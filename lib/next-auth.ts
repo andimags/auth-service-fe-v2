@@ -1,47 +1,33 @@
+import { AuthResponseDto } from "@/dtos/AuthDto"
 import { type NextAuthOptions } from "next-auth"
-import type { JWT } from "next-auth/jwt"
+import { type JWT } from "next-auth/jwt"
 import CredentialsProvider from "next-auth/providers/credentials"
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000"
 const BACKEND_URL = `${BASE_URL}/backend/api/auth`
 const LOGIN_URL = `${BACKEND_URL}/generate-token`
 const REFRESH_URL = `${BACKEND_URL}/refresh-token`
+const REFRESH_BUFFER_MS = 30_000
 
-type AuthToken = JWT & {
-  accessToken?: string
-  refreshToken?: string
+type AuthToken = JWT & AuthResponseDto & {
+  api_key?: string
   accessTokenExpires?: number
   error?: string
-  user?: unknown
-}
-
-type AuthResponse = {
-  user: unknown
-  tokens: {
-    access: {
-      value: string
-      expires_at: number
-    }
-    refresh: {
-      value: string
-      expires_at: number
-    }
-  }
 }
 
 async function refreshAccessToken(token: AuthToken): Promise<AuthToken> {
-  if (!token.refreshToken) {
-    return { ...token, error: "RefreshTokenMissing" }
+  if (!token.tokens?.refresh?.value) {
+    return { ...token, error: "MissingRefreshToken" }
   }
 
   try {
     const response = await fetch(REFRESH_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token: token.refreshToken }),
+      body: JSON.stringify({ refresh_token: token.tokens.refresh.value }),
     })
 
-    const data = (await response.json()) as AuthResponse
+    const data = (await response.json()) as AuthResponseDto
 
     if (!response.ok || !data?.tokens?.access?.value) {
       return { ...token, error: "RefreshAccessTokenError" }
@@ -49,62 +35,58 @@ async function refreshAccessToken(token: AuthToken): Promise<AuthToken> {
 
     return {
       ...token,
-      accessToken: data.tokens.access.value,
-      refreshToken: data.tokens.refresh.value,
+      ...data,
+      api_key: token.api_key,
       accessTokenExpires: data.tokens.access.expires_at,
-      user: data.user ?? token.user,
-      error: undefined,
     }
-  } catch (error) {
+  } catch {
     return { ...token, error: "RefreshAccessTokenError" }
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const credentialsProvider = CredentialsProvider({
+  id: "credentials",
+  name: "Credentials",
+  credentials: {
+    email: { label: "Email", type: "email" },
+    password: { label: "Password", type: "password" },
+    api_key: { label: "API Key", type: "password" },
+  },
+  async authorize(
+    credentials: Record<"email" | "password" | "api_key", string> | undefined
+  ): Promise<AuthToken | null> {
+    if (!credentials?.email || !credentials?.password) {
+      return null
+    }
+
+    const response = await fetch(LOGIN_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": credentials.api_key,
+      },
+      body: JSON.stringify({
+        email: credentials.email,
+        password: credentials.password,
+      }),
+    })
+
+    const data = (await response.json()) as AuthResponseDto
+
+    if (!response.ok || !data?.tokens?.access?.value || !data?.user) {
+      return null
+    }
+
+    return {
+      ...data,
+      api_key: credentials.api_key,
+    }
+  },
+} as any) as any
+
 export const authOptions: NextAuthOptions = {
-  providers: [
-    CredentialsProvider({
-      id: "credentials",
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-        api_key: { label: "API Key", type: "password" },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
-
-        const response = await fetch(LOGIN_URL, {
-          method: "POST",
-          headers: {
-  "Content-Type": "application/json",
-  "x-api-key": credentials.api_key
-},
-          body: JSON.stringify({
-            email: credentials.email,
-            password: credentials.password
-          }),
-        })
-
-        const data = (await response.json()) as AuthResponse
-
-        if (!response.ok || !data?.tokens?.access?.value || !data?.user) {
-          return null
-        }
-
-        return {
-          id: String((data.user as any)?.id ?? ""),
-          name: (data.user as any)?.username ?? (data.user as any)?.email,
-          email: (data.user as any)?.email,
-          user: data.user,
-          accessToken: data.tokens.access.value,
-          refreshToken: data.tokens.refresh.value,
-          accessTokenExpires: data.tokens.access.expires_at,
-        }
-      },
-    }),
-  ],
+  providers: [credentialsProvider],
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
@@ -113,40 +95,33 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
   callbacks: {
-    async jwt({ token, user }) {
-      const authToken = token as AuthToken
+    async jwt(params: unknown): Promise<AuthToken> {
+      const { token, user } = params as { token: AuthToken; user?: any }
 
+      // On initial sign in, `user` is the object returned from `authorize`
       if (user) {
         return {
-          ...authToken,
-          accessToken: (user as any).accessToken,
-          refreshToken: (user as any).refreshToken,
-          accessTokenExpires: (user as any).accessTokenExpires,
-          user: (user as any).user ?? user,
-          error: undefined,
+          ...token,
+          user: user.user ?? user,
+          tokens: user.tokens ?? token.tokens,
+          api_key: user.api_key ?? token.api_key,
+          accessTokenExpires: user?.tokens?.access?.expires_at ?? token.accessTokenExpires,
         }
       }
 
-      if (authToken.accessTokenExpires && Date.now() < authToken.accessTokenExpires) {
-        return authToken
+      // If token still valid, reuse
+      if (token.accessTokenExpires && Date.now() < token.accessTokenExpires - REFRESH_BUFFER_MS) {
+        return token
       }
 
-      return refreshAccessToken(authToken)
+      // Refresh and return new token
+      return refreshAccessToken(token)
     },
     async session({ session, token }) {
-      const authToken = token as AuthToken
+      session.user = token.user
+      session.api_key = token.api_key
+      session.access_token = token.tokens?.access?.value ?? ""
 
-      if (authToken.user) {
-        session.user = {
-          ...session.user,
-          ...(authToken.user as any),
-          accessToken: authToken.accessToken,
-          refreshToken: authToken.refreshToken,
-          roles: (authToken.user as any)?.roles ?? [],
-        }
-      }
-
-      ;(session as any).error = authToken.error
       return session
     },
   },
