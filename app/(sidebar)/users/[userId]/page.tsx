@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/badge"
+
 export default function Page() {
     return (
         <div className="mx-auto w-full max-w-6xl text-neutral-900 transition-colors duration-200 dark:text-neutral-100">
@@ -48,9 +50,7 @@ export default function Page() {
                         Status
                     </div>
                     <div className="col-span-2 text-neutral-600 dark:text-neutral-400">
-                        <span className="inline-flex items-center rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                            Active
-                        </span>
+                        Active
                     </div>
                 </div>
 
@@ -81,6 +81,16 @@ export default function Page() {
                     </div>
                 </div>
 
+                <div className="grid grid-cols-3 border-t border-neutral-200 py-5 dark:border-neutral-800">
+                    <div className="font-semibold text-neutral-900 dark:text-neutral-200">
+                        Roles
+                    </div>
+                    <div className="col-span-2 text-neutral-600 dark:text-neutral-400 gap-2 flex">
+                        <Badge variant="outline">Outline</Badge>
+                        <Badge variant="outline">Outline</Badge>
+                        <Badge variant="outline">Outline</Badge>
+                    </div>
+                </div>
             </div>
         </div>
     )

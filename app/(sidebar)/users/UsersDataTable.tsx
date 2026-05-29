@@ -24,6 +24,7 @@ import React from "react"
 import { UserFormDialog } from "./UserFormDialog"
 import { UserDto } from "@/dtos"
 import { UserLevelType, UserStatusType } from "@/constants/enums"
+import Link from "next/link"
 
 const users: UserDto[] = [
     {
@@ -167,6 +168,11 @@ function getColumns(onEdit: (user: UserDto) => void): ColumnDef<UserDto>[] {
                                 Copy user ID
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
+                            <Link href={`/users/${row.id}`}>
+                                <DropdownMenuItem>
+                                    View
+                                </DropdownMenuItem>
+                            </Link>
                             <DropdownMenuItem onClick={() => onEdit(user)}>
                                 Edit
                             </DropdownMenuItem>
@@ -210,18 +216,17 @@ function ToolbarChildren({ onAdd }: Readonly<{ onAdd: () => void }>) {
 type UserDialogType = {
     open: boolean
     mode: "create" | "edit"
-    user: UserDto | null
+    user: UserDto | undefined
 }
 
 export function UsersDataTable() {
     const [userDialog, setUserDialog] = React.useState<UserDialogType>({
         open: false,
         mode: "create",
-        user: null,
+        user: undefined,
     })
 
     const handleEdit = React.useCallback((user: UserDto) => {
-        console.log(user);
         setUserDialog({
             open: true,
             mode: "edit",
