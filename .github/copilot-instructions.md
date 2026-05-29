@@ -21,11 +21,46 @@ ALL backend requests must go through Next.js API routes.
 
 ---
 
+## Backend URL Rule
+
+The backend is accessed exclusively via the `/backend/*` rewrite defined in `next.config.ts`.
+
+```ts
+// next.config.ts
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+    async rewrites() {
+        return [
+            {
+                source: '/backend/:path*',
+                destination: `${process.env.AUTH_SERVICE_BASE_URL}/:path*`
+            }
+        ];
+    }
+};
+
+export default nextConfig;
+```
+
+- `AUTH_SERVICE_BASE_URL` is set in `.env` and never hardcoded
+- `/backend/*` is only called from inside `app/api/**/route.ts`
+- Never use `AUTH_SERVICE_BASE_URL` directly in any file other than `next.config.ts`
+
+---
+
+## HTTP Client Rule
+
+Always use the native `fetch` API for all HTTP requests.
+
+❌ NEVER use `axios`, `ky`, or any third-party HTTP client
+✅ ALWAYS use `fetch` — in API routes and anywhere else HTTP calls are made
+
 ## API Route Rules
 
 - All backend communication lives in `app/api/**/route.ts`
-- Each route acts as a proxy — receive, forward, return, handle errors
-- No backend URLs or fetch logic outside of route files
+- Each route calls `/backend/*` internally — never the external URL directly
+- Each route: receive, forward, return, handle errors consistently
 
 **Standard API route pattern:**
 ```ts
@@ -34,7 +69,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
   try {
-    const res = await fetch(`${process.env.BACKEND_URL}/users`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/backend/users`, {
       headers: { Authorization: req.headers.get('authorization') ?? '' },
     })
     const data = await res.json()
@@ -55,6 +90,7 @@ Client components may ONLY:
 
 Client components must NEVER:
 - Contain backend URLs
+- Call `/backend/*` directly
 - Directly call external APIs
 - Hold fetch logic targeting the backend
 
