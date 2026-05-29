@@ -1,4 +1,4 @@
-import { UsersDataTable } from "./users-data-table"
+import { UsersDataTable } from "./UsersDataTable"
 
 export default function Page() {
     return (
