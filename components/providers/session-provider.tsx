@@ -7,8 +7,6 @@ export function SessionProvider({
     ...props
 }: React.ComponentProps<typeof NextAuthSessionProvider>) {
     return (
-        <NextAuthSessionProvider {...props}>
-            {children}
-        </NextAuthSessionProvider>
+        <NextAuthSessionProvider {...props}>{children}</NextAuthSessionProvider>
     )
 }

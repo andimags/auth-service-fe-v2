@@ -1,6 +1,7 @@
 # Repository Rules & Architecture
 
 ## Stack
+
 - Next.js 14 App Router
 - TypeScript
 - All backend communication via internal API routes
@@ -11,11 +12,11 @@
 
 ALL backend requests must go through Next.js API routes.
 
-| ❌ Never | ✅ Always |
-|----------|-----------|
-| Call backend directly from client components | Call `/api/*` routes from client |
-| Use external backend URLs in client code | Proxy requests through `app/api/**/route.ts` |
-| Put fetch/axios calls to backend in components | Keep backend logic inside route files only |
+| ❌ Never                                       | ✅ Always                                    |
+| ---------------------------------------------- | -------------------------------------------- |
+| Call backend directly from client components   | Call `/api/*` routes from client             |
+| Use external backend URLs in client code       | Proxy requests through `app/api/**/route.ts` |
+| Put fetch/axios calls to backend in components | Keep backend logic inside route files only   |
 
 **Required flow:**
 
@@ -27,20 +28,20 @@ The backend is accessed exclusively via the `/backend/*` rewrite defined in `nex
 
 ```ts
 // next.config.ts
-import type { NextConfig } from 'next';
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
     async rewrites() {
         return [
             {
-                source: '/backend/:path*',
-                destination: `${process.env.AUTH_SERVICE_BASE_URL}/:path*`
-            }
-        ];
-    }
-};
+                source: "/backend/:path*",
+                destination: `${process.env.AUTH_SERVICE_BASE_URL}/:path*`,
+            },
+        ]
+    },
+}
 
-export default nextConfig;
+export default nextConfig
 ```
 
 - `AUTH_SERVICE_BASE_URL` is set in `.env` and never hardcoded
@@ -63,20 +64,29 @@ Always use the native `fetch` API for all HTTP requests.
 - Each route: receive, forward, return, handle errors consistently
 
 **Standard API route pattern:**
+
 ```ts
 // app/api/users/route.ts
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(req: NextRequest) {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/backend/users`, {
-      headers: { Authorization: req.headers.get('authorization') ?? '' },
-    })
-    const data = await res.json()
-    return NextResponse.json(data, { status: res.status })
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
-  }
+    try {
+        const res = await fetch(
+            `${process.env.NEXT_PUBLIC_BASE_URL}/backend/users`,
+            {
+                headers: {
+                    Authorization: req.headers.get("authorization") ?? "",
+                },
+            }
+        )
+        const data = await res.json()
+        return NextResponse.json(data, { status: res.status })
+    } catch (error) {
+        return NextResponse.json(
+            { error: "Internal Server Error" },
+            { status: 500 }
+        )
+    }
 }
 ```
 
@@ -85,10 +95,12 @@ export async function GET(req: NextRequest) {
 ## Client Component Rules
 
 Client components may ONLY:
+
 - Call internal `/api/*` routes
 - Handle UI logic, state, and rendering
 
 Client components must NEVER:
+
 - Contain backend URLs
 - Call `/backend/*` directly
 - Directly call external APIs
@@ -98,13 +110,13 @@ Client components must NEVER:
 
 ## Naming Conventions
 
-| Type | Convention | Example |
-|------|-----------|---------|
-| API route folders | kebab-case | `app/api/user-profile/route.ts` |
-| Components | PascalCase | `UserTable.tsx`, `RoleModal.tsx` |
-| Hooks | camelCase + `use` prefix | `useUsers`, `useAuth` |
-| API functions | camelCase verbs | `getUsers`, `createUser` |
-| Variables | camelCase | `userData`, `isLoading` |
+| Type              | Convention               | Example                          |
+| ----------------- | ------------------------ | -------------------------------- |
+| API route folders | kebab-case               | `app/api/user-profile/route.ts`  |
+| Components        | PascalCase               | `UserTable.tsx`, `RoleModal.tsx` |
+| Hooks             | camelCase + `use` prefix | `useUsers`, `useAuth`            |
+| API functions     | camelCase verbs          | `getUsers`, `createUser`         |
+| Variables         | camelCase                | `userData`, `isLoading`          |
 
 ---
 

@@ -169,9 +169,7 @@ function getColumns(onEdit: (user: UserDto) => void): ColumnDef<UserDto>[] {
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <Link href={`/users/${row.id}`}>
-                                <DropdownMenuItem>
-                                    View
-                                </DropdownMenuItem>
+                                <DropdownMenuItem>View</DropdownMenuItem>
                             </Link>
                             <DropdownMenuItem onClick={() => onEdit(user)}>
                                 Edit

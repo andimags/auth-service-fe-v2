@@ -20,9 +20,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 
 // export const dynamic = "force-dynamic"
 
-export async function AppSidebar(
-    props: React.ComponentProps<typeof Sidebar>
-) {
+export async function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     const session = await getServerSession(authOptions)
 
     const user = {

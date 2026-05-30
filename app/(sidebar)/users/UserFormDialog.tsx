@@ -60,7 +60,7 @@ export function UserFormDialog({
                         first_name: user.first_name ?? "",
                         last_name: user.last_name ?? "",
                         status: user.status,
-                        level: user.level
+                        level: user.level,
                     })
                 } else {
                     setPayload(initialFormState)
@@ -68,13 +68,13 @@ export function UserFormDialog({
             }
         }
 
-        loadUserData();
+        loadUserData()
     }, [open, mode, user])
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <form>
-                <DialogContent className="sm:max-w-sm overflow-y-scroll max-h-[90vh]">
+                <DialogContent className="max-h-[90vh] overflow-y-scroll sm:max-w-sm">
                     <DialogHeader>
                         <DialogTitle>
                             {mode === "create" ? "Create User" : "Edit User"}

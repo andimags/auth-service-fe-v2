@@ -11,7 +11,7 @@ import { Spinner } from "@/components/ui/spinner"
 
 export default function Loading() {
     return (
-        <div className="flex items-center justify-center min-h-screen w-full">
+        <div className="flex min-h-screen w-full items-center justify-center">
             <Empty className="w-full">
                 <EmptyHeader>
                     <EmptyMedia variant="icon">
@@ -19,8 +19,8 @@ export default function Loading() {
                     </EmptyMedia>
                     <EmptyTitle>Processing your request</EmptyTitle>
                     <EmptyDescription>
-                        Please wait while we process your request. Do not refresh
-                        the page.
+                        Please wait while we process your request. Do not
+                        refresh the page.
                     </EmptyDescription>
                 </EmptyHeader>
                 <EmptyContent>

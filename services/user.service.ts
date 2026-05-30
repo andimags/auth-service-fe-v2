@@ -9,7 +9,7 @@ type GetUserParams = {
 
 const AUTH_SERVICE_BASE_URL = process.env.AUTH_SERVICE_BASE_URL
 
-if(!AUTH_SERVICE_BASE_URL){
+if (!AUTH_SERVICE_BASE_URL) {
     throw new Error("AUTH_SERVICE_BASE_URL value is undefined")
 }
 

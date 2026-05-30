@@ -46,8 +46,8 @@ export const sidebarData = {
             title: "Permissions",
             url: "/permissions",
             icon: <HugeiconsIcon icon={ShieldKeyIcon} strokeWidth={2} />,
-        }
-    ]
+        },
+    ],
 }
 
-export default sidebarData;
+export default sidebarData

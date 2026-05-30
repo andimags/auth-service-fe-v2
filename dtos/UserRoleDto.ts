@@ -1,10 +1,10 @@
 export interface UserRoleDto {
-    user_id: number;
-    role_id: number;
-    created_at: Date;
+    user_id: number
+    role_id: number
+    created_at: Date
 }
 
 export interface CreateUserRoleDto {
-    user_id: number;
-    role_id: number;
+    user_id: number
+    role_id: number
 }
