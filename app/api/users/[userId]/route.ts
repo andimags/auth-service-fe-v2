@@ -1,6 +1,9 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/next-auth"
+import { getServerSession } from "next-auth/next"
+import { NextResponse } from "next/server"
+
+const BASE_URL =
+    process.env.NEXT_PUBLIC_BASE_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000"
 
 export async function GET(
     request: Request,
@@ -13,10 +16,6 @@ export async function GET(
         const accessToken = session?.access_token;
         const apiKey = session?.api_key;
 
-        console.log('apiKey', apiKey)
-        console.log('session', session)
-        console.log('accessToken', accessToken)
-
         if (!session?.user?.email || !apiKey || !accessToken) {
 
             return NextResponse.json(
@@ -25,18 +24,15 @@ export async function GET(
             )
         }
 
-        const res = await fetch(
-            `${process.env.AUTH_SERVICE_BASE_URL}/users/${userId}`,
-            {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                    "x-api-key": apiKey
-                },
-                cache: "no-store",
-            }
-        )
+        const res = await fetch(`${BASE_URL}/backend/users/${userId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+            },
+            cache: "no-store",
+        })
 
         if (!res.ok) {
             return NextResponse.json(
@@ -47,9 +43,8 @@ export async function GET(
 
         const user = await res.json()
 
-        // 3. Return user data to frontend
         return NextResponse.json(user)
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { message: "Internal Server Error" },
             { status: 500 }

@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { UserDto } from "@/dtos"
 import { authOptions } from "@/lib/next-auth"
 import { formatDate } from "@/lib/utils"
+import { getUser } from "@/services/user.service"
 import { getServerSession } from "next-auth/next"
 
 export const dynamic = "force-dynamic"
@@ -12,8 +13,7 @@ export default async function Page({
     params: Promise<{ userId: string }>
 }) {
     const { userId } = await params
-    const data = await getUserData(userId) as UserDto;
-    console.log("yooo", data)
+    const data = await getUserData(userId)
 
     return (
         <div className="mx-auto w-full max-w-6xl text-neutral-900 transition-colors duration-200 dark:text-neutral-100">
@@ -99,7 +99,7 @@ export default async function Page({
                     <div className="font-semibold text-neutral-900 dark:text-neutral-200">
                         Roles
                     </div>
-                    <div className="col-span-2 text-neutral-600 dark:text-neutral-400 gap-2 flex">
+                    <div className="col-span-2 flex gap-2 text-neutral-600 dark:text-neutral-400">
                         <Badge variant="outline">Outline</Badge>
                         <Badge variant="outline">Outline</Badge>
                         <Badge variant="outline">Outline</Badge>
@@ -110,60 +110,21 @@ export default async function Page({
     )
 }
 
-async function getUserData(userId: string) {
-    try {
-        console.log("Fetching user:", userId)
+async function getUserData(userId: string): Promise<UserDto> {
+    const session = await getServerSession(authOptions)
 
-        const session = await getServerSession(authOptions)
+    console.log('access_token: ', session?.access_token)
+    console.log('api_key: ', session?.api_key)
 
-        console.log("Session:", {
-            email: session?.user?.email,
-            hasAccessToken: !!session?.access_token,
-            hasApiKey: !!session?.api_key,
-        })
-
-        if (!session?.user?.email || !session.access_token || !session.api_key) {
-            throw new Error("Unauthorized")
-        }
-
-        const baseUrl =
-            process.env.NEXT_PUBLIC_BASE_URL ??
-            process.env.NEXTAUTH_URL ??
-            "http://localhost:3000"
-
-        console.log("Base URL:", baseUrl)
-
-        const url = `${baseUrl}/backend/api/users/${userId}`
-
-        console.log("Request URL:", url)
-
-        const res = await fetch(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${session.access_token}`,
-                "x-api-key": session.api_key,
-            },
-            cache: "no-store",
-        })
-
-        console.log("Response status:", res.status)
-        console.log("Response ok:", res.ok)
-
-        const responseText = await res.text()
-
-        console.log("Raw response:", responseText)
-
-        if (!res.ok) {
-            throw new Error(
-                `Failed to fetch data. Status: ${res.status}. Response: ${responseText}`
-            )
-        }
-
-        return JSON.parse(responseText)
-    } catch (error) {
-        console.error("getUserData error:", error)
-
-        throw error
+    if (!session?.access_token || !session.api_key) {
+        throw new Error("Unauthorized")
     }
+
+    const user = await getUser({
+        userId: userId,
+        accessToken: session.access_token,
+        apiKey: session.api_key,
+    })
+
+    return user
 }

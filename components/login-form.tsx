@@ -47,6 +47,7 @@ export function LoginForm({
 
         if (result?.error) {
             setError(result.error)
+            console.log(result)
             return
         }
 
