@@ -1,31 +1,12 @@
-import { AuthResponseDto } from "@/dtos/AuthDto"
 import {
     loginWithCredentials,
     refreshAccessToken as refreshTokenRequest,
 } from "@/services/auth.service"
-import { type NextAuthOptions, type User } from "next-auth"
+import { type NextAuthOptions } from "next-auth"
 import { type JWT } from "next-auth/jwt"
 import CredentialsProvider from "next-auth/providers/credentials"
 
 const REFRESH_BUFFER_MS = 30_000
-
-type AuthToken = JWT &
-    AuthResponseDto & {
-        api_key?: string
-        accessTokenExpires?: number
-        error?: string
-    }
-
-type AuthTokenUser = AuthToken & User
-
-type JwtCallbackParams = {
-    token: AuthToken
-    user?: unknown
-    account?: unknown
-    profile?: unknown
-    trigger?: "signIn" | "signUp" | "update"
-    session?: unknown
-}
 
 function normalizeExpiresAt(expiresAt?: number): number {
     if (!expiresAt) {
@@ -35,7 +16,7 @@ function normalizeExpiresAt(expiresAt?: number): number {
     return expiresAt < 1_000_000_000_000 ? expiresAt * 1000 : expiresAt
 }
 
-async function refreshAccessToken(token: AuthToken): Promise<AuthToken> {
+async function refreshAccessToken(token: JWT): Promise<JWT> {
     if (!token.tokens?.refresh?.value) {
         return { ...token, error: "MissingRefreshToken" }
     }
@@ -47,10 +28,7 @@ async function refreshAccessToken(token: AuthToken): Promise<AuthToken> {
             ...token,
             ...data,
             api_key: token.api_key,
-            tokens: data.tokens,
-            accessTokenExpires: normalizeExpiresAt(
-                data.tokens.access.expires_at
-            ),
+            tokens: data.tokens
         }
     } catch {
         return { ...token, error: "RefreshAccessTokenError" }
@@ -69,7 +47,7 @@ const credentialsProvider = CredentialsProvider({
         credentials:
             | Record<"email" | "password" | "api_key", string>
             | undefined
-    ): Promise<AuthTokenUser | null> {
+    ) {
         if (!credentials?.email || !credentials?.password) {
             return null
         }
@@ -110,26 +88,23 @@ export const authOptions: NextAuthOptions = {
         signIn: "/login",
     },
     callbacks: {
-        async jwt(params: JwtCallbackParams): Promise<AuthToken> {
+        async jwt(params) {
             const { token, user } = params
-            const userData = user as AuthToken | undefined
 
-            if (userData?.tokens) {
+            if (user?.tokens) {
                 return {
                     ...token,
-                    user: userData.user ?? token.user,
-                    tokens: userData.tokens ?? token.tokens,
-                    api_key: userData.api_key ?? token.api_key,
-                    accessTokenExpires: normalizeExpiresAt(
-                        userData.tokens?.access?.expires_at ??
-                            token.accessTokenExpires
-                    ),
+                    user: user.user ?? token.user,
+                    tokens: user.tokens ?? token.tokens,
+                    api_key: user.api_key ?? token.api_key
                 }
             }
 
+            const accessTokenExpires = normalizeExpiresAt(token.tokens?.access?.expires_at)
+
             if (
-                token.accessTokenExpires &&
-                Date.now() < token.accessTokenExpires - REFRESH_BUFFER_MS
+                accessTokenExpires &&
+                Date.now() < accessTokenExpires - REFRESH_BUFFER_MS
             ) {
                 return token
             }
@@ -137,6 +112,7 @@ export const authOptions: NextAuthOptions = {
             return refreshAccessToken(token)
         },
         async session({ session, token }) {
+            console.log('session callback called')
             session.user = token.user
             session.api_key = token.api_key
             session.access_token = token.tokens?.access?.value ?? ""
