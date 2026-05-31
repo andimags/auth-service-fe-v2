@@ -24,6 +24,7 @@ import { useEffect, useState } from "react"
 
 import UserFormState from "./user-form-state"
 import { UserStatusType, UserLevelType } from "@/constants/enums"
+import { toast } from "sonner"
 
 interface UserFormDialogProps {
     open: boolean
@@ -55,6 +56,7 @@ export function UserFormDialog({
             if (open) {
                 if (mode === "edit" && user) {
                     setPayload({
+                        password: "",
                         username: user.username ?? "",
                         email: user.email ?? "",
                         first_name: user.first_name ?? "",
@@ -71,10 +73,56 @@ export function UserFormDialog({
         loadUserData()
     }, [open, mode, user])
 
+    const BASE_URL =
+        process.env.NEXT_PUBLIC_BASE_URL ??
+        process.env.NEXTAUTH_URL ??
+        "http://localhost:3000"
+
+    const [isLoading, setIsLoading] = useState(false)
+
+    const onAddUser = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        console.log("yo")
+        setIsLoading(true)
+
+        try {
+            const response = await fetch(`${BASE_URL}/api/users`, {
+                method: "POST",
+                body: JSON.stringify(payload),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+
+            if (response.ok) {
+                toast.success("User has been created")
+            } else {
+                const error = await response.text()
+                toast.warning(error || "Failed to create user")
+            }
+        } catch (error) {
+            console.error(error)
+            toast.error("Network error. Please try again.")
+        } finally {
+            setPayload(initialFormState)
+            setIsLoading(false)
+            setOpen(false)
+        }
+    }
+
+    const onUpdateUser = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        toast.error("Function not available yet")
+    }
+
+    useEffect(() => {
+        console.log(payload)
+    }, [payload])
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <form>
-                <DialogContent className="max-h-[90vh] overflow-y-scroll sm:max-w-sm">
+            <DialogContent className="max-h-[90vh] overflow-y-scroll sm:max-w-sm">
+                <form onSubmit={mode == "create" ? onAddUser : onUpdateUser}>
                     <DialogHeader>
                         <DialogTitle>
                             {mode === "create" ? "Create User" : "Edit User"}
@@ -94,10 +142,10 @@ export function UserFormDialog({
                                 placeholder="Andi"
                                 value={payload.username}
                                 onChange={(e) =>
-                                    setPayload({
-                                        ...payload,
+                                    setPayload((prev) => ({
+                                        ...prev,
                                         username: e.target.value,
-                                    })
+                                    }))
                                 }
                             />
                         </Field>
@@ -109,10 +157,10 @@ export function UserFormDialog({
                                 placeholder="andi@example.com"
                                 value={payload.email}
                                 onChange={(e) =>
-                                    setPayload({
-                                        ...payload,
+                                    setPayload((prev) => ({
+                                        ...prev,
                                         email: e.target.value,
-                                    })
+                                    }))
                                 }
                             />
                         </Field>
@@ -124,10 +172,10 @@ export function UserFormDialog({
                                 placeholder="Andi"
                                 value={payload.first_name}
                                 onChange={(e) =>
-                                    setPayload({
-                                        ...payload,
+                                    setPayload((prev) => ({
+                                        ...prev,
                                         first_name: e.target.value,
-                                    })
+                                    }))
                                 }
                             />
                         </Field>
@@ -139,10 +187,10 @@ export function UserFormDialog({
                                 placeholder="Mags"
                                 value={payload.last_name}
                                 onChange={(e) =>
-                                    setPayload({
-                                        ...payload,
+                                    setPayload((prev) => ({
+                                        ...prev,
                                         last_name: e.target.value,
-                                    })
+                                    }))
                                 }
                             />
                         </Field>
@@ -155,10 +203,10 @@ export function UserFormDialog({
                                 placeholder="Enter password"
                                 value={payload.password}
                                 onChange={(e) =>
-                                    setPayload({
-                                        ...payload,
+                                    setPayload((prev) => ({
+                                        ...prev,
                                         password: e.target.value,
-                                    })
+                                    }))
                                 }
                             />
                         </Field>
@@ -223,14 +271,20 @@ export function UserFormDialog({
                             </Select>
                         </Field>
                     </FieldGroup>
-                    <DialogFooter>
+                    <DialogFooter className="mt-4">
                         <DialogClose asChild>
                             <Button variant="outline">Cancel</Button>
                         </DialogClose>
-                        <Button type="submit">Save changes</Button>
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading
+                                ? mode === "create"
+                                    ? "Creating user..."
+                                    : "Updating user..."
+                                : "Save changes"}
+                        </Button>
                     </DialogFooter>
-                </DialogContent>
-            </form>
+                </form>
+            </DialogContent>
         </Dialog>
     )
 }

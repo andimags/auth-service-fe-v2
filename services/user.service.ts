@@ -1,4 +1,4 @@
-import { UserDto } from "@/dtos"
+import { UserDto, CreateUserDto } from "@/dtos"
 import http from "./http/fetcher"
 
 type GetUserParams = {
@@ -26,5 +26,27 @@ export async function getUser({
             "Content-Type": "application/json",
         },
         cache: "no-store",
+    })
+}
+
+type AddUserParams = {
+    payload: CreateUserDto
+    accessToken: string
+    apiKey: string
+}
+
+export async function addUser({
+    payload,
+    accessToken,
+    apiKey,
+}: AddUserParams): Promise<UserDto> {
+    return http<UserDto>(`${AUTH_SERVICE_BASE_URL}/api/users`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "x-api-key": apiKey,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload)
     })
 }

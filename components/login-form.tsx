@@ -40,7 +40,7 @@ export function LoginForm({
             email,
             password,
             api_key: apiKey,
-            callbackUrl: "/",
+            callbackUrl: "/users",
         })
 
         setIsLoading(false)

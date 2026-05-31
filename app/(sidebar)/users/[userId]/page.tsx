@@ -113,9 +113,6 @@ export default async function Page({
 async function getUserData(userId: string): Promise<UserDto> {
     const session = await getServerSession(authOptions)
 
-    console.log("access_token: ", session?.access_token)
-    console.log("api_key: ", session?.api_key)
-
     if (!session?.access_token || !session.api_key) {
         throw new Error("Unauthorized")
     }
