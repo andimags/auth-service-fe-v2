@@ -41,7 +41,8 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
             api_key: token.api_key,
             tokens: normalizedTokens,
         }
-    } catch {
+    } catch (error){
+        console.log(error)
         return { ...token, error: "RefreshAccessTokenError" }
     }
 }

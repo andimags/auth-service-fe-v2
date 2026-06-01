@@ -11,7 +11,6 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { UserDto } from "@/dtos/UserDto"
 import {
     Select,
     SelectContent,
@@ -20,11 +19,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { UserDto } from "@/dtos/UserDto"
 import { useEffect, useState } from "react"
 
-import UserFormState from "./user-form-state"
-import { UserStatusType, UserLevelType } from "@/constants/enums"
+import { UserLevelType, UserStatusType } from "@/constants/enums"
 import { toast } from "sonner"
+import UserFormState from "./user-form-state"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface UserFormDialogProps {
     open: boolean
@@ -40,8 +41,8 @@ const initialFormState: UserFormState = {
     first_name: "",
     last_name: "",
     password: "",
-    status: undefined,
-    level: undefined,
+    status: "",
+    level: "",
 }
 
 export function UserFormDialog({
@@ -52,6 +53,7 @@ export function UserFormDialog({
     onUpdateSuccess
 }: Readonly<UserFormDialogProps>) {
     const [payload, setPayload] = useState<UserFormState>(initialFormState)
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         const loadUserData = () => {
@@ -82,7 +84,7 @@ export function UserFormDialog({
 
     const [isLoading, setIsLoading] = useState(false)
 
-    const onAddUser = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const onAddUser = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setIsLoading(true)
 
@@ -98,6 +100,7 @@ export function UserFormDialog({
             if (response.ok) {
                 setOpen(false)
                 toast.success("User has been created")
+                queryClient.invalidateQueries({ queryKey: ['users'] });
             } else {
                 const error = await response.text()
                 toast.warning(error || "Failed to create user")
@@ -111,7 +114,7 @@ export function UserFormDialog({
         }
     }
 
-    const onUpdateUser = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const onUpdateUser = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setIsLoading(true)
         const { password: _password, ...updatePayload } = payload
@@ -128,6 +131,7 @@ export function UserFormDialog({
             if (response.ok) {
                 setOpen(false)
                 toast.success("User has been updated")
+                queryClient.invalidateQueries({ queryKey: ['users'] });
                 onUpdateSuccess?.()
             } else {
                 const error = await response.text()

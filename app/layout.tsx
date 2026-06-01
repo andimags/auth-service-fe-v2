@@ -1,12 +1,12 @@
-import { Geist, Geist_Mono, Inter } from "next/font/google"
+import { Geist_Mono, Inter } from "next/font/google"
 
-import "./globals.css"
-import { ThemeProvider } from "@/components/providers/theme-provider"
-import { cn } from "@/lib/utils"
-import Script from "next/script"
-import { TooltipProvider } from "@/components/ui/tooltip"
+import { QueryProvider } from "@/components/providers/query-provider"
 import { SessionProvider } from "@/components/providers/session-provider"
+import { ThemeProvider } from "@/components/providers/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
+import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -40,8 +40,10 @@ export default function RootLayout({
                 >
                     <TooltipProvider>
                         <SessionProvider>
-                            <Toaster />
-                            {children}
+                            <QueryProvider>
+                                <Toaster />
+                                {children}
+                            </QueryProvider>
                         </SessionProvider>
                     </TooltipProvider>
                 </ThemeProvider>

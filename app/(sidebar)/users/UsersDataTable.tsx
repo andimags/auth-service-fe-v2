@@ -1,6 +1,10 @@
 "use client"
 
-import { ColumnDef } from "@tanstack/react-table"
+import {
+    ColumnDef,
+    type ColumnFiltersState,
+    type SortingState,
+} from "@tanstack/react-table"
 import { CheckCircle2Icon, MoreHorizontalIcon, XCircleIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -18,27 +22,16 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { HugeiconsIcon } from "@hugeicons/react"
+import { UserLevelType, UserStatusType } from "@/constants/enums"
+import { UserDto } from "@/dtos"
+import { useUsersQuery } from "@/hooks/use-users-query"
 import { PlusSignIcon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { useSession } from "next-auth/react"
+import Link from "next/link"
 import React from "react"
 import { UserDialogType, UserFormDialog } from "./UserFormDialog"
-import { UserDto } from "@/dtos"
-import { UserLevelType, UserStatusType } from "@/constants/enums"
-import Link from "next/link"
-
-const users: UserDto[] = [
-    {
-        id: 1,
-        username: "johndoe",
-        email: "joghndoe@example.com",
-        first_name: "John",
-        last_name: "Doe",
-        status: UserStatusType.active,
-        level: UserLevelType.admin,
-        created_at: '2024-01-01T12:00:00Z',
-        updated_at: '2024-01-01T12:00:00Z',
-    },
-]
+import { formatDate } from "@/lib/utils"
 
 const statusIcons = {
     active: CheckCircle2Icon,
@@ -135,10 +128,22 @@ function getColumns(onEdit: (user: UserDto) => void): ColumnDef<UserDto>[] {
         {
             accessorKey: "level",
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title="level" />
+                <DataTableColumnHeader column={column} title="Level" />
             ),
             cell: ({ row }) => (
                 <div className="capitalize">{row.getValue("level")}</div>
+            ),
+            filterFn: (row, id, value) => {
+                return value.includes(row.getValue(id))
+            },
+        },
+        {
+            accessorKey: "created_at",
+            header: ({ column }) => (
+                <DataTableColumnHeader column={column} title="Created At" />
+            ),
+            cell: ({ row }) => (
+                <div className="capitalize">{formatDate(row.getValue("created_at") as string)}</div>
             ),
             filterFn: (row, id, value) => {
                 return value.includes(row.getValue(id))
@@ -226,6 +231,59 @@ export function UsersDataTable() {
         })
     }, [])
 
+    const { status } = useSession()
+
+    const [pagination, setPagination] = React.useState({
+        pageIndex: 0,
+        pageSize: 10,
+    })
+
+    const [sorting, setSorting] = React.useState<SortingState>([
+        { id: "created_at", desc: true }
+    ])
+    const [columnFilters, setColumnFilters] =
+        React.useState<ColumnFiltersState>([])
+
+    const search = React.useMemo(() => {
+        const filter = columnFilters.find((f) => f.id === "username")
+        return filter && filter.value ? String(filter.value) : undefined
+    }, [columnFilters])
+
+    const statusFilter = React.useMemo(() => {
+        const filter = columnFilters.find((f) => f.id === "status")
+        return filter && Array.isArray(filter.value)
+            ? filter.value.join(",")
+            : undefined
+    }, [columnFilters])
+
+    const sortField = React.useMemo(
+        () => (sorting.length > 0 ? String(sorting[0].id) : undefined),
+        [sorting]
+    )
+
+    const sortDesc = React.useMemo(
+        () => Boolean(sorting.length > 0 && sorting[0].desc),
+        [sorting]
+    )
+
+    const query = useUsersQuery(
+        {
+            page: pagination.pageIndex + 1,
+            size: pagination.pageSize,
+            search,
+            status: statusFilter,
+            sortField,
+            sortDesc,
+        },
+        {
+            enabled: status === "authenticated",
+        }
+    )
+
+    const data = query.data?.rows ?? []
+    const isLoading = query.isLoading
+    const pageCount = query.data?.totalPages ?? 0
+
     return (
         <>
             <UserFormDialog
@@ -236,7 +294,8 @@ export function UsersDataTable() {
             />
             <DataTable
                 columns={getColumns(handleEdit)}
-                data={users}
+                data={data}
+                isLoading={isLoading}
                 filterColumn="username"
                 filterPlaceholder="Filter users..."
                 facetedFilters={facetedFilters}
@@ -258,6 +317,15 @@ export function UsersDataTable() {
                         }
                     />
                 }
+                // Controlled state for server-side
+                pagination={pagination}
+                onPaginationChange={(p) => setPagination(p)}
+                sorting={sorting}
+                onSortingChange={setSorting}
+                columnFilters={columnFilters}
+                onColumnFiltersChange={setColumnFilters}
+                manualPagination
+                pageCount={pageCount}
             />
         </>
     )

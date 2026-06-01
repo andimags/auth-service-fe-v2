@@ -6,6 +6,6 @@ export default interface UserFormState {
     first_name: string
     last_name: string
     password?: string
-    status?: UserStatusType
-    level?: UserLevelType
+    status: UserStatusType | ""
+    level: UserLevelType | ""
 }

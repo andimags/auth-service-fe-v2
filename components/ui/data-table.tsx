@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import {
     flexRender,
     getCoreRowModel,
@@ -33,8 +32,8 @@ import {
     Settings2Icon,
     XIcon,
 } from "lucide-react"
+import * as React from "react"
 
-import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -78,6 +77,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { cn } from "@/lib/utils"
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -148,6 +148,9 @@ interface DataTableProps<TData, TValue> {
     showPageNumbers?: boolean
     pageSizeOptions?: number[]
     defaultPageSize?: number
+    // Server-side pagination support
+    manualPagination?: boolean
+    pageCount?: number
     // Sorting
     defaultSorting?: SortingState
     // Column toggle
@@ -753,6 +756,8 @@ function DataTable<TData, TValue>({
     onColumnFiltersChange,
     // Toolbar customization
     toolbarChildren,
+    manualPagination = false,
+    pageCount,
 }: DataTableProps<TData, TValue>) {
     // Internal state (used when not controlled)
     const [internalSorting, setInternalSorting] =
@@ -834,6 +839,9 @@ function DataTable<TData, TValue>({
         onSortingChange: handleSortingChange,
         onColumnFiltersChange: handleColumnFiltersChange,
         onColumnVisibilityChange: setColumnVisibility,
+        // Manual pagination support (server-side)
+        manualPagination: manualPagination,
+        pageCount: pageCount,
         ...(onPaginationChange &&
             controlledPagination && {
                 onPaginationChange: (updater) => {
@@ -983,5 +991,6 @@ export {
     type DataTableToolbarProps,
     type DataTableViewOptionsProps,
     type FacetedFilterConfig,
-    type FacetedFilterOption,
+    type FacetedFilterOption
 }
+
