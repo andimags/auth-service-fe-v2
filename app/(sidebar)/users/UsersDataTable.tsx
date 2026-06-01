@@ -21,7 +21,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react"
 import { PlusSignIcon } from "@hugeicons/core-free-icons"
 import React from "react"
-import { UserFormDialog } from "./UserFormDialog"
+import { UserDialogType, UserFormDialog } from "./UserFormDialog"
 import { UserDto } from "@/dtos"
 import { UserLevelType, UserStatusType } from "@/constants/enums"
 import Link from "next/link"
@@ -35,8 +35,8 @@ const users: UserDto[] = [
         last_name: "Doe",
         status: UserStatusType.active,
         level: UserLevelType.admin,
-        created_at: new Date(),
-        updated_at: new Date(),
+        created_at: '2024-01-01T12:00:00Z',
+        updated_at: '2024-01-01T12:00:00Z',
     },
 ]
 
@@ -209,12 +209,6 @@ function ToolbarChildren({ onAdd }: Readonly<{ onAdd: () => void }>) {
             <span>Add User</span>
         </Button>
     )
-}
-
-type UserDialogType = {
-    open: boolean
-    mode: "create" | "edit"
-    user: UserDto | undefined
 }
 
 export function UsersDataTable() {

@@ -30,7 +30,8 @@ interface UserFormDialogProps {
     open: boolean
     setOpen: (open: boolean) => void
     mode: "create" | "edit"
-    user?: UserDto
+    user?: UserDto,
+    onUpdateSuccess?: () => void
 }
 
 const initialFormState: UserFormState = {
@@ -48,6 +49,7 @@ export function UserFormDialog({
     setOpen,
     mode,
     user,
+    onUpdateSuccess
 }: Readonly<UserFormDialogProps>) {
     const [payload, setPayload] = useState<UserFormState>(initialFormState)
 
@@ -80,9 +82,8 @@ export function UserFormDialog({
 
     const [isLoading, setIsLoading] = useState(false)
 
-    const onAddUser = async (e: React.FormEvent<HTMLFormElement>) => {
+    const onAddUser = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
-        console.log("yo")
         setIsLoading(true)
 
         try {
@@ -95,6 +96,7 @@ export function UserFormDialog({
             })
 
             if (response.ok) {
+                setOpen(false)
                 toast.success("User has been created")
             } else {
                 const error = await response.text()
@@ -106,13 +108,38 @@ export function UserFormDialog({
         } finally {
             setPayload(initialFormState)
             setIsLoading(false)
-            setOpen(false)
         }
     }
 
-    const onUpdateUser = (e: React.FormEvent<HTMLFormElement>) => {
+    const onUpdateUser = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
-        toast.error("Function not available yet")
+        setIsLoading(true)
+        const { password: _password, ...updatePayload } = payload
+
+        try {
+            const response = await fetch(`${BASE_URL}/api/users/${user?.id}`, {
+                method: "PUT",
+                body: JSON.stringify(updatePayload),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+
+            if (response.ok) {
+                setOpen(false)
+                toast.success("User has been updated")
+                onUpdateSuccess?.()
+            } else {
+                const error = await response.text()
+                toast.warning(error || "Failed to update user")
+            }
+        } catch (error) {
+            console.error(error)
+            toast.error("Network error. Please try again.")
+        } finally {
+            setPayload(initialFormState)
+            setIsLoading(false)
+        }
     }
 
     useEffect(() => {
@@ -194,22 +221,24 @@ export function UserFormDialog({
                                 }
                             />
                         </Field>
-                        <Field>
-                            <Label htmlFor="password">Password</Label>
-                            <Input
-                                type="password"
-                                id="password"
-                                name="password"
-                                placeholder="Enter password"
-                                value={payload.password}
-                                onChange={(e) =>
-                                    setPayload((prev) => ({
-                                        ...prev,
-                                        password: e.target.value,
-                                    }))
-                                }
-                            />
-                        </Field>
+                        {mode === "create" && (
+                            <Field>
+                                <Label htmlFor="password">Password</Label>
+                                <Input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    placeholder="Enter password"
+                                    value={payload.password}
+                                    onChange={(e) =>
+                                        setPayload((prev) => ({
+                                            ...prev,
+                                            password: e.target.value,
+                                        }))
+                                    }
+                                />
+                            </Field>
+                        )}
                         <Field>
                             <Label htmlFor="status">Level</Label>
                             <Select
@@ -287,4 +316,9 @@ export function UserFormDialog({
             </DialogContent>
         </Dialog>
     )
+}
+export type UserDialogType = {
+    open: boolean
+    mode: "create" | "edit"
+    user: UserDto | undefined
 }
