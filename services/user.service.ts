@@ -74,3 +74,24 @@ export async function updateUser({
         body: JSON.stringify(payload)
     })
 }
+
+type DeleteUserParams = {
+    userId: string
+    accessToken: string
+    apiKey: string
+}
+
+export async function DeleteUser({
+    userId,
+    accessToken,
+    apiKey,
+}: DeleteUserParams): Promise<UserDto> {
+    return http<UserDto>(`${AUTH_SERVICE_BASE_URL}/api/users/${userId}`, {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "x-api-key": apiKey,
+            "Content-Type": "application/json",
+        }
+    })
+}

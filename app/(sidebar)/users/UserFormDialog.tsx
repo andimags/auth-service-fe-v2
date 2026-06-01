@@ -31,7 +31,7 @@ interface UserFormDialogProps {
     open: boolean
     setOpen: (open: boolean) => void
     mode: "create" | "edit"
-    user?: UserDto,
+    user?: UserDto
     onUpdateSuccess?: () => void
 }
 
@@ -50,10 +50,10 @@ export function UserFormDialog({
     setOpen,
     mode,
     user,
-    onUpdateSuccess
+    onUpdateSuccess,
 }: Readonly<UserFormDialogProps>) {
     const [payload, setPayload] = useState<UserFormState>(initialFormState)
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient()
 
     useEffect(() => {
         const loadUserData = () => {
@@ -100,7 +100,7 @@ export function UserFormDialog({
             if (response.ok) {
                 setOpen(false)
                 toast.success("User has been created")
-                queryClient.invalidateQueries({ queryKey: ['users'] });
+                queryClient.invalidateQueries({ queryKey: ["users"] })
             } else {
                 const error = await response.text()
                 toast.warning(error || "Failed to create user")
@@ -131,7 +131,7 @@ export function UserFormDialog({
             if (response.ok) {
                 setOpen(false)
                 toast.success("User has been updated")
-                queryClient.invalidateQueries({ queryKey: ['users'] });
+                queryClient.invalidateQueries({ queryKey: ["users"] })
                 onUpdateSuccess?.()
             } else {
                 const error = await response.text()

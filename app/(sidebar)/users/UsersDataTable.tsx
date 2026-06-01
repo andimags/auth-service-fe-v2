@@ -32,13 +32,19 @@ import Link from "next/link"
 import React from "react"
 import { UserDialogType, UserFormDialog } from "./UserFormDialog"
 import { formatDate } from "@/lib/utils"
+import { useConfirmDialog } from "@/components/shared/confirm-dialog/use-confirm"
+import { toast } from "sonner"
+import { useQueryClient } from "@tanstack/react-query"
 
 const statusIcons = {
     active: CheckCircle2Icon,
     inactive: XCircleIcon,
 }
 
-function getColumns(onEdit: (user: UserDto) => void): ColumnDef<UserDto>[] {
+function getColumns(
+    onEdit: (user: UserDto) => void,
+    onDelete: (user: UserDto) => void
+): ColumnDef<UserDto>[] {
     return [
         {
             id: "select",
@@ -143,7 +149,9 @@ function getColumns(onEdit: (user: UserDto) => void): ColumnDef<UserDto>[] {
                 <DataTableColumnHeader column={column} title="Created At" />
             ),
             cell: ({ row }) => (
-                <div className="capitalize">{formatDate(row.getValue("created_at") as string)}</div>
+                <div className="capitalize">
+                    {formatDate(row.getValue("created_at") as string)}
+                </div>
             ),
             filterFn: (row, id, value) => {
                 return value.includes(row.getValue(id))
@@ -179,7 +187,9 @@ function getColumns(onEdit: (user: UserDto) => void): ColumnDef<UserDto>[] {
                             <DropdownMenuItem onClick={() => onEdit(user)}>
                                 Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onDelete(user)}>
+                                Delete
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 )
@@ -231,6 +241,49 @@ export function UsersDataTable() {
         })
     }, [])
 
+    const confirm = useConfirmDialog()
+    const BASE_URL =
+        process.env.NEXT_PUBLIC_BASE_URL ??
+        process.env.NEXTAUTH_URL ??
+        "http://localhost:3000"
+    const queryClient = useQueryClient()
+
+    const handleDelete = React.useCallback(
+        async (user: UserDto) => {
+            await confirm({
+                title: "Delete User?",
+                description: "This action cannot be undone",
+                onConfirm: async () => {
+                    try {
+                        const response = await fetch(
+                            `${BASE_URL}/api/users/${user.id}`,
+                            {
+                                method: "DELETE",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            }
+                        )
+
+                        if (response.ok) {
+                            toast.success("User has been deleted")
+                            queryClient.invalidateQueries({
+                                queryKey: ["users"],
+                            })
+                        } else {
+                            const error = await response.text()
+                            toast.warning(error || "Failed to delete user")
+                        }
+                    } catch (error) {
+                        console.error(error)
+                        toast.error("Network error. Please try again.")
+                    }
+                },
+            })
+        },
+        []
+    )
+
     const { status } = useSession()
 
     const [pagination, setPagination] = React.useState({
@@ -239,7 +292,7 @@ export function UsersDataTable() {
     })
 
     const [sorting, setSorting] = React.useState<SortingState>([
-        { id: "created_at", desc: true }
+        { id: "created_at", desc: true },
     ])
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([])
@@ -293,7 +346,7 @@ export function UsersDataTable() {
                 user={userDialog.user}
             />
             <DataTable
-                columns={getColumns(handleEdit)}
+                columns={getColumns(handleEdit, handleDelete)}
                 data={data}
                 isLoading={isLoading}
                 filterColumn="username"

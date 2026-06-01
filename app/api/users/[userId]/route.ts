@@ -1,6 +1,6 @@
 import { UpdateUserDto } from "@/dtos/UserDto"
 import { authOptions } from "@/lib/next-auth"
-import { updateUser } from "@/services/user.service"
+import { DeleteUser, updateUser } from "@/services/user.service"
 import { getServerSession } from "next-auth/next"
 import { NextResponse } from "next/server"
 
@@ -76,6 +76,40 @@ export async function PUT(
         
         const response = await updateUser({
             payload,
+            userId,
+            accessToken,
+            apiKey
+        })
+
+        return NextResponse.json(response)
+    } catch(error) {
+        console.log(error)
+
+        return NextResponse.json(
+            { message: "Internal Server Error" },
+            { status: 500 }
+        )
+    }
+}
+
+export async function DELETE(
+    request: Request,
+    { params } : { params: Promise<{userId: string}>}
+) {
+    try {
+        const session = await getServerSession(authOptions)
+        const accessToken = session?.access_token
+        const apiKey = session?.api_key
+        const userId = (await params).userId
+
+        if (!session?.user?.email || !apiKey || !accessToken || !userId) {
+            return NextResponse.json(
+                { message: "Unauthorized" },
+                { status: 401 }
+            )
+        }
+        
+        const response = await DeleteUser({
             userId,
             accessToken,
             apiKey

@@ -9,6 +9,10 @@ import { PencilEdit01Icon, Delete02Icon } from "@hugeicons/core-free-icons"
 import { UserFormDialog } from "../UserFormDialog"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import React from "react"
+import { useConfirmDialog } from "@/components/shared/confirm-dialog/use-confirm"
+import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 export const dynamic = "force-dynamic"
 
@@ -25,6 +29,45 @@ export default function Page({
             router.refresh()
         }, 50)
     }
+
+    const confirm = useConfirmDialog()
+    const BASE_URL =
+        process.env.NEXT_PUBLIC_BASE_URL ??
+        process.env.NEXTAUTH_URL ??
+        "http://localhost:3000"
+
+    const onDeleteUser = React.useCallback(async (user: UserDto) => {
+        await confirm({
+            title: "Delete User?",
+            description: "This action cannot be undone",
+            onConfirm: async () => {
+                try {
+                    const response = await fetch(
+                        `${BASE_URL}/api/users/${user.id}`,
+                        {
+                            method: "DELETE",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        }
+                    )
+
+                    if (response.ok) {
+                        toast.success("User has been deleted")
+                        setTimeout(() => {
+                            router.push("/users")
+                        }, 2000)
+                    } else {
+                        const error = await response.text()
+                        toast.warning(error || "Failed to delete user")
+                    }
+                } catch (error) {
+                    console.error(error)
+                    toast.error("Network error. Please try again.")
+                }
+            },
+        })
+    }, [])
 
     return (
         <>
@@ -57,7 +100,11 @@ export default function Page({
                             />
                             <span>Edit</span>
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onDeleteUser(user)}
+                        >
                             <HugeiconsIcon
                                 icon={Delete02Icon}
                                 strokeWidth={2}
