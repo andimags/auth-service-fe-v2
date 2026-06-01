@@ -21,7 +21,8 @@ declare module "next-auth" {
     interface Session {
         user: UserDto
         api_key: string
-        access_token: string
+        access_token: string,
+        error: any
     }
 }
 

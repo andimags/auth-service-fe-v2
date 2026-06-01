@@ -8,11 +8,10 @@ import CredentialsProvider from "next-auth/providers/credentials"
 
 const REFRESH_BUFFER_MS = 30_000
 
+// Your API always returns ms timestamps, but keep this as a safety net
 function normalizeExpiresAt(expiresAt?: number): number {
-    if (!expiresAt) {
-        return Date.now()
-    }
-
+    if (!expiresAt) return Date.now()
+    // Convert seconds → ms only if needed (safety net for future API changes)
     return expiresAt < 1_000_000_000_000 ? expiresAt * 1000 : expiresAt
 }
 
@@ -24,25 +23,24 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
     try {
         const data = await refreshTokenRequest(token.tokens.refresh.value)
 
-        const normalizedTokens = {
-            access: {
-                value: data.tokens.access.value,
-                expires_at: normalizeExpiresAt(data.tokens.access.expires_at),
-            },
-            refresh: {
-                value: data.tokens.refresh.value,
-                expires_at: normalizeExpiresAt(data.tokens.refresh.expires_at),
-            },
-        }
-
         return {
             ...token,
             user: data.user ?? token.user,
             api_key: token.api_key,
-            tokens: normalizedTokens,
+            tokens: {
+                access: {
+                    value: data.tokens.access.value,
+                    expires_at: normalizeExpiresAt(data.tokens.access.expires_at),
+                },
+                refresh: {
+                    value: data.tokens.refresh.value,
+                    expires_at: normalizeExpiresAt(data.tokens.refresh.expires_at),
+                },
+            },
+            error: undefined, // clear any previous error on success
         }
-    } catch (error){
-        console.log(error)
+    } catch (error) {
+        console.error("Token refresh failed:", error)
         return { ...token, error: "RefreshAccessTokenError" }
     }
 }
@@ -55,14 +53,8 @@ const credentialsProvider = CredentialsProvider({
         password: { label: "Password", type: "password" },
         api_key: { label: "API Key", type: "password" },
     },
-    async authorize(
-        credentials:
-            | Record<"email" | "password" | "api_key", string>
-            | undefined
-    ) {
-        if (!credentials?.email || !credentials?.password) {
-            return null
-        }
+    async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null
 
         try {
             const data = await loginWithCredentials({
@@ -71,9 +63,7 @@ const credentialsProvider = CredentialsProvider({
                 apiKey: credentials.api_key,
             })
 
-            if (!data?.tokens?.access?.value || !data?.user) {
-                return null
-            }
+            if (!data?.tokens?.access?.value || !data?.user) return null
 
             return {
                 id: String(data.user.id),
@@ -94,73 +84,62 @@ export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
         maxAge: 60 * 60 * 24,
-        // updateAge: 15 * 60, 15 mins
         updateAge: 60
     },
-    pages: {
-        signIn: "/login",
-    },
+    pages: { signIn: "/login" },
     callbacks: {
-        async jwt(params) {
-            const { token, user } = params
-
+        async jwt({ token, user }) {
+            // On initial sign-in, user object is populated
             if (user?.tokens) {
-                const normalizedUserTokens = {
-                    access: {
-                        value: user.tokens.access.value,
-                        expires_at: normalizeExpiresAt(user.tokens.access.expires_at),
-                    },
-                    refresh: {
-                        value: user.tokens.refresh.value,
-                        expires_at: normalizeExpiresAt(user.tokens.refresh.expires_at),
-                    },
-                }
-
                 return {
                     ...token,
                     user: user.user ?? token.user,
-                    tokens: normalizedUserTokens,
                     api_key: user.api_key ?? token.api_key,
+                    tokens: {
+                        access: {
+                            value: user.tokens.access.value,
+                            expires_at: normalizeExpiresAt(user.tokens.access.expires_at),
+                        },
+                        refresh: {
+                            value: user.tokens.refresh.value,
+                            expires_at: normalizeExpiresAt(user.tokens.refresh.expires_at),
+                        },
+                    },
                 }
             }
 
-            // Ensure tokens exist before checking expiration
             if (!token.tokens?.access?.expires_at) {
                 return { ...token, error: "MissingTokenData" }
             }
 
             const accessTokenExpires = normalizeExpiresAt(token.tokens.access.expires_at)
 
-            if (
-                accessTokenExpires &&
-                Date.now() < accessTokenExpires - REFRESH_BUFFER_MS
-            ) {
+            // Token still valid — return as-is
+            if (Date.now() < accessTokenExpires - REFRESH_BUFFER_MS) {
                 return token
             }
 
+            // Token expired or about to — refresh it
             return refreshAccessToken(token)
         },
+
         async session({ session, token }) {
-            console.log('session callback called')
-            
-            if (token.error) {
-                console.log('Token refresh error:', token.error)
-            }
-            
             session.user = token.user
             session.api_key = token.api_key
             session.access_token = token.tokens?.access?.value ?? ""
 
+            // Expose error to client so it can trigger re-login
+            if (token.error) {
+                session.error = token.error
+            }
+
             return session
         },
+
         redirect({ url, baseUrl }) {
-            // Always redirect to login on auth errors
-            if (url.includes("error=")) {
-                return `${baseUrl}/login`
-            }
-            // Default behavior
+            if (url.includes("error=")) return `${baseUrl}/login`
             if (url.startsWith("/")) return `${baseUrl}${url}`
-            else if (new URL(url).origin === baseUrl) return url
+            if (new URL(url).origin === baseUrl) return url
             return baseUrl
         },
     },

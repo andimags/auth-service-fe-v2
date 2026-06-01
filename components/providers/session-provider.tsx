@@ -3,10 +3,14 @@
 import { SessionProvider as NextAuthSessionProvider } from "next-auth/react"
 
 export function SessionProvider({
-    children,
-    ...props
-}: React.ComponentProps<typeof NextAuthSessionProvider>) {
+    children
+}: Readonly<React.ComponentProps<typeof NextAuthSessionProvider>>) {
     return (
-        <NextAuthSessionProvider {...props}>{children}</NextAuthSessionProvider>
+        <NextAuthSessionProvider
+            refetchInterval={60}    // should match your updateAge (60s)
+            refetchOnWindowFocus={true}
+        >
+            {children}
+        </NextAuthSessionProvider>
     )
 }
