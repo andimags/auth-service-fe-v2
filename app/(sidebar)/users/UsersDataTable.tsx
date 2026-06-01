@@ -43,7 +43,8 @@ const statusIcons = {
 
 function getColumns(
     onEdit: (user: UserDto) => void,
-    onDelete: (user: UserDto) => void
+    onDelete: (user: UserDto) => void,
+    pagination: { pageIndex: number; pageSize: number }
 ): ColumnDef<UserDto>[] {
     return [
         {
@@ -79,12 +80,14 @@ function getColumns(
             enableHiding: false,
         },
         {
-            accessorKey: "id",
+            id: "rowNumber",
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title="User ID" />
+                <DataTableColumnHeader column={column} title="#" />
             ),
             cell: ({ row }) => (
-                <div className="w-20 font-medium">{row.getValue("id")}</div>
+                <div className="w-20 font-medium">
+                    {pagination.pageIndex * pagination.pageSize + row.index + 1}
+                </div>
             ),
             enableHiding: false,
         },
@@ -354,7 +357,7 @@ export function UsersDataTable() {
                 user={userDialog.user}
             />
             <DataTable
-                columns={getColumns(handleEdit, handleDelete)}
+                columns={getColumns(handleEdit, handleDelete, pagination)}
                 data={data}
                 isLoading={isLoading}
                 filterColumn="globalSearch"
