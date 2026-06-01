@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-table"
 import { CheckCircle2Icon, MoreHorizontalIcon, XCircleIcon } from "lucide-react"
 
+import { useConfirmDialog } from "@/components/shared/confirm-dialog/use-confirm"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -25,16 +26,15 @@ import {
 import { UserLevelType, UserStatusType } from "@/constants/enums"
 import { UserDto } from "@/dtos"
 import { useUsersQuery } from "@/hooks/use-users-query"
+import { formatDate } from "@/lib/utils"
 import { PlusSignIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
+import { useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import React from "react"
-import { UserDialogType, UserFormDialog } from "./UserFormDialog"
-import { formatDate } from "@/lib/utils"
-import { useConfirmDialog } from "@/components/shared/confirm-dialog/use-confirm"
 import { toast } from "sonner"
-import { useQueryClient } from "@tanstack/react-query"
+import { UserDialogType, UserFormDialog } from "./UserFormDialog"
 
 const statusIcons = {
     active: CheckCircle2Icon,
@@ -46,6 +46,14 @@ function getColumns(
     onDelete: (user: UserDto) => void
 ): ColumnDef<UserDto>[] {
     return [
+        {
+            id: "globalSearch",
+            header: () => null,
+            cell: () => null,
+            filterFn: () => true,
+            enableSorting: false,
+            enableHiding: false,
+        },
         {
             id: "select",
             header: ({ table }) => (
@@ -298,7 +306,7 @@ export function UsersDataTable() {
         React.useState<ColumnFiltersState>([])
 
     const search = React.useMemo(() => {
-        const filter = columnFilters.find((f) => f.id === "username")
+        const filter = columnFilters.find((f) => f.id === "globalSearch")
         return filter && filter.value ? String(filter.value) : undefined
     }, [columnFilters])
 
@@ -349,8 +357,8 @@ export function UsersDataTable() {
                 columns={getColumns(handleEdit, handleDelete)}
                 data={data}
                 isLoading={isLoading}
-                filterColumn="username"
-                filterPlaceholder="Filter users..."
+                filterColumn="globalSearch"
+                filterPlaceholder="Search users..."
                 facetedFilters={facetedFilters}
                 showColumnToggle
                 showPagination

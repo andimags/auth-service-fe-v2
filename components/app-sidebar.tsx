@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth/next"
+"use client"
+
+import { useSession } from "next-auth/react"
 import * as React from "react"
 
 import { NavMain } from "@/components/nav-main"
@@ -12,22 +14,23 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { authOptions } from "@/lib/next-auth"
-
 import { sidebarData } from "@/constants/sidebarData"
 import { CommandIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
 // export const dynamic = "force-dynamic"
 
-export async function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-    const session = await getServerSession(authOptions)
+export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
+    const { data: session } = useSession()
 
-    const user = {
-        name: session?.user?.username ?? "Guest",
-        email: session?.user?.email ?? "",
-        avatar: "/avatars/default.jpg",
-    }
+    const user = React.useMemo(
+        () => ({
+            name: session?.user?.username ?? "Guest",
+            email: session?.user?.email ?? "",
+            avatar: "/avatars/default.jpg",
+        }),
+        [session]
+    )
 
     return (
         <Sidebar collapsible="offcanvas" {...props}>
