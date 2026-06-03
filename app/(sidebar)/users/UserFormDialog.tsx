@@ -154,7 +154,7 @@ export function UserFormDialog({
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="max-h-[90vh] overflow-y-scroll sm:max-w-sm">
                 <form onSubmit={mode == "create" ? onAddUser : onUpdateUser}>
-                    <DialogHeader>
+                    <DialogHeader className="mb-4">
                         <DialogTitle>
                             {mode === "create" ? "Create User" : "Edit User"}
                         </DialogTitle>
@@ -304,7 +304,7 @@ export function UserFormDialog({
                             </Select>
                         </Field>
                     </FieldGroup>
-                    <DialogFooter className="mt-4">
+                    <DialogFooter className="mt-6">
                         <DialogClose asChild>
                             <Button variant="outline">Cancel</Button>
                         </DialogClose>
