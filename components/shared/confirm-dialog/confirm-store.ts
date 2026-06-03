@@ -15,7 +15,7 @@ type ConfirmState = {
     options: ConfirmOptions | null
     resolver: (() => void) | null
     confirm: (options: ConfirmOptions) => Promise<void>
-        close: () => void
+    close: () => void
 }
 
 export const useConfirmStore = create<ConfirmState>((set, get) => ({

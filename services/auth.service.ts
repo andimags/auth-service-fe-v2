@@ -1,5 +1,6 @@
 import { AuthResponseDto } from "@/dtos/AuthDto"
 import http from "./http/fetcher"
+import { getAuthServiceBaseUrl } from "@/lib/api"
 
 type LoginParams = {
     email: string
@@ -7,11 +8,7 @@ type LoginParams = {
     apiKey: string
 }
 
-const AUTH_SERVICE_BASE_URL = process.env.AUTH_SERVICE_BASE_URL
-
-if (!AUTH_SERVICE_BASE_URL) {
-    throw new Error("AUTH_SERVICE_BASE_URL value is undefined")
-}
+const AUTH_SERVICE_BASE_URL = getAuthServiceBaseUrl()
 
 export async function loginWithCredentials({
     email,

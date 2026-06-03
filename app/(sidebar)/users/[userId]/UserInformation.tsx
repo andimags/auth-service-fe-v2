@@ -3,82 +3,46 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { UserDto } from "@/dtos"
+import { useDeleteUser } from "@/hooks/use-delete-user"
 import { formatDate } from "@/lib/utils"
+import { Delete02Icon, PencilEdit01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { PencilEdit01Icon, Delete02Icon } from "@hugeicons/core-free-icons"
-import { UserFormDialog } from "../UserFormDialog"
-import { useState } from "react"
 import { useRouter } from "next/navigation"
-import React from "react"
-import { useConfirmDialog } from "@/components/shared/confirm-dialog/use-confirm"
-import { useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
+import { useState } from "react"
+import { UserFormDialog } from "../UserFormDialog"
 
-export const dynamic = "force-dynamic"
-
-export default function Page({
-    user,
-}: Readonly<{
+interface UserInformationProps {
     user: UserDto
-}>) {
-    const [isOpenUserDialog, setIsOpenUserDialog] = useState(false)
+}
+
+export default function UserInformation({
+    user,
+}: Readonly<UserInformationProps>) {
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
     const router = useRouter()
 
-    const onUpdateSuccess = () => {
-        setTimeout(() => {
-            router.refresh()
-        }, 50)
+    const { deleteUser } = useDeleteUser({
+        onSuccess: () => {
+            setTimeout(() => router.push("/users"), 1500)
+        },
+    })
+
+    const handleUpdateSuccess = () => {
+        setTimeout(() => router.refresh(), 50)
     }
-
-    const confirm = useConfirmDialog()
-    const BASE_URL =
-        process.env.NEXT_PUBLIC_BASE_URL ??
-        process.env.NEXTAUTH_URL ??
-        "http://localhost:3000"
-
-    const onDeleteUser = React.useCallback(async (user: UserDto) => {
-        await confirm({
-            title: "Delete User?",
-            description: "This action cannot be undone",
-            onConfirm: async () => {
-                try {
-                    const response = await fetch(
-                        `${BASE_URL}/api/users/${user.id}`,
-                        {
-                            method: "DELETE",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                        }
-                    )
-
-                    if (response.ok) {
-                        toast.success("User has been deleted")
-                        setTimeout(() => {
-                            router.push("/users")
-                        }, 2000)
-                    } else {
-                        const error = await response.text()
-                        toast.warning(error || "Failed to delete user")
-                    }
-                } catch (error) {
-                    console.error(error)
-                    toast.error("Network error. Please try again.")
-                }
-            },
-        })
-    }, [])
 
     return (
         <>
             <UserFormDialog
-                open={isOpenUserDialog}
-                setOpen={(open) => setIsOpenUserDialog(open)}
-                mode={"edit"}
+                open={isEditDialogOpen}
+                setOpen={setIsEditDialogOpen}
+                mode="edit"
                 user={user}
-                onUpdateSuccess={onUpdateSuccess}
+                onUpdateSuccess={handleUpdateSuccess}
             />
+
             <div className="mx-auto w-full max-w-6xl text-neutral-900 transition-colors duration-200 dark:text-neutral-100">
+                {/* Header */}
                 <div className="flex items-start justify-between pb-6">
                     <div>
                         <h2 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
@@ -92,7 +56,7 @@ export default function Page({
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setIsOpenUserDialog(true)}
+                            onClick={() => setIsEditDialogOpen(true)}
                         >
                             <HugeiconsIcon
                                 icon={PencilEdit01Icon}
@@ -103,7 +67,7 @@ export default function Page({
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => onDeleteUser(user)}
+                            onClick={() => deleteUser(user)}
                         >
                             <HugeiconsIcon
                                 icon={Delete02Icon}
@@ -114,82 +78,54 @@ export default function Page({
                     </div>
                 </div>
 
-                <div className="text-sm">
-                    <div className="grid grid-cols-3 border-t border-neutral-200 py-5 dark:border-neutral-800">
-                        <div className="font-semibold text-neutral-900 dark:text-neutral-200">
-                            Full name
-                        </div>
-                        <div className="col-span-2 text-neutral-600 dark:text-neutral-400">
-                            {user.last_name}, {user.first_name}
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 border-t border-neutral-200 py-5 dark:border-neutral-800">
-                        <div className="font-semibold text-neutral-900 dark:text-neutral-200">
-                            Username
-                        </div>
-                        <div className="col-span-2 text-neutral-600 dark:text-neutral-400">
-                            {user.username}
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 border-t border-neutral-200 py-5 dark:border-neutral-800">
-                        <div className="font-semibold text-neutral-900 dark:text-neutral-200">
-                            Email address
-                        </div>
-                        <div className="col-span-2 text-neutral-600 dark:text-neutral-400">
-                            {user.email}
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 border-t border-neutral-200 py-5 dark:border-neutral-800">
-                        <div className="font-semibold text-neutral-900 dark:text-neutral-200">
-                            Status
-                        </div>
-                        <div className="col-span-2 text-neutral-600 dark:text-neutral-400">
-                            {user.status}
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 border-t border-neutral-200 py-5 dark:border-neutral-800">
-                        <div className="font-semibold text-neutral-900 dark:text-neutral-200">
-                            Level
-                        </div>
-                        <div className="col-span-2 text-neutral-600 dark:text-neutral-400">
-                            {user.level}
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 border-t border-neutral-200 py-5 dark:border-neutral-800">
-                        <div className="font-semibold text-neutral-900 dark:text-neutral-200">
-                            Created
-                        </div>
-                        <div className="col-span-2 text-neutral-600 dark:text-neutral-400">
-                            {formatDate(user.created_at)}
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 border-t border-neutral-200 py-5 dark:border-neutral-800">
-                        <div className="font-semibold text-neutral-900 dark:text-neutral-200">
-                            Last Updated
-                        </div>
-                        <div className="col-span-2 text-neutral-600 dark:text-neutral-400">
-                            {formatDate(user.updated_at)}
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 border-t border-neutral-200 py-5 dark:border-neutral-800">
-                        <div className="font-semibold text-neutral-900 dark:text-neutral-200">
-                            Roles
-                        </div>
-                        <div className="col-span-2 flex gap-2 text-neutral-600 dark:text-neutral-400">
+                {/* Detail rows */}
+                <dl className="text-sm">
+                    <InfoRow label="Full name">
+                        {user.last_name}, {user.first_name}
+                    </InfoRow>
+                    <InfoRow label="Username">{user.username}</InfoRow>
+                    <InfoRow label="Email address">{user.email}</InfoRow>
+                    <InfoRow label="Status">{user.status}</InfoRow>
+                    <InfoRow label="Level">{user.level}</InfoRow>
+                    <InfoRow label="Created">
+                        {formatDate(user.created_at)}
+                    </InfoRow>
+                    <InfoRow label="Last Updated">
+                        {formatDate(user.updated_at)}
+                    </InfoRow>
+                    <InfoRow label="Roles">
+                        <div className="flex gap-2">
+                            {/* TODO: replace with real role data from user.roles */}
                             <Badge variant="outline">Outline</Badge>
                             <Badge variant="outline">Outline</Badge>
                             <Badge variant="outline">Outline</Badge>
                         </div>
-                    </div>
-                </div>
+                    </InfoRow>
+                </dl>
             </div>
         </>
+    )
+}
+
+// ---------------------------------------------------------------------------
+// Small presentational helper — reduces the 8× repeated grid/border boilerplate
+// ---------------------------------------------------------------------------
+
+function InfoRow({
+    label,
+    children,
+}: Readonly<{
+    label: string
+    children: React.ReactNode
+}>) {
+    return (
+        <div className="grid grid-cols-3 border-t border-neutral-200 py-5 dark:border-neutral-800">
+            <dt className="font-semibold text-neutral-900 dark:text-neutral-200">
+                {label}
+            </dt>
+            <dd className="col-span-2 text-neutral-600 dark:text-neutral-400">
+                {children}
+            </dd>
+        </div>
     )
 }

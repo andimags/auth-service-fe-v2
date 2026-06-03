@@ -1,13 +1,11 @@
 import { UpdateUserDto } from "@/dtos/UserDto"
+import { getBaseUrl } from "@/lib/api"
 import { authOptions } from "@/lib/next-auth"
 import { DeleteUser, updateUser } from "@/services/user.service"
 import { getServerSession } from "next-auth/next"
 import { NextResponse } from "next/server"
 
-const BASE_URL =
-    process.env.NEXT_PUBLIC_BASE_URL ??
-    process.env.NEXTAUTH_URL ??
-    "http://localhost:3000"
+const BASE_URL = getBaseUrl()
 
 export async function GET(
     request: Request,

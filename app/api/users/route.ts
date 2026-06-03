@@ -1,14 +1,8 @@
 import { CreateUserDto } from "@/dtos"
 import { authOptions } from "@/lib/next-auth"
-import { addUser } from "@/services/user.service"
+import { addUser, getUsers } from "@/services/user.service"
 import { getServerSession } from "next-auth/next"
 import { NextResponse } from "next/server"
-
-const AUTH_SERVICE_BASE_URL = process.env.AUTH_SERVICE_BASE_URL
-
-if (!AUTH_SERVICE_BASE_URL) {
-    throw new Error("AUTH_SERVICE_BASE_URL value is undefined")
-}
 
 export async function GET(request: Request) {
     try {
@@ -25,26 +19,13 @@ export async function GET(request: Request) {
 
         const { search } = new URL(request.url)
 
-        const res = await fetch(`${AUTH_SERVICE_BASE_URL}/api/users${search}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${accessToken}`,
-                "x-api-key": apiKey,
-            },
-            cache: "no-store",
+        const response = await getUsers({
+            search,
+            accessToken,
+            apiKey
         })
 
-        if (!res.ok) {
-            return NextResponse.json(
-                { message: "Failed to fetch users" },
-                { status: res.status }
-            )
-        }
-
-        const data = await res.json()
-
-        return NextResponse.json(data)
+        return NextResponse.json(response)
     } catch (error) {
         console.log(error)
         return NextResponse.json(
@@ -71,8 +52,6 @@ export async function POST(
 
         const payload: CreateUserDto = await request.json()
         
-        console.log("payload from proxy", payload);
-
         const response = await addUser({
             payload,
             accessToken,

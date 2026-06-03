@@ -7,7 +7,6 @@ import {
 } from "@tanstack/react-table"
 import { CheckCircle2Icon, MoreHorizontalIcon, XCircleIcon } from "lucide-react"
 
-import { useConfirmDialog } from "@/components/shared/confirm-dialog/use-confirm"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -25,21 +24,51 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { UserLevelType, UserStatusType } from "@/constants/enums"
 import { UserDto } from "@/dtos"
+import { useDeleteUser } from "@/hooks/use-delete-user"
 import { useUsersQuery } from "@/hooks/use-users-query"
 import { formatDate } from "@/lib/utils"
 import { PlusSignIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { useQueryClient } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import React from "react"
-import { toast } from "sonner"
 import { UserDialogType, UserFormDialog } from "./UserFormDialog"
 
-const statusIcons = {
+// ---------------------------------------------------------------------------
+// Status icons map
+// ---------------------------------------------------------------------------
+
+const STATUS_ICONS: Record<UserDto["status"], React.ElementType> = {
     active: CheckCircle2Icon,
     inactive: XCircleIcon,
 }
+
+// ---------------------------------------------------------------------------
+// Faceted filter config (stable reference — defined outside component)
+// ---------------------------------------------------------------------------
+
+const FACETED_FILTERS: FacetedFilterConfig[] = [
+    {
+        column: "status",
+        title: "Status",
+        options: Object.values(UserStatusType).map((value) => ({
+            label: value,
+            value,
+        })),
+    },
+    {
+        column: "level",
+        title: "Level",
+        options: Object.values(UserLevelType).map((value) => ({
+            label: value,
+            value,
+        })),
+    },
+]
+
+// ---------------------------------------------------------------------------
+// Column definitions (factory — receives callbacks and pagination state)
+// ---------------------------------------------------------------------------
 
 function getColumns(
     onEdit: (user: UserDto) => void,
@@ -111,7 +140,6 @@ function getColumns(
             ),
             cell: ({ row }) => {
                 const user = row.original
-
                 return (
                     <div className="flex space-x-2">
                         <span className="max-w-125 truncate font-medium">
@@ -128,7 +156,7 @@ function getColumns(
             ),
             cell: ({ row }) => {
                 const status = row.getValue("status") as UserDto["status"]
-                const Icon = statusIcons[status]
+                const Icon = STATUS_ICONS[status]
                 return (
                     <div className="flex w-25 items-center">
                         <Icon className="mr-2 size-4 text-muted-foreground" />
@@ -138,9 +166,7 @@ function getColumns(
                     </div>
                 )
             },
-            filterFn: (row, id, value) => {
-                return value.includes(row.getValue(id))
-            },
+            filterFn: (row, id, value) => value.includes(row.getValue(id)),
         },
         {
             accessorKey: "level",
@@ -150,9 +176,7 @@ function getColumns(
             cell: ({ row }) => (
                 <div className="capitalize">{row.getValue("level")}</div>
             ),
-            filterFn: (row, id, value) => {
-                return value.includes(row.getValue(id))
-            },
+            filterFn: (row, id, value) => value.includes(row.getValue(id)),
         },
         {
             accessorKey: "created_at",
@@ -164,9 +188,7 @@ function getColumns(
                     {formatDate(row.getValue("created_at") as string)}
                 </div>
             ),
-            filterFn: (row, id, value) => {
-                return value.includes(row.getValue(id))
-            },
+            filterFn: (row, id, value) => value.includes(row.getValue(id)),
         },
         {
             id: "actions",
@@ -192,9 +214,13 @@ function getColumns(
                                 Copy user ID
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <Link href={`/users/${row.id}`}>
-                                <DropdownMenuItem>View</DropdownMenuItem>
-                            </Link>
+                            {/*
+                             * FIX: was `row.id` (TanStack's internal string key)
+                             * — should be `user.id` (the actual entity ID).
+                             */}
+                            <DropdownMenuItem asChild>
+                                <Link href={`/users/${user.id}`}>View</Link>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => onEdit(user)}>
                                 Edit
                             </DropdownMenuItem>
@@ -209,26 +235,11 @@ function getColumns(
     ]
 }
 
-const facetedFilters: FacetedFilterConfig[] = [
-    {
-        column: "status",
-        title: "Status",
-        options: Object.values(UserStatusType).map((value) => ({
-            label: value,
-            value,
-        })),
-    },
-    {
-        column: "level",
-        title: "Level",
-        options: Object.values(UserLevelType).map((value) => ({
-            label: value,
-            value,
-        })),
-    },
-]
+// ---------------------------------------------------------------------------
+// Toolbar add-button (stable component — defined outside parent)
+// ---------------------------------------------------------------------------
 
-function ToolbarChildren({ onAdd }: Readonly<{ onAdd: () => void }>) {
+function AddUserButton({ onAdd }: Readonly<{ onAdd: () => void }>) {
     return (
         <Button variant="outline" size="sm" className="gap-2" onClick={onAdd}>
             <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
@@ -237,6 +248,10 @@ function ToolbarChildren({ onAdd }: Readonly<{ onAdd: () => void }>) {
     )
 }
 
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+
 export function UsersDataTable() {
     const [userDialog, setUserDialog] = React.useState<UserDialogType>({
         open: false,
@@ -244,56 +259,15 @@ export function UsersDataTable() {
         user: undefined,
     })
 
+    const openDialog = (patch: Partial<UserDialogType>) =>
+        setUserDialog((prev) => ({ ...prev, ...patch }))
+
     const handleEdit = React.useCallback((user: UserDto) => {
-        setUserDialog({
-            open: true,
-            mode: "edit",
-            user,
-        })
+        openDialog({ open: true, mode: "edit", user })
     }, [])
 
-    const confirm = useConfirmDialog()
-    const BASE_URL =
-        process.env.NEXT_PUBLIC_BASE_URL ??
-        process.env.NEXTAUTH_URL ??
-        "http://localhost:3000"
-    const queryClient = useQueryClient()
-
-    const handleDelete = React.useCallback(
-        async (user: UserDto) => {
-            await confirm({
-                title: "Delete User?",
-                description: "This action cannot be undone",
-                onConfirm: async () => {
-                    try {
-                        const response = await fetch(
-                            `${BASE_URL}/api/users/${user.id}`,
-                            {
-                                method: "DELETE",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                            }
-                        )
-
-                        if (response.ok) {
-                            toast.success("User has been deleted")
-                            queryClient.invalidateQueries({
-                                queryKey: ["users"],
-                            })
-                        } else {
-                            const error = await response.text()
-                            toast.warning(error || "Failed to delete user")
-                        }
-                    } catch (error) {
-                        console.error(error)
-                        toast.error("Network error. Please try again.")
-                    }
-                },
-            })
-        },
-        []
-    )
+    // Shared delete hook — no more duplicated fetch + confirm + toast logic.
+    const { deleteUser } = useDeleteUser()
 
     const { status } = useSession()
 
@@ -301,7 +275,6 @@ export function UsersDataTable() {
         pageIndex: 0,
         pageSize: 10,
     })
-
     const [sorting, setSorting] = React.useState<SortingState>([
         { id: "created_at", desc: true },
     ])
@@ -310,7 +283,7 @@ export function UsersDataTable() {
 
     const search = React.useMemo(() => {
         const filter = columnFilters.find((f) => f.id === "globalSearch")
-        return filter && filter.value ? String(filter.value) : undefined
+        return filter?.value ? String(filter.value) : undefined
     }, [columnFilters])
 
     const statusFilter = React.useMemo(() => {
@@ -326,7 +299,7 @@ export function UsersDataTable() {
     )
 
     const sortDesc = React.useMemo(
-        () => Boolean(sorting.length > 0 && sorting[0].desc),
+        () => sorting.length > 0 && sorting[0].desc,
         [sorting]
     )
 
@@ -339,30 +312,33 @@ export function UsersDataTable() {
             sortField,
             sortDesc,
         },
-        {
-            enabled: status === "authenticated",
-        }
+        { enabled: status === "authenticated" }
     )
 
     const data = query.data?.rows ?? []
     const isLoading = query.isLoading
     const pageCount = query.data?.totalPages ?? 0
 
+    const columns = React.useMemo(
+        () => getColumns(handleEdit, deleteUser, pagination),
+        [handleEdit, deleteUser, pagination]
+    )
+
     return (
         <>
             <UserFormDialog
                 open={userDialog.open}
-                setOpen={(open) => setUserDialog({ ...userDialog, open })}
+                setOpen={(open) => openDialog({ open })}
                 mode={userDialog.mode}
                 user={userDialog.user}
             />
             <DataTable
-                columns={getColumns(handleEdit, handleDelete, pagination)}
+                columns={columns}
                 data={data}
                 isLoading={isLoading}
                 filterColumn="globalSearch"
                 filterPlaceholder="Search users..."
-                facetedFilters={facetedFilters}
+                facetedFilters={FACETED_FILTERS}
                 showColumnToggle
                 showPagination
                 showPageNumbers
@@ -371,19 +347,14 @@ export function UsersDataTable() {
                 getRowId={(row) => row.id.toString()}
                 onRowClick={(row) => console.log("Clicked:", row.id)}
                 toolbarChildren={
-                    <ToolbarChildren
+                    <AddUserButton
                         onAdd={() =>
-                            setUserDialog({
-                                ...userDialog,
-                                open: true,
-                                mode: "create",
-                            })
+                            openDialog({ open: true, mode: "create", user: undefined })
                         }
                     />
                 }
-                // Controlled state for server-side
                 pagination={pagination}
-                onPaginationChange={(p) => setPagination(p)}
+                onPaginationChange={setPagination}
                 sorting={sorting}
                 onSortingChange={setSorting}
                 columnFilters={columnFilters}

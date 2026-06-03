@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -19,23 +21,38 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { UserDto } from "@/dtos/UserDto"
-import { useEffect, useState } from "react"
-
 import { UserLevelType, UserStatusType } from "@/constants/enums"
+import { UserDto } from "@/dtos/UserDto"
+import { getBaseUrl } from "@/lib/api"
+import { useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import UserFormState from "./user-form-state"
-import { useQueryClient } from "@tanstack/react-query"
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export type UserDialogType = {
+    open: boolean
+    mode: "create" | "edit"
+    user: UserDto | undefined
+}
 
 interface UserFormDialogProps {
     open: boolean
     setOpen: (open: boolean) => void
     mode: "create" | "edit"
     user?: UserDto
+    /** Called after a successful update so the parent can refresh its data. */
     onUpdateSuccess?: () => void
 }
 
-const initialFormState: UserFormState = {
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const INITIAL_FORM_STATE: UserFormState = {
     username: "",
     email: "",
     first_name: "",
@@ -45,6 +62,12 @@ const initialFormState: UserFormState = {
     level: "",
 }
 
+const BASE_URL = getBaseUrl()
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export function UserFormDialog({
     open,
     setOpen,
@@ -52,149 +75,134 @@ export function UserFormDialog({
     user,
     onUpdateSuccess,
 }: Readonly<UserFormDialogProps>) {
-    const [payload, setPayload] = useState<UserFormState>(initialFormState)
+    const getInitialState = (): UserFormState => {
+        if (mode === "edit" && user) {
+            return {
+                password: "",
+                username: user.username ?? "",
+                email: user.email ?? "",
+                first_name: user.first_name ?? "",
+                last_name: user.last_name ?? "",
+                status: user.status,
+                level: user.level,
+            }
+        }
+        return INITIAL_FORM_STATE
+    }
+
+    const [payload, setPayload] = useState<UserFormState>(getInitialState)
+    const [isLoading, setIsLoading] = useState(false)
     const queryClient = useQueryClient()
 
-    useEffect(() => {
-        const loadUserData = () => {
-            if (open) {
-                if (mode === "edit" && user) {
-                    setPayload({
-                        password: "",
-                        username: user.username ?? "",
-                        email: user.email ?? "",
-                        first_name: user.first_name ?? "",
-                        last_name: user.last_name ?? "",
-                        status: user.status,
-                        level: user.level,
-                    })
-                } else {
-                    setPayload(initialFormState)
-                }
-            }
-        }
+    // Generic field updater — avoids a separate handler per field.
+    const handleChange =
+        (field: keyof UserFormState) =>
+        (e: React.ChangeEvent<HTMLInputElement>) =>
+            setPayload((prev) => ({ ...prev, [field]: e.target.value }))
 
-        loadUserData()
-    }, [open, mode, user])
+    const handleSelectChange =
+        (field: keyof UserFormState) => (value: string) =>
+            setPayload((prev) => ({ ...prev, [field]: value }))
 
-    const BASE_URL =
-        process.env.NEXT_PUBLIC_BASE_URL ??
-        process.env.NEXTAUTH_URL ??
-        "http://localhost:3000"
+    const handleClose = () => {
+        setPayload(INITIAL_FORM_STATE)
+        setOpen(false)
+    }
 
-    const [isLoading, setIsLoading] = useState(false)
-
-    const onAddUser = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setIsLoading(true)
 
         try {
-            const response = await fetch(`${BASE_URL}/api/users`, {
-                method: "POST",
-                body: JSON.stringify(payload),
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            })
-
-            if (response.ok) {
-                setOpen(false)
-                toast.success("User has been created")
-                queryClient.invalidateQueries({ queryKey: ["users"] })
+            if (mode === "create") {
+                await createUser()
             } else {
-                const error = await response.text()
-                toast.warning(error || "Failed to create user")
+                await updateUser()
             }
-        } catch (error) {
-            console.error(error)
-            toast.error("Network error. Please try again.")
         } finally {
-            setPayload(initialFormState)
             setIsLoading(false)
         }
     }
 
-    const onUpdateUser = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        setIsLoading(true)
+    const createUser = async () => {
+        const response = await fetch(`${BASE_URL}/api/users`, {
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers: { "Content-Type": "application/json" },
+        })
+
+        if (response.ok) {
+            handleClose()
+            toast.success("User has been created")
+            queryClient.invalidateQueries({ queryKey: ["users"] })
+        } else {
+            const error = await response.text()
+            toast.warning(error || "Failed to create user")
+        }
+    }
+
+    const updateUser = async () => {
+        // Exclude password from update payloads.
         const { password: _password, ...updatePayload } = payload
 
-        try {
-            const response = await fetch(`${BASE_URL}/api/users/${user?.id}`, {
-                method: "PUT",
-                body: JSON.stringify(updatePayload),
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            })
+        const response = await fetch(`${BASE_URL}/api/users/${user?.id}`, {
+            method: "PUT",
+            body: JSON.stringify(updatePayload),
+            headers: { "Content-Type": "application/json" },
+        })
 
-            if (response.ok) {
-                setOpen(false)
-                toast.success("User has been updated")
-                queryClient.invalidateQueries({ queryKey: ["users"] })
-                onUpdateSuccess?.()
-            } else {
-                const error = await response.text()
-                toast.warning(error || "Failed to update user")
-            }
-        } catch (error) {
-            console.error(error)
-            toast.error("Network error. Please try again.")
-        } finally {
-            setPayload(initialFormState)
-            setIsLoading(false)
+        if (response.ok) {
+            handleClose()
+            toast.success("User has been updated")
+            queryClient.invalidateQueries({ queryKey: ["users"] })
+            onUpdateSuccess?.()
+        } else {
+            const error = await response.text()
+            toast.warning(error || "Failed to update user")
         }
     }
 
-    useEffect(() => {
-        console.log(payload)
-    }, [payload])
+    const isCreate = mode === "create"
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="max-h-[90vh] overflow-y-scroll sm:max-w-sm">
-                <form onSubmit={mode == "create" ? onAddUser : onUpdateUser}>
+                <form onSubmit={handleSubmit}>
                     <DialogHeader className="mb-4">
                         <DialogTitle>
-                            {mode === "create" ? "Create User" : "Edit User"}
+                            {isCreate ? "Create User" : "Edit User"}
                         </DialogTitle>
                         <DialogDescription>
-                            {mode === "create"
+                            {isCreate
                                 ? "Fill in the details to create a new user."
                                 : "Make changes to the user's information here. Click save when you're done."}
                         </DialogDescription>
                     </DialogHeader>
+
                     <FieldGroup>
                         <Field>
                             <Label htmlFor="username">Username</Label>
                             <Input
                                 id="username"
                                 name="username"
-                                placeholder="Andi"
+                                placeholder="andi123"
                                 value={payload.username}
-                                onChange={(e) =>
-                                    setPayload((prev) => ({
-                                        ...prev,
-                                        username: e.target.value,
-                                    }))
-                                }
+                                onChange={handleChange("username")}
                             />
                         </Field>
+
                         <Field>
                             <Label htmlFor="email">Email</Label>
                             <Input
                                 id="email"
                                 name="email"
+                                type="email"
                                 placeholder="andi@example.com"
                                 value={payload.email}
-                                onChange={(e) =>
-                                    setPayload((prev) => ({
-                                        ...prev,
-                                        email: e.target.value,
-                                    }))
-                                }
+                                onChange={handleChange("email")}
                             />
                         </Field>
+
                         <Field>
                             <Label htmlFor="first_name">First Name</Label>
                             <Input
@@ -202,14 +210,10 @@ export function UserFormDialog({
                                 name="first_name"
                                 placeholder="Andi"
                                 value={payload.first_name}
-                                onChange={(e) =>
-                                    setPayload((prev) => ({
-                                        ...prev,
-                                        first_name: e.target.value,
-                                    }))
-                                }
+                                onChange={handleChange("first_name")}
                             />
                         </Field>
+
                         <Field>
                             <Label htmlFor="last_name">Last Name</Label>
                             <Input
@@ -217,15 +221,11 @@ export function UserFormDialog({
                                 name="last_name"
                                 placeholder="Mags"
                                 value={payload.last_name}
-                                onChange={(e) =>
-                                    setPayload((prev) => ({
-                                        ...prev,
-                                        last_name: e.target.value,
-                                    }))
-                                }
+                                onChange={handleChange("last_name")}
                             />
                         </Field>
-                        {mode === "create" && (
+
+                        {isCreate && (
                             <Field>
                                 <Label htmlFor="password">Password</Label>
                                 <Input
@@ -234,27 +234,19 @@ export function UserFormDialog({
                                     name="password"
                                     placeholder="Enter password"
                                     value={payload.password}
-                                    onChange={(e) =>
-                                        setPayload((prev) => ({
-                                            ...prev,
-                                            password: e.target.value,
-                                        }))
-                                    }
+                                    onChange={handleChange("password")}
                                 />
                             </Field>
                         )}
+
                         <Field>
-                            <Label htmlFor="status">Level</Label>
+                            {/* Label says "Level" — htmlFor should match the select's id */}
+                            <Label htmlFor="level">Level</Label>
                             <Select
                                 value={payload.level}
-                                onValueChange={(value) =>
-                                    setPayload((prev) => ({
-                                        ...prev,
-                                        level: value as UserLevelType,
-                                    }))
-                                }
+                                onValueChange={handleSelectChange("level")}
                             >
-                                <SelectTrigger className="w-[180px]">
+                                <SelectTrigger id="level" className="w-[180px]">
                                     <SelectValue placeholder="Select level" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -273,18 +265,17 @@ export function UserFormDialog({
                                 </SelectContent>
                             </Select>
                         </Field>
+
                         <Field>
                             <Label htmlFor="status">Status</Label>
                             <Select
                                 value={payload.status}
-                                onValueChange={(value) =>
-                                    setPayload((prev) => ({
-                                        ...prev,
-                                        status: value as UserStatusType,
-                                    }))
-                                }
+                                onValueChange={handleSelectChange("status")}
                             >
-                                <SelectTrigger className="w-[180px]">
+                                <SelectTrigger
+                                    id="status"
+                                    className="w-[180px]"
+                                >
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -304,13 +295,20 @@ export function UserFormDialog({
                             </Select>
                         </Field>
                     </FieldGroup>
+
                     <DialogFooter className="mt-6">
                         <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleClose}
+                            >
+                                Cancel
+                            </Button>
                         </DialogClose>
                         <Button type="submit" disabled={isLoading}>
                             {isLoading
-                                ? mode === "create"
+                                ? isCreate
                                     ? "Creating user..."
                                     : "Updating user..."
                                 : "Save changes"}
@@ -320,9 +318,4 @@ export function UserFormDialog({
             </DialogContent>
         </Dialog>
     )
-}
-export type UserDialogType = {
-    open: boolean
-    mode: "create" | "edit"
-    user: UserDto | undefined
 }
