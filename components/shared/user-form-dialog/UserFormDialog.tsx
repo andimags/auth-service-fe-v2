@@ -27,7 +27,7 @@ import { getBaseUrl } from "@/lib/api"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import UserFormState from "./user-form-state"
+import { useUserFormStore } from "./user-form-store"
 
 // ---------------------------------------------------------------------------
 // Types
@@ -46,6 +46,16 @@ interface UserFormDialogProps {
     user?: UserDto
     /** Called after a successful update so the parent can refresh its data. */
     onUpdateSuccess?: () => void
+}
+
+interface UserFormState {
+    username: string
+    email: string
+    first_name: string
+    last_name: string
+    password?: string
+    status: UserStatusType | ""
+    level: UserLevelType | ""
 }
 
 // ---------------------------------------------------------------------------
@@ -68,29 +78,35 @@ const BASE_URL = getBaseUrl()
 // Component
 // ---------------------------------------------------------------------------
 
-export function UserFormDialog({
-    open,
-    setOpen,
-    mode,
-    user,
-    onUpdateSuccess,
-}: Readonly<UserFormDialogProps>) {
-    const getInitialState = (): UserFormState => {
+export function UserFormDialog() {
+    const [payload, setPayload] = useState<UserFormState>(INITIAL_FORM_STATE)
+
+    const {
+        isOpen,
+        setIsOpen,
+        mode,
+        user,
+        onUpdateSuccess,
+    } = useUserFormStore()
+
+    useEffect(() => {
+        if (!isOpen) return
+
         if (mode === "edit" && user) {
-            return {
-                password: "",
+            setPayload((prev) => ({
+                ...prev,
                 username: user.username ?? "",
                 email: user.email ?? "",
                 first_name: user.first_name ?? "",
                 last_name: user.last_name ?? "",
                 status: user.status,
                 level: user.level,
-            }
+            }))
+        } else {
+            setPayload(INITIAL_FORM_STATE)
         }
-        return INITIAL_FORM_STATE
-    }
+    }, [isOpen, mode, user])
 
-    const [payload, setPayload] = useState<UserFormState>(getInitialState)
     const [isLoading, setIsLoading] = useState(false)
     const queryClient = useQueryClient()
 
@@ -106,7 +122,7 @@ export function UserFormDialog({
 
     const handleClose = () => {
         setPayload(INITIAL_FORM_STATE)
-        setOpen(false)
+        setIsOpen(false)
     }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -165,7 +181,7 @@ export function UserFormDialog({
     const isCreate = mode === "create"
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent className="max-h-[90vh] overflow-y-scroll sm:max-w-sm">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader className="mb-4">

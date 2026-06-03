@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog/ConfirmDialog"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import "./globals.css"
+import { UserFormDialog } from "@/components/shared/user-form-dialog/UserFormDialog"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -44,6 +45,7 @@ export default function RootLayout({
                             <QueryProvider>
                                 <Toaster />
                                 <ConfirmDialog />
+                                <UserFormDialog />
                                 {children}
                             </QueryProvider>
                         </SessionProvider>

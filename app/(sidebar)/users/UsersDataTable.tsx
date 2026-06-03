@@ -31,8 +31,8 @@ import { PlusSignIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
-import React from "react"
-import { UserDialogType, UserFormDialog } from "./UserFormDialog"
+import React, { useMemo } from "react"
+import useUserFormDialog from "@/hooks/use-user-form-dialog"
 
 // ---------------------------------------------------------------------------
 // Status icons map
@@ -253,19 +253,6 @@ function AddUserButton({ onAdd }: Readonly<{ onAdd: () => void }>) {
 // ---------------------------------------------------------------------------
 
 export function UsersDataTable() {
-    const [userDialog, setUserDialog] = React.useState<UserDialogType>({
-        open: false,
-        mode: "create",
-        user: undefined,
-    })
-
-    const openDialog = (patch: Partial<UserDialogType>) =>
-        setUserDialog((prev) => ({ ...prev, ...patch }))
-
-    const handleEdit = React.useCallback((user: UserDto) => {
-        openDialog({ open: true, mode: "edit", user })
-    }, [])
-
     // Shared delete hook — no more duplicated fetch + confirm + toast logic.
     const { deleteUser } = useDeleteUser()
 
@@ -319,49 +306,49 @@ export function UsersDataTable() {
     const isLoading = query.isLoading
     const pageCount = query.data?.totalPages ?? 0
 
+    const userFormDialog = useUserFormDialog()
+
+    const handleEdit = useMemo(() => {
+        return (user: UserDto) => {
+            userFormDialog.open.edit(user)
+        }
+    }, [userFormDialog])
+
     const columns = React.useMemo(
         () => getColumns(handleEdit, deleteUser, pagination),
         [handleEdit, deleteUser, pagination]
     )
 
     return (
-        <>
-            <UserFormDialog
-                open={userDialog.open}
-                setOpen={(open) => openDialog({ open })}
-                mode={userDialog.mode}
-                user={userDialog.user}
-            />
-            <DataTable
-                columns={columns}
-                data={data}
-                isLoading={isLoading}
-                filterColumn="globalSearch"
-                filterPlaceholder="Search users..."
-                facetedFilters={FACETED_FILTERS}
-                showColumnToggle
-                showPagination
-                showPageNumbers
-                enableRowSelection
-                defaultPageSize={10}
-                getRowId={(row) => row.id.toString()}
-                onRowClick={(row) => console.log("Clicked:", row.id)}
-                toolbarChildren={
-                    <AddUserButton
-                        onAdd={() =>
-                            openDialog({ open: true, mode: "create", user: undefined })
-                        }
-                    />
-                }
-                pagination={pagination}
-                onPaginationChange={setPagination}
-                sorting={sorting}
-                onSortingChange={setSorting}
-                columnFilters={columnFilters}
-                onColumnFiltersChange={setColumnFilters}
-                manualPagination
-                pageCount={pageCount}
-            />
-        </>
+        <DataTable
+            columns={columns}
+            data={data}
+            isLoading={isLoading}
+            filterColumn="globalSearch"
+            filterPlaceholder="Search users..."
+            facetedFilters={FACETED_FILTERS}
+            showColumnToggle
+            showPagination
+            showPageNumbers
+            enableRowSelection
+            defaultPageSize={10}
+            getRowId={(row) => row.id.toString()}
+            onRowClick={(row) => console.log("Clicked:", row.id)}
+            toolbarChildren={
+                <AddUserButton
+                    onAdd={() => {
+                        userFormDialog.open.create()
+                    }}
+                />
+            }
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            sorting={sorting}
+            onSortingChange={setSorting}
+            columnFilters={columnFilters}
+            onColumnFiltersChange={setColumnFilters}
+            manualPagination
+            pageCount={pageCount}
+        />
     )
 }
