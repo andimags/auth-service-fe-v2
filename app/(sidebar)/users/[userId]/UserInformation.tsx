@@ -2,22 +2,34 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { UserDto } from "@/dtos"
+import { RoleDto, UserDto, UserRolesDto } from "@/dtos"
 import { useDeleteUser } from "@/hooks/use-delete-user"
 import useUserFormDialog from "@/hooks/use-user-form-dialog"
-import { formatDate } from "@/lib/utils"
-import { Delete02Icon, PencilEdit01Icon } from "@hugeicons/core-free-icons"
+import formatDate from "@/lib/format-date"
+import {
+    Delete02Icon,
+    PencilEdit01Icon,
+    ShieldUserIcon,
+} from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useRouter } from "next/navigation"
+import { ManageRolesDialog } from "./ManageRolesDialog"
+import { useState } from "react"
 
 interface UserInformationProps {
     user: UserDto
+    userRoles: UserRolesDto[]
+    roles: RoleDto[]
 }
 
 export default function UserInformation({
     user,
+    userRoles,
+    roles,
 }: Readonly<UserInformationProps>) {
-        const userFormDialog = useUserFormDialog()
+    const [isOpen, setIsOpen] = useState<boolean>(false)
+
+    const userFormDialog = useUserFormDialog()
     const router = useRouter()
 
     const { deleteUser } = useDeleteUser({
@@ -26,73 +38,112 @@ export default function UserInformation({
         },
     })
 
-    const handleClickEdit = () => {
-        userFormDialog.open.edit(
-            user, 
-            () => {
-                userFormDialog.close()
-                setTimeout(() => router.refresh(), 1000)
+    const handleEditUser = () => {
+        userFormDialog.open.edit(user, () => {
+            userFormDialog.close()
+            setTimeout(() => router.refresh(), 1000)
         })
     }
 
-    return (
-        <div className="mx-auto w-full max-w-6xl text-neutral-900 transition-colors duration-200 dark:text-neutral-100">
-            {/* Header */}
-            <div className="flex items-start justify-between pb-6">
-                <div>
-                    <h2 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
-                        User Information
-                    </h2>
-                    <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                        Personal details and general information
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleClickEdit}
-                    >
-                        <HugeiconsIcon
-                            icon={PencilEdit01Icon}
-                            strokeWidth={2}
-                        />
-                        <span>Edit</span>
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => deleteUser(user)}
-                    >
-                        <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-                        <span>Delete</span>
-                    </Button>
-                </div>
-            </div>
+    const handleManageRoles = () => {
+        setIsOpen(true)
+    }
 
-            {/* Detail rows */}
-            <dl className="text-sm">
-                <InfoRow label="Full name">
-                    {user.last_name}, {user.first_name}
-                </InfoRow>
-                <InfoRow label="Username">{user.username}</InfoRow>
-                <InfoRow label="Email address">{user.email}</InfoRow>
-                <InfoRow label="Status">{user.status}</InfoRow>
-                <InfoRow label="Level">{user.level}</InfoRow>
-                <InfoRow label="Created">{formatDate(user.created_at)}</InfoRow>
-                <InfoRow label="Last Updated">
-                    {formatDate(user.updated_at)}
-                </InfoRow>
-                <InfoRow label="Roles">
-                    <div className="flex gap-2">
-                        {/* TODO: replace with real role data from user.roles */}
-                        <Badge variant="outline">Outline</Badge>
-                        <Badge variant="outline">Outline</Badge>
-                        <Badge variant="outline">Outline</Badge>
+    const selectedValues = userRoles.map((userRole) => userRole.id.toString())
+
+    const roleOptions = roles.map((role) => ({
+        label: `${role.ref_name} | ${role.scope}`,
+        value: role.id.toString(),
+    }))
+
+    return (
+        <>
+            <ManageRolesDialog
+                isOpen={isOpen}
+                setIsOpen={setIsOpen}
+                options={roleOptions}
+                selectedValues={selectedValues}
+                user={user}
+            />
+            <div className="mx-auto w-full max-w-6xl text-neutral-900 transition-colors duration-200 dark:text-neutral-100">
+                {/* Header */}
+                <div className="flex items-start justify-between pb-6">
+                    <div>
+                        <h2 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
+                            User Information
+                        </h2>
+                        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                            Personal details and general information
+                        </p>
                     </div>
-                </InfoRow>
-            </dl>
-        </div>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleEditUser}
+                        >
+                            <HugeiconsIcon
+                                icon={PencilEdit01Icon}
+                                strokeWidth={2}
+                            />
+                            <span>Edit User</span>
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleManageRoles}
+                        >
+                            <HugeiconsIcon
+                                icon={ShieldUserIcon}
+                                strokeWidth={2}
+                            />
+                            <span>Manage Roles</span>
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deleteUser(user)}
+                        >
+                            <HugeiconsIcon
+                                icon={Delete02Icon}
+                                strokeWidth={2}
+                            />
+                            <span>Delete</span>
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Detail rows */}
+                <dl className="text-sm">
+                    <InfoRow label="Full name">
+                        {user.last_name}, {user.first_name}
+                    </InfoRow>
+                    <InfoRow label="Username">{user.username}</InfoRow>
+                    <InfoRow label="Email address">{user.email}</InfoRow>
+                    <InfoRow label="Status">{user.status}</InfoRow>
+                    <InfoRow label="Level">{user.level}</InfoRow>
+                    <InfoRow label="Created">
+                        {formatDate(user.created_at)}
+                    </InfoRow>
+                    <InfoRow label="Last Updated">
+                        {formatDate(user.updated_at)}
+                    </InfoRow>
+                    <InfoRow label="Roles">
+                        <div className="flex gap-2 flex-wrap">
+                            {userRoles.length < 1 ? (
+                                <span>No roles assigned to this user</span>
+                            ) : (
+                                userRoles.map((userRole, index) => (
+                                    <Badge key={index + 1} variant="outline">
+                                        {userRole?.ref_name} | {userRole?.scope}
+                                    </Badge>
+                                ))
+                            )}
+                        </div>
+                    </InfoRow>
+                </dl>
+            </div>
+        </>
     )
 }
 

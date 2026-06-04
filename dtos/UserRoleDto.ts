@@ -1,10 +1,15 @@
-export interface UserRoleDto {
-    user_id: number
-    role_id: number
-    created_at: Date
+import { RoleDto } from "./RoleDto"
+
+export interface UserRole {
+    user_id: number,
+    role_id: number,
+    create_at: string
 }
 
-export interface CreateUserRoleDto {
-    user_id: number
-    role_id: number
+export interface UserRolesDto extends RoleDto {
+    UserRole: UserRole
+}
+
+export interface ReplaceUserRolesDto {
+    role_ids: number[]
 }

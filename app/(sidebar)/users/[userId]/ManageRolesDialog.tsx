@@ -1,0 +1,149 @@
+"use client"
+
+import { Button } from "@/components/ui/button"
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Field, FieldGroup } from "@/components/ui/field"
+import { Label } from "@/components/ui/label"
+import { UserDto } from "@/dtos/UserDto"
+import { getBaseUrl } from "@/lib/api"
+import { useEffect, useState } from "react"
+import {
+    MultiSelect,
+    MultiSelectGroup,
+    MultiSelectOption,
+} from "@/components/multi-select"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
+
+import * as React from "react"
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+interface ManageRolesDialogProps {
+    isOpen: boolean
+    setIsOpen: (open: boolean) => void
+    user: UserDto
+    options: MultiSelectOption[] | MultiSelectGroup[]
+    selectedValues: string[]
+    /** Called after a successful update so the parent can refresh its data. */
+    onUpdateSuccess?: () => void
+}
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const BASE_URL = getBaseUrl()
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
+export function ManageRolesDialog({
+    isOpen,
+    setIsOpen,
+    options,
+    selectedValues: initialSelectedValues,
+    user,
+}: Readonly<ManageRolesDialogProps>) {
+    const [isLoading, setIsLoading] = useState(false)
+    const [selectedValues, setSelectedValues] = useState<string[]>(
+        initialSelectedValues
+    )
+
+    useEffect(() => {
+        console.log(selectedValues)
+    }, [selectedValues])
+
+    const handleClose = () => {
+        setIsOpen(false)
+    }
+
+    const router = useRouter()
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        setIsLoading(true)
+
+        const response = await fetch(
+            `${BASE_URL}/api/user-role/user/${user.id}`,
+            {
+                method: "PUT",
+                body: JSON.stringify({
+                    role_ids: selectedValues,
+                }),
+                headers: { "Content-Type": "application/json" },
+            }
+        )
+
+        try {
+            if (response.ok) {
+                handleClose()
+                toast.success("User's roles have been updated")
+                setTimeout(() => router.refresh(), 1000)
+            } else {
+                const error = await response.text()
+                toast.warning(error || "Failed to update user's roles")
+            }
+        } catch (error) {
+            console.error(error)
+            toast.error("Network error. Please try again.")
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogContent className="sm:max-w-sm">
+                <form onSubmit={handleSubmit}>
+                    <DialogHeader className="mb-4">
+                        <DialogTitle>Manage Roles</DialogTitle>
+                        <DialogDescription>
+                            {
+                                "Make changes to the user's roles here. Click save when you're done."
+                            }
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <FieldGroup>
+                        <Field>
+                            <Label htmlFor="status">Roles</Label>
+                            <MultiSelect
+                                options={options}
+                                onValueChange={setSelectedValues}
+                                placeholder="Select roles ..."
+                                defaultValue={initialSelectedValues}
+                            />
+                        </Field>
+                    </FieldGroup>
+
+                    <DialogFooter className="mt-6">
+                        <DialogClose asChild>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleClose}
+                            >
+                                Cancel
+                            </Button>
+                        </DialogClose>
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading ? "Saving roles ..." : "Save changes"}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    )
+}

@@ -99,8 +99,8 @@ export const authOptions: NextAuthOptions = {
     pages: { signIn: "/login" },
     callbacks: {
         async jwt({ token, user }) {
-            console.log("JWT CALLBACK TOKEN:", token)
-            console.log("JWT CALLBACK USER:", user)
+            // console.log("JWT CALLBACK TOKEN:", token)
+            // console.log("JWT CALLBACK USER:", user)
 
             if (user) {
                 return {
@@ -136,8 +136,8 @@ export const authOptions: NextAuthOptions = {
         },
 
         async session({ session, token }) {
-            console.log("SESSION CALLBACK SESSION:", session)
-            console.log("SESSION CALLBACK TOKEN:", token)
+            // console.log("SESSION CALLBACK SESSION:", session)
+            // console.log("SESSION CALLBACK TOKEN:", token)
             
             session.user = token.user
             session.api_key = token.api_key
