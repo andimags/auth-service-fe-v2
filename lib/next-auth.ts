@@ -71,7 +71,16 @@ const credentialsProvider = CredentialsProvider({
                 email: data.user.email,
                 user: data.user,
                 api_key: credentials.api_key,
-                tokens: data.tokens,
+                tokens: {
+                    access: {
+                        value: data.tokens.access.value,
+                        expires_at: normalizeExpiresAt(data.tokens.access.expires_at),
+                    },
+                    refresh: {
+                        value: data.tokens.refresh.value,
+                        expires_at: normalizeExpiresAt(data.tokens.refresh.expires_at),
+                    },
+                },
             }
         } catch {
             return null
@@ -95,9 +104,19 @@ export const authOptions: NextAuthOptions = {
 
             if (user) {
                 return {
+                    ...token,
                     user: user.user,
                     api_key: user.api_key,
-                    tokens: user.tokens,
+                    tokens: {
+                        access: {
+                            value: user.tokens.access.value,
+                            expires_at: normalizeExpiresAt(user.tokens.access.expires_at),
+                        },
+                        refresh: {
+                            value: user.tokens.refresh.value,
+                            expires_at: normalizeExpiresAt(user.tokens.refresh.expires_at),
+                        },
+                    },
                 }
             }
 

@@ -7,7 +7,7 @@ export function SessionProvider({
 }: Readonly<React.ComponentProps<typeof NextAuthSessionProvider>>) {
     return (
         <NextAuthSessionProvider
-            refetchInterval={60}    // should match your updateAge (60s)
+            refetchInterval={30}    // should match your updateAge (60s)
             refetchOnWindowFocus={true}
         >
             {children}
