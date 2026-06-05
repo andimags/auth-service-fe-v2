@@ -72,8 +72,7 @@ const FACETED_FILTERS: FacetedFilterConfig[] = [
 
 function getColumns(
     onEdit: (user: UserDto) => void,
-    onDelete: (user: UserDto) => void,
-    pagination: { pageIndex: number; pageSize: number }
+    onDelete: (user: UserDto) => void
 ): ColumnDef<UserDto>[] {
     return [
         {
@@ -113,9 +112,9 @@ function getColumns(
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title="#" />
             ),
-            cell: ({ row }) => (
+            cell: ({ row, table }) => (
                 <div className="w-20 font-medium">
-                    {pagination.pageIndex * pagination.pageSize + row.index + 1}
+                    {(table.getSortedRowModel()?.flatRows?.findIndex((flatRow) => flatRow.id === row.id) || 0) + 1}
                 </div>
             ),
             enableHiding: false,
@@ -315,8 +314,8 @@ export function UsersDataTable() {
     }, [userFormDialog])
 
     const columns = React.useMemo(
-        () => getColumns(handleEdit, deleteUser, pagination),
-        [handleEdit, deleteUser, pagination]
+        () => getColumns(handleEdit, deleteUser),
+        [handleEdit, deleteUser]
     )
 
     return (
