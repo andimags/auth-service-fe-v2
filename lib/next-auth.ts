@@ -5,6 +5,7 @@ import {
 import { type NextAuthOptions } from "next-auth"
 import { type JWT } from "next-auth/jwt"
 import CredentialsProvider from "next-auth/providers/credentials"
+import timeNow from "./time-now"
 
 const REFRESH_BUFFER_MS = 30_000
 
@@ -15,34 +16,59 @@ function normalizeExpiresAt(expiresAt?: number): number {
     return expiresAt < 1_000_000_000_000 ? expiresAt * 1000 : expiresAt
 }
 
+// --- Refresh lock to prevent race conditions ---
+let refreshPromise: Promise<JWT> | null = null
+let refreshLockToken: string | null = null
+
 async function refreshAccessToken(token: JWT): Promise<JWT> {
     if (!token.tokens?.refresh?.value) {
         return { ...token, error: "MissingRefreshToken" }
     }
 
-    try {
-        const data = await refreshTokenRequest(token.tokens.refresh.value)
+    // Use the refresh token value as the lock key
+    const currentRefreshToken = token.tokens.refresh.value
 
-        return {
-            ...token,
-            user: data.user ?? token.user,
-            api_key: token.api_key,
-            tokens: {
-                access: {
-                    value: data.tokens.access.value,
-                    expires_at: normalizeExpiresAt(data.tokens.access.expires_at),
-                },
-                refresh: {
-                    value: data.tokens.refresh.value,
-                    expires_at: normalizeExpiresAt(data.tokens.refresh.expires_at),
-                },
-            },
-            error: undefined, // clear any previous error on success
-        }
-    } catch (error) {
-        console.error("Token refresh failed:", error)
-        return { ...token, error: "RefreshAccessTokenError" }
+    // If a refresh is already in flight for this same refresh token, reuse it
+    if (refreshPromise && refreshLockToken === currentRefreshToken) {
+        console.log("Refresh already in progress, waiting...")
+        return refreshPromise
     }
+
+    refreshLockToken = currentRefreshToken
+    refreshPromise = (async (): Promise<JWT> => {
+        try {
+            const data = await refreshTokenRequest(currentRefreshToken)
+
+            return {
+                ...token,
+                user: data.user ?? token.user,
+                api_key: token.api_key,
+                tokens: {
+                    access: {
+                        value: data.tokens.access.value,
+                        expires_at: normalizeExpiresAt(data.tokens.access.expires_at),
+                    },
+                    refresh: {
+                        value: data.tokens.refresh.value,
+                        expires_at: normalizeExpiresAt(data.tokens.refresh.expires_at),
+                    },
+                },
+                error: undefined,
+            }
+        } catch (error) {
+            console.error("Token refresh failed:", error)
+            return { ...token, error: "RefreshAccessTokenError" }
+        } finally {
+            // Clear the lock after a short delay so subsequent calls
+            // (with the new token) don't incorrectly reuse this promise
+            setTimeout(() => {
+                refreshPromise = null
+                refreshLockToken = null
+            }, 5_000)
+        }
+    })()
+
+    return refreshPromise
 }
 
 const credentialsProvider = CredentialsProvider({
@@ -132,7 +158,12 @@ export const authOptions: NextAuthOptions = {
             }
 
             // Token expired or about to — refresh it
-            return refreshAccessToken(token)
+            const newRefreshAccessToken = await refreshAccessToken(token)
+            console.log(`[${timeNow()}] Refresh result:`)
+            console.log(`  OLD: ...${token.tokens.access.value.slice(-10)}`)
+            console.log(`  NEW: ...${newRefreshAccessToken.tokens?.access?.value?.slice(-10)}`)
+            console.log(`  SAME TOKEN? ${token.tokens.access.value === newRefreshAccessToken.tokens?.access?.value}`)
+            return newRefreshAccessToken
         },
 
         async session({ session, token }) {
