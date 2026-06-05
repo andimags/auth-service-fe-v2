@@ -33,6 +33,7 @@ import { useSession } from "next-auth/react"
 import Link from "next/link"
 import React, { useMemo } from "react"
 import useUserFormDialog from "@/hooks/use-user-form-dialog"
+import { useDebounce } from "@/hooks/use-debounce"
 
 // ---------------------------------------------------------------------------
 // Status icons map
@@ -272,6 +273,8 @@ export function UsersDataTable() {
         return filter?.value ? String(filter.value) : undefined
     }, [columnFilters])
 
+    const debouncedSearch = useDebounce(search, 1000)
+
     const statusFilter = React.useMemo(() => {
         const filter = columnFilters.find((f) => f.id === "status")
         return filter && Array.isArray(filter.value)
@@ -293,7 +296,7 @@ export function UsersDataTable() {
         {
             page: pagination.pageIndex + 1,
             size: pagination.pageSize,
-            search,
+            search: debouncedSearch,
             status: statusFilter,
             sortField,
             sortDesc,

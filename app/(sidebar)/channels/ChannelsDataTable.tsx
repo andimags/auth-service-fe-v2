@@ -32,6 +32,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { useSession } from "next-auth/react"
 import React, { useMemo } from "react"
 import { toast } from "sonner"
+import { useDebounce } from "@/hooks/use-debounce"
 
 // ---------------------------------------------------------------------------
 // Faceted filter config (stable reference — defined outside component)
@@ -235,6 +236,8 @@ export function ChannelsDataTable() {
         return filter?.value ? String(filter.value) : undefined
     }, [columnFilters])
 
+    const debouncedSearch = useDebounce(search, 1000)
+
     const sortField = React.useMemo(
         () => (sorting.length > 0 ? String(sorting[0].id) : undefined),
         [sorting]
@@ -249,7 +252,7 @@ export function ChannelsDataTable() {
         {
             page: pagination.pageIndex + 1,
             size: pagination.pageSize,
-            search,
+            search: debouncedSearch,
             sortField,
             sortDesc,
         },
