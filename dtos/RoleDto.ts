@@ -3,7 +3,7 @@ export interface RoleDto {
     name: string
     description?: string | null
     ref_name: string
-    channel_id: number
+    channel_id: number | null
     scope: string
     created_at: Date
     updated_at: Date
@@ -14,12 +14,14 @@ export interface CreateRoleDto {
     name: string
     description?: string | null
     ref_name: string
-    channel_id: number
+    channel_id?: number | null
     scope: string
 }
 
 export interface UpdateRoleDto {
     name?: string
     description?: string | null
+    ref_name?: string
+    channel_id?: number | null
     scope?: string
 }
