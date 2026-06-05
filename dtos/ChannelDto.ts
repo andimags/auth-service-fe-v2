@@ -16,6 +16,7 @@ export interface CreateChannelDto {
 }
 
 export interface UpdateChannelDto {
-    name?: string
+    name: string
     description?: string | null
+    ref_name: string
 }
