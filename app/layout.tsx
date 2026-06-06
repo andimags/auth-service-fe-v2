@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider"
 import { ConfirmDialog } from "@/components/shared/confirm-dialog/ConfirmDialog"
 import { RoleFormDialog } from "@/components/shared/role-form-dialog/RoleFormDialog"
 import { UserFormDialog } from "@/components/shared/user-form-dialog/UserFormDialog"
+import { PolicyFormDialog } from "@/components/shared/policy-form-dialog/PolicyFormDialog"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
@@ -48,6 +49,7 @@ export default function RootLayout({
                                 <ConfirmDialog />
                                 <UserFormDialog />
                                 <RoleFormDialog />
+                                <PolicyFormDialog />
                                 {children}
                             </QueryProvider>
                         </SessionProvider>

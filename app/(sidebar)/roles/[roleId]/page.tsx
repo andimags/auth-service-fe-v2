@@ -38,11 +38,14 @@ async function getRoleData(roleId: string): Promise<RoleDto> {
         throw new Error("Unauthorized")
     }
 
-    return getRole({
+    const role = await getRole({
         roleId,
         accessToken: session.access_token,
         apiKey: session.api_key,
     })
+
+    console.log(role)
+    return role
 }
 
 async function getRolePoliciesData(roleId: string): Promise<RolePolicyDto[]> {
@@ -52,7 +55,7 @@ async function getRolePoliciesData(roleId: string): Promise<RolePolicyDto[]> {
         throw new Error("Unauthorized")
     }
 
-    return getRolePolicies({
+    return await getRolePolicies({
         roleId: Number.parseInt(roleId, 10),
         accessToken: session.access_token,
         apiKey: session.api_key,
@@ -66,7 +69,7 @@ async function getPoliciesData(): Promise<PolicyDto[]> {
         throw new Error("Unauthorized")
     }
 
-    return getPolicies({
+    return await getPolicies({
         accessToken: session.access_token,
         apiKey: session.api_key,
     })

@@ -27,3 +27,8 @@ export enum RoleScopeType {
     global = "global",
     channel = "channel",
 }
+
+export enum PolicyIsSystemType {
+    true = "true",
+    false = "false",
+}

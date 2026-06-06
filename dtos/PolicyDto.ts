@@ -1,9 +1,11 @@
+import { PolicyIsSystemType } from "@/constants/enums"
+
 export interface PolicyDto {
     id: number
     name: string
     description?: string | null
     ref_name: string
-    is_system: boolean
+    is_system: PolicyIsSystemType
     created_at: Date
     updated_at: Date
     deleted_at?: Date | null

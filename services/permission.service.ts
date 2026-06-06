@@ -1,22 +1,21 @@
-import { CreatePolicyDto, PolicyDto, UpdatePolicyDto } from "@/dtos"
+import { CreatePermissionDto, PermissionDto, UpdatePermissionDto } from "@/dtos"
 import { getAuthServiceBaseUrl } from "@/lib/api"
 import http from "./http/fetcher"
 
 const AUTH_SERVICE_BASE_URL = getAuthServiceBaseUrl()
 
-type GetPoliciesParams = {
+type GetPermissionsParams = {
     search?: string
     accessToken: string
     apiKey: string
 }
 
-export async function getPolicies({
+export async function getPermissions({
     search = '',
     accessToken,
     apiKey,
-}: GetPoliciesParams): Promise<PolicyDto[]> {
-    console.log('yo', `${AUTH_SERVICE_BASE_URL}/api/policies${search}`)
-    return http<PolicyDto[]>(`${AUTH_SERVICE_BASE_URL}/api/policies${search}`, {
+}: GetPermissionsParams): Promise<PermissionDto[]> {
+    return http<PermissionDto[]>(`${AUTH_SERVICE_BASE_URL}/api/permissions${search}`, {
         method: "GET",
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -27,19 +26,18 @@ export async function getPolicies({
     })
 }
 
-type GetPolicyParams = {
-    policyId: string
+type GetPermissionParams = {
+    permissionId: string
     accessToken: string
     apiKey: string
 }
 
-export async function getPolicy({
-    policyId,
+export async function getPermission({
+    permissionId,
     accessToken,
     apiKey,
-}: GetPolicyParams): Promise<PolicyDto> {
-    console.log('URL on policy service:', `${AUTH_SERVICE_BASE_URL}/api/policies/${policyId}`)
-    return http<PolicyDto>(`${AUTH_SERVICE_BASE_URL}/api/policies/${policyId}`, {
+}: GetPermissionParams): Promise<PermissionDto> {
+    return http<PermissionDto>(`${AUTH_SERVICE_BASE_URL}/api/permissions/${permissionId}`, {
         method: "GET",
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -50,18 +48,18 @@ export async function getPolicy({
     })
 }
 
-type AddPolicyParams = {
-    payload: CreatePolicyDto
+type AddPermissionParams = {
+    payload: CreatePermissionDto
     accessToken: string
     apiKey: string
 }
 
-export async function addPolicy({
+export async function addPermission({
     payload,
     accessToken,
     apiKey,
-}: AddPolicyParams): Promise<PolicyDto> {
-    return http<PolicyDto>(`${AUTH_SERVICE_BASE_URL}/api/policies`, {
+}: AddPermissionParams): Promise<PermissionDto> {
+    return http<PermissionDto>(`${AUTH_SERVICE_BASE_URL}/api/permissions`, {
         method: "POST",
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -72,20 +70,20 @@ export async function addPolicy({
     })
 }
 
-type UpdatePolicyParams = {
-    policyId: string
-    payload: UpdatePolicyDto
+type UpdatePermissionParams = {
+    permissionId: string
+    payload: UpdatePermissionDto
     accessToken: string
     apiKey: string
 }
 
-export async function updatePolicy({
-    policyId,
+export async function updatePermission({
+    permissionId,
     payload,
     accessToken,
     apiKey,
-}: UpdatePolicyParams): Promise<PolicyDto> {
-    return http<PolicyDto>(`${AUTH_SERVICE_BASE_URL}/api/policies/${policyId}`, {
+}: UpdatePermissionParams): Promise<PermissionDto> {
+    return http<PermissionDto>(`${AUTH_SERVICE_BASE_URL}/api/permissions/${permissionId}`, {
         method: "PUT",
         headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -96,18 +94,18 @@ export async function updatePolicy({
     })
 }
 
-type DeletePolicyParams = {
-    policyId: string
+type DeletePermissionParams = {
+    permissionId: string
     accessToken: string
     apiKey: string
 }
 
-export async function deletePolicy({
-    policyId,
+export async function deletePermission({
+    permissionId,
     accessToken,
     apiKey,
-}: DeletePolicyParams): Promise<{ message: string }> {
-    return http<{ message: string }>(`${AUTH_SERVICE_BASE_URL}/api/policies/${policyId}`, {
+}: DeletePermissionParams): Promise<{ message: string }> {
+    return http<{ message: string }>(`${AUTH_SERVICE_BASE_URL}/api/permissions/${permissionId}`, {
         method: "DELETE",
         headers: {
             Authorization: `Bearer ${accessToken}`,
