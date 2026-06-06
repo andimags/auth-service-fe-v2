@@ -1,3 +1,5 @@
+import { ChannelDto } from "./ChannelDto"
+
 export interface RoleDto {
     id: number
     name: string
@@ -8,6 +10,7 @@ export interface RoleDto {
     created_at: Date
     updated_at: Date
     deleted_at?: Date | null
+    channel?: ChannelDto
 }
 
 export interface CreateRoleDto {

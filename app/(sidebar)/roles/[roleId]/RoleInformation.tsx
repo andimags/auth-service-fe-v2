@@ -95,7 +95,7 @@ export default function RoleInformation({
                     <InfoRow label="Reference Name">{role.ref_name}</InfoRow>
                     <InfoRow label="Description">{role.description ?? "-"}</InfoRow>
                     <InfoRow label="Scope">{role.scope}</InfoRow>
-                    <InfoRow label="Channel ID">{role.channel_id ?? "-"}</InfoRow>
+                    <InfoRow label="Channel Ref Name">{role.channel?.ref_name ?? "-"}</InfoRow>
                     <InfoRow label="Created">{formatDate(role.created_at)}</InfoRow>
                     <InfoRow label="Last Updated">{formatDate(role.updated_at)}</InfoRow>
                     <InfoRow label="Policies">

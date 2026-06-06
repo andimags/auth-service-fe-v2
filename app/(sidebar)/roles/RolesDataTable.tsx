@@ -23,7 +23,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { RoleScopeType } from "@/constants/enums"
-import { RoleDto } from "@/dtos"
+import { ChannelDto, RoleDto } from "@/dtos"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useDeleteRole } from "@/hooks/use-delete-role"
 import useRoleFormDialog from "@/hooks/use-role-form-dialog"
@@ -90,7 +90,11 @@ function getColumns(
             ),
             cell: ({ row, table }) => (
                 <div className="w-20 font-medium">
-                    {(table.getSortedRowModel()?.flatRows?.findIndex((flatRow) => flatRow.id === row.id) || 0) + 1}
+                    {(table
+                        .getSortedRowModel()
+                        ?.flatRows?.findIndex(
+                            (flatRow) => flatRow.id === row.id
+                        ) || 0) + 1}
                 </div>
             ),
             enableHiding: false,
@@ -130,13 +134,12 @@ function getColumns(
             filterFn: (row, id, value) => value.includes(row.getValue(id)),
         },
         {
-            accessorKey: "channel_id",
+            accessorFn: (row) => row.channel?.ref_name,
+            id: "channel_ref_name",
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title="Channel ID" />
+                <DataTableColumnHeader column={column} title="Channel Ref Name" />
             ),
-            cell: ({ row }) => (
-                <div>{row.getValue("channel_id") ?? "-"}</div>
-            ),
+            cell: ({ getValue }) => <div>{getValue() as string ?? "-"}</div>,
         },
         {
             accessorKey: "created_at",
