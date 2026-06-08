@@ -32,3 +32,8 @@ export enum PolicyIsSystemType {
     true = "true",
     false = "false",
 }
+
+export enum PermissionIsSystemType {
+    true = "true",
+    false = "false",
+}

@@ -27,7 +27,7 @@ export async function getPermissions({
 }
 
 type GetPermissionParams = {
-    permissionId: string
+    permissionId: string | number
     accessToken: string
     apiKey: string
 }
@@ -71,7 +71,7 @@ export async function addPermission({
 }
 
 type UpdatePermissionParams = {
-    permissionId: string
+    permissionId: string | number
     payload: UpdatePermissionDto
     accessToken: string
     apiKey: string
@@ -95,7 +95,7 @@ export async function updatePermission({
 }
 
 type DeletePermissionParams = {
-    permissionId: string
+    permissionId: string | number
     accessToken: string
     apiKey: string
 }

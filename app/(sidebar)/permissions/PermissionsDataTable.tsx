@@ -21,12 +21,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { PolicyIsSystemType } from "@/constants/enums"
-import { PolicyDto } from "@/dtos"
+import { PermissionAccessLevelType, PermissionIsSystemType } from "@/constants/enums"
+import { PermissionDto } from "@/dtos"
 import { useDebounce } from "@/hooks/use-debounce"
-import { useDeletePolicy } from "@/hooks/use-delete-policy"
-import usePolicyFormDialog from "@/hooks/use-policy-form-dialog"
-import { usePoliciesQuery } from "@/hooks/use-policies-query"
+import { useDeletePermission } from "@/hooks/use-delete-permission"
+import usePermissionFormDialog from "@/hooks/use-permission-form-dialog"
+import { usePermissionsQuery } from "@/hooks/use-permissions-query"
 import formatDate from "@/lib/format-date"
 import { PlusSignIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -37,24 +37,32 @@ import { CheckCircle2Icon, MoreHorizontalIcon, XCircleIcon } from "lucide-react"
 
 const FACETED_FILTERS: FacetedFilterConfig[] = [
     {
+        column: "access_level",
+        title: "Access Level",
+        options: Object.values(PermissionAccessLevelType).map((value) => ({
+            label: value.charAt(0).toUpperCase() + value.slice(1),
+            value,
+        })),
+    },
+    {
         column: "is_system",
         title: "Is System",
-        options: Object.values(PolicyIsSystemType).map((value) => ({
+        options: Object.values(PermissionIsSystemType).map((value) => ({
             label: value,
             value,
         })),
     },
 ]
 
-const IS_SYSTEM_ICONS: Record<PolicyDto["is_system"], React.ElementType> = {
+const IS_SYSTEM_ICONS: Record<PermissionDto["is_system"], React.ElementType> = {
     true: CheckCircle2Icon,
     false: XCircleIcon,
 }
 
 function getColumns(
-    onEdit: (policy: PolicyDto) => void,
-    onDelete: (policy: PolicyDto) => void
-): ColumnDef<PolicyDto>[] {
+    onEdit: (permission: PermissionDto) => void,
+    onDelete: (permission: PermissionDto) => void
+): ColumnDef<PermissionDto>[] {
     return [
         {
             id: "globalSearch",
@@ -125,7 +133,7 @@ function getColumns(
             cell: ({ row }) => (
                 <div className="flex space-x-2">
                     <span className="max-w-125 truncate font-medium">
-                        {row.getValue("description")}
+                        {row.getValue("description") || "-"}
                     </span>
                 </div>
             ),
@@ -142,6 +150,26 @@ function getColumns(
             ),
         },
         {
+            accessorKey: "module",
+            header: ({ column }) => (
+                <DataTableColumnHeader column={column} title="Module" />
+            ),
+            cell: ({ row }) => (
+                <div className="capitalize">{row.getValue("module")}</div>
+            ),
+        },
+        {
+            accessorKey: "access_level",
+            header: ({ column }) => (
+                <DataTableColumnHeader column={column} title="Access Level" />
+            ),
+            cell: ({ row }) => {
+                const accessLevel = row.getValue("access_level") as string
+                return <div className="capitalize">{accessLevel}</div>
+            },
+            filterFn: (row, id, value) => value.includes(row.getValue(id)),
+        },
+        {
             accessorKey: "is_system",
             header: ({ column }) => (
                 <DataTableColumnHeader column={column} title="Is System" />
@@ -149,14 +177,14 @@ function getColumns(
             cell: ({ row }) => {
                 const is_system = row.getValue(
                     "is_system"
-                ) as PolicyDto["is_system"]
+                ) as PermissionDto["is_system"]
                 const Icon = IS_SYSTEM_ICONS[is_system]
                 return (
                     <div className="flex w-25 items-center">
                         <Icon className="mr-2 size-4 text-muted-foreground" />
                         {/* <span className="capitalize">
-                                    is_system
-                                </span> */}
+                                            is_system
+                                        </span> */}
                     </div>
                 )
             },
@@ -176,7 +204,7 @@ function getColumns(
         {
             id: "actions",
             cell: ({ row }) => {
-                const policy = row.original
+                const permission = row.original
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -190,22 +218,26 @@ function getColumns(
                             <DropdownMenuItem
                                 onClick={() =>
                                     navigator.clipboard.writeText(
-                                        policy.id.toString()
+                                        permission.id.toString()
                                     )
                                 }
                             >
-                                Copy policy ID
+                                Copy permission ID
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem asChild>
-                                <Link href={`/policies/${policy.id}`}>
+                                <Link href={`/permissions/${permission.id}`}>
                                     View
                                 </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onEdit(policy)}>
+                            <DropdownMenuItem
+                                onClick={() => onEdit(permission)}
+                            >
                                 Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onDelete(policy)}>
+                            <DropdownMenuItem
+                                onClick={() => onDelete(permission)}
+                            >
                                 Delete
                             </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -216,17 +248,17 @@ function getColumns(
     ]
 }
 
-function AddPolicyButton({ onAdd }: Readonly<{ onAdd: () => void }>) {
+function AddPermissionButton({ onAdd }: Readonly<{ onAdd: () => void }>) {
     return (
         <Button variant="outline" size="sm" className="gap-2" onClick={onAdd}>
             <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
-            <span>Add Policy</span>
+            <span>Add Permission</span>
         </Button>
     )
 }
 
-export function PoliciesDataTable() {
-    const { deletePolicy } = useDeletePolicy()
+export function PermissionsDataTable() {
+    const { deletePermission } = useDeletePermission()
     const { status } = useSession()
 
     const [pagination, setPagination] = React.useState({
@@ -261,6 +293,13 @@ export function PoliciesDataTable() {
 
     const debouncedSearch = useDebounce(search, 1000)
 
+    const accessLevelFilter = React.useMemo(() => {
+        const filter = columnFilters.find((f) => f.id === "access_level")
+        return filter && Array.isArray(filter.value)
+            ? filter.value.join(",")
+            : undefined
+    }, [columnFilters])
+
     const isSystemFilter = React.useMemo(() => {
         const filter = columnFilters.find((f) => f.id === "is_system")
         return filter && Array.isArray(filter.value)
@@ -278,14 +317,15 @@ export function PoliciesDataTable() {
         [sorting]
     )
 
-    const query = usePoliciesQuery(
+    const query = usePermissionsQuery(
         {
             page: pagination.pageIndex + 1,
             size: pagination.pageSize,
             search: debouncedSearch,
-            isSystem: isSystemFilter,
+            accessLevel: accessLevelFilter,
             sortField,
             sortDesc,
+            isSystem: isSystemFilter
         },
         { enabled: status === "authenticated" }
     )
@@ -294,17 +334,17 @@ export function PoliciesDataTable() {
     const isLoading = query.isLoading
     const pageCount = query.data?.totalPages ?? 0
 
-    const policyFormDialog = usePolicyFormDialog()
+    const permissionFormDialog = usePermissionFormDialog()
 
     const handleEdit = useMemo(() => {
-        return (policy: PolicyDto) => {
-            policyFormDialog.open.edit(policy)
+        return (permission: PermissionDto) => {
+            permissionFormDialog.open.edit(permission)
         }
-    }, [policyFormDialog])
+    }, [permissionFormDialog])
 
     const columns = React.useMemo(
-        () => getColumns(handleEdit, deletePolicy),
-        [handleEdit, deletePolicy]
+        () => getColumns(handleEdit, deletePermission),
+        [handleEdit, deletePermission]
     )
 
     return (
@@ -313,7 +353,7 @@ export function PoliciesDataTable() {
             data={data}
             isLoading={isLoading}
             filterColumn="globalSearch"
-            filterPlaceholder="Search policies..."
+            filterPlaceholder="Search permissions..."
             facetedFilters={FACETED_FILTERS}
             showColumnToggle
             showPagination
@@ -323,9 +363,9 @@ export function PoliciesDataTable() {
             getRowId={(row) => row.id.toString()}
             onRowClick={(row) => console.log("Clicked:", row.id)}
             toolbarChildren={
-                <AddPolicyButton
+                <AddPermissionButton
                     onAdd={() => {
-                        policyFormDialog.open.create()
+                        permissionFormDialog.open.create()
                     }}
                 />
             }
