@@ -152,9 +152,9 @@ function getColumns(
                         return (
                             <div className="flex w-25 items-center">
                                 <Icon className="mr-2 size-4 text-muted-foreground" />
-                                <span className="capitalize">
+                                {/* <span className="capitalize">
                                     is_system
-                                </span>
+                                </span> */}
                             </div>
                         )
                     },
