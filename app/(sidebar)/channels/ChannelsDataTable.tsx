@@ -33,6 +33,7 @@ import { useSession } from "next-auth/react"
 import React, { useMemo } from "react"
 import { toast } from "sonner"
 import { useDebounce } from "@/hooks/use-debounce"
+import Link from "next/link"
 
 // ---------------------------------------------------------------------------
 // Faceted filter config (stable reference — defined outside component)
@@ -184,6 +185,9 @@ function getColumns(
                                 Copy channel ID
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                                <Link href={`/channels/${channel.id}`}>View</Link>                            
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => onEdit(channel)}>
                                 Edit
                             </DropdownMenuItem>
