@@ -1,6 +1,9 @@
 import { ReplaceRolePoliciesDto } from "@/dtos/RolePolicyDto"
 import { authOptions } from "@/lib/next-auth"
-import { getRolePolicies, replaceRolePolicies } from "@/services/role-policy.service"
+import {
+    getRolePolicies,
+    replaceRolePolicies,
+} from "@/services/role-policy.service"
 import { getServerSession } from "next-auth/next"
 import { NextResponse } from "next/server"
 
@@ -24,7 +27,7 @@ export async function GET(
         const response = await getRolePolicies({
             roleId,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
@@ -55,12 +58,12 @@ export async function PUT(
         }
 
         const payload: ReplaceRolePoliciesDto = await request.json()
-                
+
         const response = await replaceRolePolicies({
             roleId,
             payload,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)

@@ -4,7 +4,8 @@ import { useChannelFormStore } from "@/components/shared/channel-form-dialog/cha
 import { ChannelDto } from "@/dtos/ChannelDto"
 
 export default function useChannelFormDialog() {
-    const { setIsOpen, setMode, setChannel, setOnUpdateSuccess } = useChannelFormStore()
+    const { setIsOpen, setMode, setChannel, setOnUpdateSuccess } =
+        useChannelFormStore()
 
     const open = {
         create: () => {

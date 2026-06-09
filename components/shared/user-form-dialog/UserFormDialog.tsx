@@ -81,13 +81,8 @@ const BASE_URL = getBaseUrl()
 export function UserFormDialog() {
     const [payload, setPayload] = useState<UserFormState>(INITIAL_FORM_STATE)
 
-    const {
-        isOpen,
-        setIsOpen,
-        mode,
-        user,
-        onUpdateSuccess,
-    } = useUserFormStore()
+    const { isOpen, setIsOpen, mode, user, onUpdateSuccess } =
+        useUserFormStore()
 
     useEffect(() => {
         if (!isOpen) return

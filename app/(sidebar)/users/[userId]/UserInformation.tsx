@@ -129,7 +129,7 @@ export default function UserInformation({
                         {formatDate(user.updated_at)}
                     </InfoRow>
                     <InfoRow label="Roles">
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="flex flex-wrap gap-2">
                             {userRoles.length < 1 ? (
                                 <span>No roles assigned to this user</span>
                             ) : (

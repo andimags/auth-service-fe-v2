@@ -22,7 +22,7 @@ export async function GET(request: Request) {
         const response = await getChannels({
             search,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)

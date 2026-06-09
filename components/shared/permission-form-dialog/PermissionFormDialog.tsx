@@ -49,17 +49,13 @@ const INITIAL_FORM_STATE: PermissionFormState = {
 const BASE_URL = getBaseUrl()
 
 export function PermissionFormDialog() {
-    const [payload, setPayload] = useState<PermissionFormState>(INITIAL_FORM_STATE)
+    const [payload, setPayload] =
+        useState<PermissionFormState>(INITIAL_FORM_STATE)
     const [isLoading, setIsLoading] = useState(false)
     const queryClient = useQueryClient()
 
-    const {
-        isOpen,
-        setIsOpen,
-        mode,
-        permission,
-        onUpdateSuccess,
-    } = usePermissionFormStore()
+    const { isOpen, setIsOpen, mode, permission, onUpdateSuccess } =
+        usePermissionFormStore()
 
     useEffect(() => {
         if (!isOpen) return
@@ -85,9 +81,11 @@ export function PermissionFormDialog() {
             setPayload((prev) => ({ ...prev, [field]: e.target.value }))
 
     const handleSelectChange =
-        (field: keyof PermissionFormState) =>
-        (value: string) =>
-            setPayload((prev) => ({ ...prev, [field]: value as PermissionAccessLevelType }))
+        (field: keyof PermissionFormState) => (value: string) =>
+            setPayload((prev) => ({
+                ...prev,
+                [field]: value as PermissionAccessLevelType,
+            }))
 
     const handleClose = () => {
         setPayload(INITIAL_FORM_STATE)
@@ -145,11 +143,14 @@ export function PermissionFormDialog() {
             access_level: payload.access_level,
         }
 
-        const response = await fetch(`${BASE_URL}/api/permissions/${permission?.id}`, {
-            method: "PUT",
-            body: JSON.stringify(payloadBody),
-            headers: { "Content-Type": "application/json" },
-        })
+        const response = await fetch(
+            `${BASE_URL}/api/permissions/${permission?.id}`,
+            {
+                method: "PUT",
+                body: JSON.stringify(payloadBody),
+                headers: { "Content-Type": "application/json" },
+            }
+        )
 
         if (response.ok) {
             handleClose()
@@ -163,7 +164,9 @@ export function PermissionFormDialog() {
     }
 
     const isCreate = mode === "create"
-    const submitButtonText = isCreate ? "Creating permission..." : "Updating permission..."
+    const submitButtonText = isCreate
+        ? "Creating permission..."
+        : "Updating permission..."
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -210,14 +213,22 @@ export function PermissionFormDialog() {
 
                         <Field>
                             <Label htmlFor="access_level">Access Level</Label>
-                            <Select value={payload.access_level} onValueChange={handleSelectChange("access_level")}>
+                            <Select
+                                value={payload.access_level}
+                                onValueChange={handleSelectChange(
+                                    "access_level"
+                                )}
+                            >
                                 <SelectTrigger id="access_level">
                                     <SelectValue placeholder="Select access level" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {Object.values(PermissionAccessLevelType).map((level) => (
+                                    {Object.values(
+                                        PermissionAccessLevelType
+                                    ).map((level) => (
                                         <SelectItem key={level} value={level}>
-                                            {level.charAt(0).toUpperCase() + level.slice(1)}
+                                            {level.charAt(0).toUpperCase() +
+                                                level.slice(1)}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -236,7 +247,11 @@ export function PermissionFormDialog() {
 
                     <DialogFooter className="mt-6">
                         <DialogClose asChild>
-                            <Button type="button" variant="outline" onClick={handleClose}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleClose}
+                            >
                                 Cancel
                             </Button>
                         </DialogClose>

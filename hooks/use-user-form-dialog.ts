@@ -4,7 +4,8 @@ import { useUserFormStore } from "@/components/shared/user-form-dialog/user-form
 import { UserDto } from "@/dtos/UserDto"
 
 export default function useUserFormDialog() {
-    const { setIsOpen, setMode, setUser, setOnUpdateSuccess } = useUserFormStore()
+    const { setIsOpen, setMode, setUser, setOnUpdateSuccess } =
+        useUserFormStore()
 
     const open = {
         create: () => {

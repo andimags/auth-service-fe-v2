@@ -65,13 +65,8 @@ const BASE_URL = getBaseUrl()
 export function ChannelFormDialog() {
     const [payload, setPayload] = useState<ChannelFormState>(INITIAL_FORM_STATE)
 
-    const {
-        isOpen,
-        setIsOpen,
-        mode,
-        channel,
-        onUpdateSuccess,
-    } = useChannelFormStore()
+    const { isOpen, setIsOpen, mode, channel, onUpdateSuccess } =
+        useChannelFormStore()
 
     useEffect(() => {
         if (!isOpen) return
@@ -135,11 +130,14 @@ export function ChannelFormDialog() {
     }
 
     const updateChannel = async () => {
-        const response = await fetch(`${BASE_URL}/api/channels/${channel?.id}`, {
-            method: "PUT",
-            body: JSON.stringify(payload),
-            headers: { "Content-Type": "application/json" },
-        })
+        const response = await fetch(
+            `${BASE_URL}/api/channels/${channel?.id}`,
+            {
+                method: "PUT",
+                body: JSON.stringify(payload),
+                headers: { "Content-Type": "application/json" },
+            }
+        )
 
         if (response.ok) {
             handleClose()

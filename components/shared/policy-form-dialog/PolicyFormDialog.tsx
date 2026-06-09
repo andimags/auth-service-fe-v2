@@ -39,13 +39,8 @@ export function PolicyFormDialog() {
     const [isLoading, setIsLoading] = useState(false)
     const queryClient = useQueryClient()
 
-    const {
-        isOpen,
-        setIsOpen,
-        mode,
-        policy,
-        onUpdateSuccess,
-    } = usePolicyFormStore()
+    const { isOpen, setIsOpen, mode, policy, onUpdateSuccess } =
+        usePolicyFormStore()
 
     useEffect(() => {
         if (!isOpen) return
@@ -55,7 +50,7 @@ export function PolicyFormDialog() {
             setPayload({
                 name: policy.name,
                 description: policy.description ?? "",
-                ref_name: policy.ref_name
+                ref_name: policy.ref_name,
             })
         } else {
             setPayload(INITIAL_FORM_STATE)
@@ -68,8 +63,7 @@ export function PolicyFormDialog() {
             setPayload((prev) => ({ ...prev, [field]: e.target.value }))
 
     const handleSelectChange =
-        (field: keyof PolicyFormState) =>
-        (value: string) =>
+        (field: keyof PolicyFormState) => (value: string) =>
             setPayload((prev) => ({ ...prev, [field]: value }))
 
     const handleClose = () => {
@@ -96,7 +90,7 @@ export function PolicyFormDialog() {
         const payloadBody: CreatePolicyDto = {
             name: payload.name,
             description: payload.description || null,
-            ref_name: payload.ref_name
+            ref_name: payload.ref_name,
         }
 
         const response = await fetch(`${BASE_URL}/api/policies`, {
@@ -119,7 +113,7 @@ export function PolicyFormDialog() {
         const payloadBody: UpdatePolicyDto = {
             name: payload.name,
             description: payload.description || null,
-            ref_name: payload.ref_name
+            ref_name: payload.ref_name,
         }
 
         const response = await fetch(`${BASE_URL}/api/policies/${policy?.id}`, {
@@ -140,7 +134,9 @@ export function PolicyFormDialog() {
     }
 
     const isCreate = mode === "create"
-    const submitButtonText = isCreate ? "Creating policy..." : "Updating policy..."
+    const submitButtonText = isCreate
+        ? "Creating policy..."
+        : "Updating policy..."
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -188,7 +184,11 @@ export function PolicyFormDialog() {
 
                     <DialogFooter className="mt-6">
                         <DialogClose asChild>
-                            <Button type="button" variant="outline" onClick={handleClose}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleClose}
+                            >
                                 Cancel
                             </Button>
                         </DialogClose>

@@ -46,11 +46,15 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
                 tokens: {
                     access: {
                         value: data.tokens.access.value,
-                        expires_at: normalizeExpiresAt(data.tokens.access.expires_at),
+                        expires_at: normalizeExpiresAt(
+                            data.tokens.access.expires_at
+                        ),
                     },
                     refresh: {
                         value: data.tokens.refresh.value,
-                        expires_at: normalizeExpiresAt(data.tokens.refresh.expires_at),
+                        expires_at: normalizeExpiresAt(
+                            data.tokens.refresh.expires_at
+                        ),
                     },
                 },
                 error: undefined,
@@ -100,11 +104,15 @@ const credentialsProvider = CredentialsProvider({
                 tokens: {
                     access: {
                         value: data.tokens.access.value,
-                        expires_at: normalizeExpiresAt(data.tokens.access.expires_at),
+                        expires_at: normalizeExpiresAt(
+                            data.tokens.access.expires_at
+                        ),
                     },
                     refresh: {
                         value: data.tokens.refresh.value,
-                        expires_at: normalizeExpiresAt(data.tokens.refresh.expires_at),
+                        expires_at: normalizeExpiresAt(
+                            data.tokens.refresh.expires_at
+                        ),
                     },
                 },
             }
@@ -120,7 +128,7 @@ export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
         maxAge: 60 * 60 * 24,
-        updateAge: 60
+        updateAge: 60,
     },
     pages: { signIn: "/login" },
     callbacks: {
@@ -136,11 +144,15 @@ export const authOptions: NextAuthOptions = {
                     tokens: {
                         access: {
                             value: user.tokens.access.value,
-                            expires_at: normalizeExpiresAt(user.tokens.access.expires_at),
+                            expires_at: normalizeExpiresAt(
+                                user.tokens.access.expires_at
+                            ),
                         },
                         refresh: {
                             value: user.tokens.refresh.value,
-                            expires_at: normalizeExpiresAt(user.tokens.refresh.expires_at),
+                            expires_at: normalizeExpiresAt(
+                                user.tokens.refresh.expires_at
+                            ),
                         },
                     },
                 }
@@ -150,7 +162,9 @@ export const authOptions: NextAuthOptions = {
                 return { ...token, error: "MissingTokenData" }
             }
 
-            const accessTokenExpires = normalizeExpiresAt(token.tokens.access.expires_at)
+            const accessTokenExpires = normalizeExpiresAt(
+                token.tokens.access.expires_at
+            )
 
             // Token still valid — return as-is
             if (Date.now() < accessTokenExpires - REFRESH_BUFFER_MS) {
@@ -161,15 +175,19 @@ export const authOptions: NextAuthOptions = {
             const newRefreshAccessToken = await refreshAccessToken(token)
             console.log(`[${timeNow()}] Refresh result:`)
             console.log(`  OLD: ...${token.tokens.access.value.slice(-10)}`)
-            console.log(`  NEW: ...${newRefreshAccessToken.tokens?.access?.value?.slice(-10)}`)
-            console.log(`  SAME TOKEN? ${token.tokens.access.value === newRefreshAccessToken.tokens?.access?.value}`)
+            console.log(
+                `  NEW: ...${newRefreshAccessToken.tokens?.access?.value?.slice(-10)}`
+            )
+            console.log(
+                `  SAME TOKEN? ${token.tokens.access.value === newRefreshAccessToken.tokens?.access?.value}`
+            )
             return newRefreshAccessToken
         },
 
         async session({ session, token }) {
             // console.log("SESSION CALLBACK SESSION:", session)
             // console.log("SESSION CALLBACK TOKEN:", token)
-            
+
             session.user = token.user
             session.api_key = token.api_key
             session.access_token = token.tokens?.access?.value ?? ""

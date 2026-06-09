@@ -1,8 +1,8 @@
 import { RoleDto } from "./RoleDto"
 
 export interface UserRole {
-    user_id: number,
-    role_id: number,
+    user_id: number
+    role_id: number
     create_at: string
 }
 

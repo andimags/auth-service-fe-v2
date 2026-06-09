@@ -6,10 +6,7 @@ import { ChannelDto } from "@/dtos"
 import { useDeleteChannel } from "@/hooks/use-delete-channel"
 import useChannelFormDialog from "@/hooks/use-channel-form-dialog"
 import formatDate from "@/lib/format-date"
-import {
-    Delete02Icon,
-    PencilEdit01Icon,
-} from "@hugeicons/core-free-icons"
+import { Delete02Icon, PencilEdit01Icon } from "@hugeicons/core-free-icons"
 import { CopyIcon } from "lucide-react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useRouter } from "next/navigation"
@@ -48,11 +45,22 @@ export default function ChannelInformation({
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={handleEditChannel}>
-                        <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} />
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleEditChannel}
+                    >
+                        <HugeiconsIcon
+                            icon={PencilEdit01Icon}
+                            strokeWidth={2}
+                        />
                         <span>Edit Channel</span>
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => deleteChannel(channel)}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => deleteChannel(channel)}
+                    >
                         <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
                         <span>Delete</span>
                     </Button>
@@ -75,9 +83,15 @@ export default function ChannelInformation({
                         <CopyIcon className="size-4" />
                     </Button>
                 </InfoRow>
-                <InfoRow label="Description">{channel.description ?? "-"}</InfoRow>
-                <InfoRow label="Created">{formatDate(channel.created_at)}</InfoRow>
-                <InfoRow label="Last Updated">{formatDate(channel.updated_at)}</InfoRow>
+                <InfoRow label="Description">
+                    {channel.description ?? "-"}
+                </InfoRow>
+                <InfoRow label="Created">
+                    {formatDate(channel.created_at)}
+                </InfoRow>
+                <InfoRow label="Last Updated">
+                    {formatDate(channel.updated_at)}
+                </InfoRow>
             </dl>
         </div>
     )

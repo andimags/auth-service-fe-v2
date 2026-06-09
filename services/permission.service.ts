@@ -11,19 +11,22 @@ type GetPermissionsParams = {
 }
 
 export async function getPermissions({
-    search = '',
+    search = "",
     accessToken,
     apiKey,
 }: GetPermissionsParams): Promise<PermissionDto[]> {
-    return http<PermissionDto[]>(`${AUTH_SERVICE_BASE_URL}/api/permissions${search}`, {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": apiKey,
-            "Content-Type": "application/json",
-        },
-        cache: "no-store",
-    })
+    return http<PermissionDto[]>(
+        `${AUTH_SERVICE_BASE_URL}/api/permissions${search}`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+                "Content-Type": "application/json",
+            },
+            cache: "no-store",
+        }
+    )
 }
 
 type GetPermissionParams = {
@@ -37,15 +40,18 @@ export async function getPermission({
     accessToken,
     apiKey,
 }: GetPermissionParams): Promise<PermissionDto> {
-    return http<PermissionDto>(`${AUTH_SERVICE_BASE_URL}/api/permissions/${permissionId}`, {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": apiKey,
-            "Content-Type": "application/json",
-        },
-        cache: "no-store",
-    })
+    return http<PermissionDto>(
+        `${AUTH_SERVICE_BASE_URL}/api/permissions/${permissionId}`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+                "Content-Type": "application/json",
+            },
+            cache: "no-store",
+        }
+    )
 }
 
 type AddPermissionParams = {
@@ -83,15 +89,18 @@ export async function updatePermission({
     accessToken,
     apiKey,
 }: UpdatePermissionParams): Promise<PermissionDto> {
-    return http<PermissionDto>(`${AUTH_SERVICE_BASE_URL}/api/permissions/${permissionId}`, {
-        method: "PUT",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": apiKey,
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-    })
+    return http<PermissionDto>(
+        `${AUTH_SERVICE_BASE_URL}/api/permissions/${permissionId}`,
+        {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        }
+    )
 }
 
 type DeletePermissionParams = {
@@ -105,12 +114,15 @@ export async function deletePermission({
     accessToken,
     apiKey,
 }: DeletePermissionParams): Promise<{ message: string }> {
-    return http<{ message: string }>(`${AUTH_SERVICE_BASE_URL}/api/permissions/${permissionId}`, {
-        method: "DELETE",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": apiKey,
-            "Content-Type": "application/json",
-        },
-    })
+    return http<{ message: string }>(
+        `${AUTH_SERVICE_BASE_URL}/api/permissions/${permissionId}`,
+        {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+                "Content-Type": "application/json",
+            },
+        }
+    )
 }

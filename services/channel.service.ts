@@ -13,7 +13,7 @@ type GetChannelsParams = {
 export async function getChannels({
     accessToken,
     apiKey,
-    search
+    search,
 }: GetChannelsParams): Promise<ChannelDto> {
     return http<ChannelDto>(`${AUTH_SERVICE_BASE_URL}/api/channels/${search}`, {
         method: "GET",
@@ -37,15 +37,18 @@ export async function getChannel({
     accessToken,
     apiKey,
 }: GetChannelParams): Promise<ChannelDto> {
-    return http<ChannelDto>(`${AUTH_SERVICE_BASE_URL}/api/channels/${channelId}`, {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": apiKey,
-            "Content-Type": "application/json",
-        },
-        cache: "no-store",
-    })
+    return http<ChannelDto>(
+        `${AUTH_SERVICE_BASE_URL}/api/channels/${channelId}`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+                "Content-Type": "application/json",
+            },
+            cache: "no-store",
+        }
+    )
 }
 
 type CreateChannelParams = {
@@ -83,15 +86,18 @@ export async function updateChannel({
     accessToken,
     apiKey,
 }: UpdateChannelParams): Promise<ChannelDto> {
-    return http<ChannelDto>(`${AUTH_SERVICE_BASE_URL}/api/channels/${channelId}`, {
-        method: "PUT",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": apiKey,
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-    })
+    return http<ChannelDto>(
+        `${AUTH_SERVICE_BASE_URL}/api/channels/${channelId}`,
+        {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        }
+    )
 }
 
 type DeleteChannelParams = {
@@ -105,12 +111,15 @@ export async function deleteChannel({
     accessToken,
     apiKey,
 }: DeleteChannelParams): Promise<{ message: string }> {
-    return http<{ message: string }>(`${AUTH_SERVICE_BASE_URL}/api/channels/${channelId}`, {
-        method: "DELETE",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": apiKey,
-            "Content-Type": "application/json",
-        },
-    })
+    return http<{ message: string }>(
+        `${AUTH_SERVICE_BASE_URL}/api/channels/${channelId}`,
+        {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+                "Content-Type": "application/json",
+            },
+        }
+    )
 }

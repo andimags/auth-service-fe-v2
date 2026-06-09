@@ -45,7 +45,9 @@ async function getPolicyData(policyId: string): Promise<PolicyDto> {
     })
 }
 
-async function getPolicyPermissionsData(policyId: string): Promise<PolicyPermissionDto[]> {
+async function getPolicyPermissionsData(
+    policyId: string
+): Promise<PolicyPermissionDto[]> {
     const session = await getServerSession(authOptions)
 
     if (!session?.access_token || !session.api_key) {

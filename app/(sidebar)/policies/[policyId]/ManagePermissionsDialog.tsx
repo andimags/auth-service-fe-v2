@@ -1,6 +1,10 @@
 "use client"
 
-import { MultiSelect, MultiSelectGroup, MultiSelectOption } from "@/components/multi-select"
+import {
+    MultiSelect,
+    MultiSelectGroup,
+    MultiSelectOption,
+} from "@/components/multi-select"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -94,7 +98,8 @@ export function ManagePermissionsDialog({
                     <DialogHeader className="mb-4">
                         <DialogTitle>Manage Permissions</DialogTitle>
                         <DialogDescription>
-                            Update this policy&apos;s attached permissions. Click save when ready.
+                            Update this policy&apos;s attached permissions.
+                            Click save when ready.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -113,7 +118,11 @@ export function ManagePermissionsDialog({
 
                     <DialogFooter className="mt-6">
                         <DialogClose asChild>
-                            <Button type="button" variant="outline" onClick={handleClose}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleClose}
+                            >
                                 Cancel
                             </Button>
                         </DialogClose>

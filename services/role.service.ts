@@ -105,12 +105,15 @@ export async function deleteRole({
     accessToken,
     apiKey,
 }: DeleteRoleParams): Promise<{ message: string }> {
-    return http<{ message: string }>(`${AUTH_SERVICE_BASE_URL}/api/roles/${roleId}`, {
-        method: "DELETE",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": apiKey,
-            "Content-Type": "application/json",
-        },
-    })
+    return http<{ message: string }>(
+        `${AUTH_SERVICE_BASE_URL}/api/roles/${roleId}`,
+        {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+                "Content-Type": "application/json",
+            },
+        }
+    )
 }

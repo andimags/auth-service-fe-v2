@@ -75,16 +75,37 @@ export default function RoleInformation({
                         </p>
                     </div>
                     <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={handleEditRole}>
-                            <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} />
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleEditRole}
+                        >
+                            <HugeiconsIcon
+                                icon={PencilEdit01Icon}
+                                strokeWidth={2}
+                            />
                             <span>Edit Role</span>
                         </Button>
-                        <Button variant="outline" size="sm" onClick={handleManagePolicies}>
-                            <HugeiconsIcon icon={ShieldUserIcon} strokeWidth={2} />
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleManagePolicies}
+                        >
+                            <HugeiconsIcon
+                                icon={ShieldUserIcon}
+                                strokeWidth={2}
+                            />
                             <span>Manage Policies</span>
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => deleteRole(role)}>
-                            <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deleteRole(role)}
+                        >
+                            <HugeiconsIcon
+                                icon={Delete02Icon}
+                                strokeWidth={2}
+                            />
                             <span>Delete</span>
                         </Button>
                     </div>
@@ -93,13 +114,21 @@ export default function RoleInformation({
                 <dl className="text-sm">
                     <InfoRow label="Name">{role.name}</InfoRow>
                     <InfoRow label="Reference Name">{role.ref_name}</InfoRow>
-                    <InfoRow label="Description">{role.description ?? "-"}</InfoRow>
+                    <InfoRow label="Description">
+                        {role.description ?? "-"}
+                    </InfoRow>
                     <InfoRow label="Scope">{role.scope}</InfoRow>
-                    <InfoRow label="Channel Ref Name">{role.channel?.ref_name ?? "-"}</InfoRow>
-                    <InfoRow label="Created">{formatDate(role.created_at)}</InfoRow>
-                    <InfoRow label="Last Updated">{formatDate(role.updated_at)}</InfoRow>
+                    <InfoRow label="Channel Ref Name">
+                        {role.channel?.ref_name ?? "-"}
+                    </InfoRow>
+                    <InfoRow label="Created">
+                        {formatDate(role.created_at)}
+                    </InfoRow>
+                    <InfoRow label="Last Updated">
+                        {formatDate(role.updated_at)}
+                    </InfoRow>
                     <InfoRow label="Policies">
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="flex flex-wrap gap-2">
                             {rolePolicies.length < 1 ? (
                                 <span>No policies attached to this role</span>
                             ) : (

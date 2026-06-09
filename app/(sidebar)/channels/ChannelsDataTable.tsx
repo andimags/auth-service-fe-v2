@@ -89,7 +89,11 @@ function getColumns(
             ),
             cell: ({ row, table }) => (
                 <div className="w-20 font-medium">
-                    {(table.getSortedRowModel()?.flatRows?.findIndex((flatRow) => flatRow.id === row.id) || 0) + 1}
+                    {(table
+                        .getSortedRowModel()
+                        ?.flatRows?.findIndex(
+                            (flatRow) => flatRow.id === row.id
+                        ) || 0) + 1}
                 </div>
             ),
             enableHiding: false,
@@ -186,7 +190,9 @@ function getColumns(
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem asChild>
-                                <Link href={`/channels/${channel.id}`}>View</Link>                            
+                                <Link href={`/channels/${channel.id}`}>
+                                    View
+                                </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => onEdit(channel)}>
                                 Edit

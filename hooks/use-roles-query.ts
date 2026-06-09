@@ -1,5 +1,9 @@
 import { type RoleDto } from "@/dtos"
-import { useQuery, type UseQueryOptions, type UseQueryResult } from "@tanstack/react-query"
+import {
+    useQuery,
+    type UseQueryOptions,
+    type UseQueryResult,
+} from "@tanstack/react-query"
 
 export interface RolesQueryParams {
     page: number
@@ -77,24 +81,22 @@ export function useRolesQuery(
     params: RolesQueryParams,
     options?: Record<string, unknown>
 ): UseQueryResult<RolesQueryResponse, Error> {
-    return useQuery<RolesQueryResponse, Error>(
-        {
-            queryKey: rolesQueryKeys.list(
-                params.page,
-                params.size,
-                params.search,
-                params.scope,
-                params.sortField,
-                params.sortDesc
-            ),
-            queryFn: () => fetchRoles(params),
-            keepPreviousData: true,
-            ...options,
-        } as UseQueryOptions<
-            RolesQueryResponse,
-            Error,
-            RolesQueryResponse,
-            readonly unknown[]
-        >
-    )
+    return useQuery<RolesQueryResponse, Error>({
+        queryKey: rolesQueryKeys.list(
+            params.page,
+            params.size,
+            params.search,
+            params.scope,
+            params.sortField,
+            params.sortDesc
+        ),
+        queryFn: () => fetchRoles(params),
+        keepPreviousData: true,
+        ...options,
+    } as UseQueryOptions<
+        RolesQueryResponse,
+        Error,
+        RolesQueryResponse,
+        readonly unknown[]
+    >)
 }

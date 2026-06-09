@@ -52,13 +52,8 @@ export function RoleFormDialog() {
     const [isLoading, setIsLoading] = useState(false)
     const queryClient = useQueryClient()
 
-    const {
-        isOpen,
-        setIsOpen,
-        mode,
-        role,
-        onUpdateSuccess,
-    } = useRoleFormStore()
+    const { isOpen, setIsOpen, mode, role, onUpdateSuccess } =
+        useRoleFormStore()
 
     useEffect(() => {
         if (!isOpen) return
@@ -86,8 +81,7 @@ export function RoleFormDialog() {
             setPayload((prev) => ({ ...prev, [field]: e.target.value }))
 
     const handleSelectChange =
-        (field: keyof RoleFormState) =>
-        (value: string) =>
+        (field: keyof RoleFormState) => (value: string) =>
             setPayload((prev) => ({ ...prev, [field]: value }))
 
     const handleClose = () => {
@@ -222,11 +216,16 @@ export function RoleFormDialog() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
-                                        {Object.values(RoleScopeType).map((scope) => (
-                                            <SelectItem key={scope} value={scope}>
-                                                {scope}
-                                            </SelectItem>
-                                        ))}
+                                        {Object.values(RoleScopeType).map(
+                                            (scope) => (
+                                                <SelectItem
+                                                    key={scope}
+                                                    value={scope}
+                                                >
+                                                    {scope}
+                                                </SelectItem>
+                                            )
+                                        )}
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
@@ -246,7 +245,11 @@ export function RoleFormDialog() {
 
                     <DialogFooter className="mt-6">
                         <DialogClose asChild>
-                            <Button type="button" variant="outline" onClick={handleClose}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleClose}
+                            >
                                 Cancel
                             </Button>
                         </DialogClose>

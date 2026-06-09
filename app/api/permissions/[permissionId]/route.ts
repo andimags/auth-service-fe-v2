@@ -1,6 +1,10 @@
 import { UpdatePermissionDto } from "@/dtos/PermissionDto"
 import { authOptions } from "@/lib/next-auth"
-import { deletePermission, getPermission, updatePermission } from "@/services/permission.service"
+import {
+    deletePermission,
+    getPermission,
+    updatePermission,
+} from "@/services/permission.service"
 import { getServerSession } from "next-auth/next"
 import { NextResponse } from "next/server"
 
@@ -24,7 +28,7 @@ export async function GET(
         const response = await getPermission({
             permissionId,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
@@ -61,7 +65,7 @@ export async function PUT(
             permissionId,
             payload,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
@@ -95,7 +99,7 @@ export async function DELETE(
         const response = await deletePermission({
             permissionId,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)

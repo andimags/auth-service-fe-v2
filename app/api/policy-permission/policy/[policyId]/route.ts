@@ -1,6 +1,9 @@
 import { ReplacePolicyPermissionsDto } from "@/dtos/PolicyPermissionDto"
 import { authOptions } from "@/lib/next-auth"
-import { getPolicyPermissions, replacePolicyPermissions } from "@/services/policy-permission.service"
+import {
+    getPolicyPermissions,
+    replacePolicyPermissions,
+} from "@/services/policy-permission.service"
 import { getServerSession } from "next-auth/next"
 import { NextResponse } from "next/server"
 
@@ -24,7 +27,7 @@ export async function GET(
         const response = await getPolicyPermissions({
             policyId,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
@@ -55,12 +58,12 @@ export async function PUT(
         }
 
         const payload: ReplacePolicyPermissionsDto = await request.json()
-                
+
         const response = await replacePolicyPermissions({
             policyId,
             payload,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)

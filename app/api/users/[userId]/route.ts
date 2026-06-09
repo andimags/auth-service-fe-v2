@@ -55,7 +55,7 @@ export async function GET(
 
 export async function PUT(
     request: Request,
-    { params } : { params: Promise<{userId: string}>}
+    { params }: { params: Promise<{ userId: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions)
@@ -71,16 +71,16 @@ export async function PUT(
         }
 
         const payload: UpdateUserDto = await request.json()
-        
+
         const response = await updateUser({
             payload,
             userId,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
-    } catch(error) {
+    } catch (error) {
         console.log(error)
 
         return NextResponse.json(
@@ -92,7 +92,7 @@ export async function PUT(
 
 export async function DELETE(
     request: Request,
-    { params } : { params: Promise<{userId: string}>}
+    { params }: { params: Promise<{ userId: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions)
@@ -106,15 +106,15 @@ export async function DELETE(
                 { status: 401 }
             )
         }
-        
+
         const response = await DeleteUser({
             userId,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
-    } catch(error) {
+    } catch (error) {
         console.log(error)
 
         return NextResponse.json(

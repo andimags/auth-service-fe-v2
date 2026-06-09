@@ -1,5 +1,9 @@
 import { type PolicyDto } from "@/dtos"
-import { useQuery, type UseQueryOptions, type UseQueryResult } from "@tanstack/react-query"
+import {
+    useQuery,
+    type UseQueryOptions,
+    type UseQueryResult,
+} from "@tanstack/react-query"
 
 export interface PoliciesQueryParams {
     page: number
@@ -77,24 +81,22 @@ export function usePoliciesQuery(
     params: PoliciesQueryParams,
     options?: Record<string, unknown>
 ): UseQueryResult<PoliciesQueryResponse, Error> {
-    return useQuery<PoliciesQueryResponse, Error>(
-        {
-            queryKey: policiesQueryKeys.list(
-                params.page,
-                params.size,
-                params.search,
-                params.isSystem,
-                params.sortField,
-                params.sortDesc
-            ),
-            queryFn: () => fetchPolicies(params),
-            keepPreviousData: true,
-            ...options,
-        } as UseQueryOptions<
-            PoliciesQueryResponse,
-            Error,
-            PoliciesQueryResponse,
-            readonly unknown[]
-        >
-    )
+    return useQuery<PoliciesQueryResponse, Error>({
+        queryKey: policiesQueryKeys.list(
+            params.page,
+            params.size,
+            params.search,
+            params.isSystem,
+            params.sortField,
+            params.sortDesc
+        ),
+        queryFn: () => fetchPolicies(params),
+        keepPreviousData: true,
+        ...options,
+    } as UseQueryOptions<
+        PoliciesQueryResponse,
+        Error,
+        PoliciesQueryResponse,
+        readonly unknown[]
+    >)
 }

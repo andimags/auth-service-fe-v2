@@ -25,7 +25,7 @@ export async function GET(
         const response = await getRole({
             roleId,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
@@ -62,7 +62,7 @@ export async function PUT(
             roleId,
             payload,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
@@ -96,7 +96,7 @@ export async function DELETE(
         const response = await deleteRole({
             roleId,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)

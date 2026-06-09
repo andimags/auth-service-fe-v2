@@ -19,9 +19,7 @@ export default async function Page({
     const userRoles = await getUserRolesData(userId)
     const roles = await getRolesData()
 
-    return (
-        <UserInformation user={user} userRoles={userRoles} roles={roles} />
-    )
+    return <UserInformation user={user} userRoles={userRoles} roles={roles} />
 }
 
 async function getUserData(userId: string): Promise<UserDto> {

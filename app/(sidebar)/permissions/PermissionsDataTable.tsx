@@ -21,7 +21,10 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { PermissionAccessLevelType, PermissionIsSystemType } from "@/constants/enums"
+import {
+    PermissionAccessLevelType,
+    PermissionIsSystemType,
+} from "@/constants/enums"
 import { PermissionDto } from "@/dtos"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useDeletePermission } from "@/hooks/use-delete-permission"
@@ -188,7 +191,8 @@ function getColumns(
                     </div>
                 )
             },
-            filterFn: (row, id, value) => value.includes(String(row.getValue(id))),
+            filterFn: (row, id, value) =>
+                value.includes(String(row.getValue(id))),
         },
         {
             accessorKey: "created_at",
@@ -325,7 +329,7 @@ export function PermissionsDataTable() {
             accessLevel: accessLevelFilter,
             sortField,
             sortDesc,
-            isSystem: isSystemFilter
+            isSystem: isSystemFilter,
         },
         { enabled: status === "authenticated" }
     )

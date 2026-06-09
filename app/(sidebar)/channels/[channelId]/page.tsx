@@ -14,9 +14,7 @@ export default async function Page({
     const { channelId } = await params
     const channel = await getChannelData(channelId)
 
-    return (
-        <ChannelInformation channel={channel} />
-    )
+    return <ChannelInformation channel={channel} />
 }
 
 async function getChannelData(channelId: string): Promise<ChannelDto> {

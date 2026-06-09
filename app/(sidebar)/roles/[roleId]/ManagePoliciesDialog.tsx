@@ -1,6 +1,10 @@
 "use client"
 
-import { MultiSelect, MultiSelectGroup, MultiSelectOption } from "@/components/multi-select"
+import {
+    MultiSelect,
+    MultiSelectGroup,
+    MultiSelectOption,
+} from "@/components/multi-select"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -90,7 +94,8 @@ export function ManagePoliciesDialog({
                     <DialogHeader className="mb-4">
                         <DialogTitle>Manage Policies</DialogTitle>
                         <DialogDescription>
-                            Update this role&apos;s attached policies. Click save when ready.
+                            Update this role&apos;s attached policies. Click
+                            save when ready.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -109,7 +114,11 @@ export function ManagePoliciesDialog({
 
                     <DialogFooter className="mt-6">
                         <DialogClose asChild>
-                            <Button type="button" variant="outline" onClick={handleClose}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleClose}
+                            >
                                 Cancel
                             </Button>
                         </DialogClose>

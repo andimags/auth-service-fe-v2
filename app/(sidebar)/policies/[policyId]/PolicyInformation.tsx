@@ -48,7 +48,9 @@ export default function PolicyInformation({
         setIsOpen(true)
     }
 
-    const selectedValues = policyPermissions.map((permission) => permission.id.toString())
+    const selectedValues = policyPermissions.map((permission) =>
+        permission.id.toString()
+    )
 
     const permissionOptions = permissions.map((permission) => ({
         label: `${permission.ref_name} | ${permission.name}`,
@@ -75,16 +77,37 @@ export default function PolicyInformation({
                         </p>
                     </div>
                     <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={handleEditPolicy}>
-                            <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} />
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleEditPolicy}
+                        >
+                            <HugeiconsIcon
+                                icon={PencilEdit01Icon}
+                                strokeWidth={2}
+                            />
                             <span>Edit Policy</span>
                         </Button>
-                        <Button variant="outline" size="sm" onClick={handleManagePermissions}>
-                            <HugeiconsIcon icon={ShieldUserIcon} strokeWidth={2} />
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleManagePermissions}
+                        >
+                            <HugeiconsIcon
+                                icon={ShieldUserIcon}
+                                strokeWidth={2}
+                            />
                             <span>Manage Permissions</span>
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => deletePolicy(policy)}>
-                            <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deletePolicy(policy)}
+                        >
+                            <HugeiconsIcon
+                                icon={Delete02Icon}
+                                strokeWidth={2}
+                            />
                             <span>Delete</span>
                         </Button>
                     </div>
@@ -93,16 +116,27 @@ export default function PolicyInformation({
                 <dl className="text-sm">
                     <InfoRow label="Name">{policy.name}</InfoRow>
                     <InfoRow label="Reference Name">{policy.ref_name}</InfoRow>
-                    <InfoRow label="Description">{policy.description ?? "-"}</InfoRow>
-                    <InfoRow label="Created">{formatDate(policy.created_at)}</InfoRow>
-                    <InfoRow label="Last Updated">{formatDate(policy.updated_at)}</InfoRow>
+                    <InfoRow label="Description">
+                        {policy.description ?? "-"}
+                    </InfoRow>
+                    <InfoRow label="Created">
+                        {formatDate(policy.created_at)}
+                    </InfoRow>
+                    <InfoRow label="Last Updated">
+                        {formatDate(policy.updated_at)}
+                    </InfoRow>
                     <InfoRow label="Permissions">
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="flex flex-wrap gap-2">
                             {policyPermissions.length < 1 ? (
-                                <span>No permissions attached to this role</span>
+                                <span>
+                                    No permissions attached to this role
+                                </span>
                             ) : (
                                 policyPermissions.map((permission) => (
-                                    <Badge key={permission.id} variant="outline">
+                                    <Badge
+                                        key={permission.id}
+                                        variant="outline"
+                                    >
                                         {permission.ref_name}
                                     </Badge>
                                 ))

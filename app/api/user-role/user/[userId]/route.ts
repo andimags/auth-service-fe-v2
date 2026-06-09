@@ -6,7 +6,7 @@ import { replaceUserRoles } from "@/services/user-role.service"
 
 export async function PUT(
     request: Request,
-    { params } : { params: Promise<{userId: string}>}
+    { params }: { params: Promise<{ userId: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions)
@@ -22,16 +22,16 @@ export async function PUT(
         }
 
         const payload: ReplaceUserRolesDto = await request.json()
-        
+
         const response = await replaceUserRoles({
             userId,
             payload,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
-    } catch(error) {
+    } catch (error) {
         console.log(error)
 
         return NextResponse.json(

@@ -22,7 +22,7 @@ export async function GET(request: Request) {
         const response = await getPolicies({
             search,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
@@ -34,7 +34,6 @@ export async function GET(request: Request) {
         )
     }
 }
-
 
 export async function POST(request: Request) {
     try {
@@ -54,7 +53,7 @@ export async function POST(request: Request) {
         const response = await addPolicy({
             payload,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)

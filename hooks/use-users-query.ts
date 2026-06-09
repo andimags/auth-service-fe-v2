@@ -1,5 +1,9 @@
 import { type UserDto } from "@/dtos"
-import { useQuery, type UseQueryOptions, type UseQueryResult } from "@tanstack/react-query"
+import {
+    useQuery,
+    type UseQueryOptions,
+    type UseQueryResult,
+} from "@tanstack/react-query"
 
 export interface UsersQueryParams {
     page: number
@@ -26,10 +30,22 @@ export const usersQueryKeys = {
         status?: string,
         sortField?: string,
         sortDesc?: boolean
-    ) => ["users", "list", page, size, search ?? "", status ?? "", sortField ?? "", sortDesc ?? false] as const,
+    ) =>
+        [
+            "users",
+            "list",
+            page,
+            size,
+            search ?? "",
+            status ?? "",
+            sortField ?? "",
+            sortDesc ?? false,
+        ] as const,
 }
 
-async function fetchUsers(params: UsersQueryParams): Promise<UsersQueryResponse> {
+async function fetchUsers(
+    params: UsersQueryParams
+): Promise<UsersQueryResponse> {
     const searchParams = new URLSearchParams()
     searchParams.set("page", String(params.page))
     searchParams.set("size", String(params.size))
@@ -65,24 +81,22 @@ export function useUsersQuery(
     params: UsersQueryParams,
     options?: Record<string, unknown>
 ): UseQueryResult<UsersQueryResponse, Error> {
-    return useQuery<UsersQueryResponse, Error>(
-        {
-            queryKey: usersQueryKeys.list(
-                params.page,
-                params.size,
-                params.search,
-                params.status,
-                params.sortField,
-                params.sortDesc
-            ),
-            queryFn: () => fetchUsers(params),
-            keepPreviousData: true,
-            ...options,
-        } as UseQueryOptions<
-            UsersQueryResponse,
-            Error,
-            UsersQueryResponse,
-            readonly unknown[]
-        >
-    )
+    return useQuery<UsersQueryResponse, Error>({
+        queryKey: usersQueryKeys.list(
+            params.page,
+            params.size,
+            params.search,
+            params.status,
+            params.sortField,
+            params.sortDesc
+        ),
+        queryFn: () => fetchUsers(params),
+        keepPreviousData: true,
+        ...options,
+    } as UseQueryOptions<
+        UsersQueryResponse,
+        Error,
+        UsersQueryResponse,
+        readonly unknown[]
+    >)
 }

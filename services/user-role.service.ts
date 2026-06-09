@@ -16,20 +16,23 @@ export async function getUserRoles({
     accessToken,
     apiKey,
 }: GetUserRolesParams): Promise<UserRolesDto[]> {
-    return http<UserRolesDto[]>(`${AUTH_SERVICE_BASE_URL}/api/user-role/user/${userId.toString()}`, {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": apiKey,
-            "Content-Type": "application/json",
-        },
-        cache: "no-store",
-    })
+    return http<UserRolesDto[]>(
+        `${AUTH_SERVICE_BASE_URL}/api/user-role/user/${userId.toString()}`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+                "Content-Type": "application/json",
+            },
+            cache: "no-store",
+        }
+    )
 }
 
 type ReplaceUserRolesParams = {
-    userId: string,
-    payload: ReplaceUserRolesDto,
+    userId: string
+    payload: ReplaceUserRolesDto
     accessToken: string
     apiKey: string
 }
@@ -40,15 +43,17 @@ export async function replaceUserRoles({
     accessToken,
     apiKey,
 }: ReplaceUserRolesParams): Promise<UserRolesDto[]> {
-    return http<UserRolesDto[]>(`${AUTH_SERVICE_BASE_URL}/api/user-role/user/${userId.toString()}`, {
-        method: "PUT",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": apiKey,
-            "Content-Type": "application/json",
-        },
-        cache: "no-store",
-        body: JSON.stringify(payload)
-    })
+    return http<UserRolesDto[]>(
+        `${AUTH_SERVICE_BASE_URL}/api/user-role/user/${userId.toString()}`,
+        {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+                "Content-Type": "application/json",
+            },
+            cache: "no-store",
+            body: JSON.stringify(payload),
+        }
+    )
 }
-

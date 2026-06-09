@@ -22,7 +22,7 @@ export async function GET(request: Request) {
         const response = await getUsers({
             search,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
@@ -35,9 +35,7 @@ export async function GET(request: Request) {
     }
 }
 
-export async function POST(
-    request: Request
-) {
+export async function POST(request: Request) {
     try {
         const session = await getServerSession(authOptions)
         const accessToken = session?.access_token
@@ -51,15 +49,15 @@ export async function POST(
         }
 
         const payload: CreateUserDto = await request.json()
-        
+
         const response = await addUser({
             payload,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
-    } catch(error) {
+    } catch (error) {
         console.log(error)
 
         return NextResponse.json(

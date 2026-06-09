@@ -6,10 +6,7 @@ import { PermissionDto } from "@/dtos"
 import { useDeletePermission } from "@/hooks/use-delete-permission"
 import usePermissionFormDialog from "@/hooks/use-permission-form-dialog"
 import formatDate from "@/lib/format-date"
-import {
-    Delete02Icon,
-    PencilEdit01Icon,
-} from "@hugeicons/core-free-icons"
+import { Delete02Icon, PencilEdit01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useRouter } from "next/navigation"
 
@@ -47,11 +44,22 @@ export default function PermissionInformation({
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={handleEditPermission}>
-                        <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} />
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleEditPermission}
+                    >
+                        <HugeiconsIcon
+                            icon={PencilEdit01Icon}
+                            strokeWidth={2}
+                        />
                         <span>Edit Permission</span>
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => deletePermission(permission)}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => deletePermission(permission)}
+                    >
                         <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
                         <span>Delete</span>
                     </Button>
@@ -67,14 +75,22 @@ export default function PermissionInformation({
                         {permission.access_level}
                     </Badge>
                 </InfoRow>
-                <InfoRow label="Description">{permission.description ?? "-"}</InfoRow>
+                <InfoRow label="Description">
+                    {permission.description ?? "-"}
+                </InfoRow>
                 <InfoRow label="System Permission">
-                    <Badge variant={permission.is_system ? "default" : "secondary"}>
+                    <Badge
+                        variant={permission.is_system ? "default" : "secondary"}
+                    >
                         {permission.is_system ? "Yes" : "No"}
                     </Badge>
                 </InfoRow>
-                <InfoRow label="Created">{formatDate(permission.created_at)}</InfoRow>
-                <InfoRow label="Last Updated">{formatDate(permission.updated_at)}</InfoRow>
+                <InfoRow label="Created">
+                    {formatDate(permission.created_at)}
+                </InfoRow>
+                <InfoRow label="Last Updated">
+                    {formatDate(permission.updated_at)}
+                </InfoRow>
             </dl>
         </div>
     )

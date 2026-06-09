@@ -11,11 +11,11 @@ type GetPoliciesParams = {
 }
 
 export async function getPolicies({
-    search = '',
+    search = "",
     accessToken,
     apiKey,
 }: GetPoliciesParams): Promise<PolicyDto[]> {
-    console.log('yo', `${AUTH_SERVICE_BASE_URL}/api/policies${search}`)
+    console.log("yo", `${AUTH_SERVICE_BASE_URL}/api/policies${search}`)
     return http<PolicyDto[]>(`${AUTH_SERVICE_BASE_URL}/api/policies${search}`, {
         method: "GET",
         headers: {
@@ -38,16 +38,22 @@ export async function getPolicy({
     accessToken,
     apiKey,
 }: GetPolicyParams): Promise<PolicyDto> {
-    console.log('URL on policy service:', `${AUTH_SERVICE_BASE_URL}/api/policies/${policyId}`)
-    return http<PolicyDto>(`${AUTH_SERVICE_BASE_URL}/api/policies/${policyId}`, {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": apiKey,
-            "Content-Type": "application/json",
-        },
-        cache: "no-store",
-    })
+    console.log(
+        "URL on policy service:",
+        `${AUTH_SERVICE_BASE_URL}/api/policies/${policyId}`
+    )
+    return http<PolicyDto>(
+        `${AUTH_SERVICE_BASE_URL}/api/policies/${policyId}`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+                "Content-Type": "application/json",
+            },
+            cache: "no-store",
+        }
+    )
 }
 
 type AddPolicyParams = {
@@ -85,15 +91,18 @@ export async function updatePolicy({
     accessToken,
     apiKey,
 }: UpdatePolicyParams): Promise<PolicyDto> {
-    return http<PolicyDto>(`${AUTH_SERVICE_BASE_URL}/api/policies/${policyId}`, {
-        method: "PUT",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": apiKey,
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-    })
+    return http<PolicyDto>(
+        `${AUTH_SERVICE_BASE_URL}/api/policies/${policyId}`,
+        {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        }
+    )
 }
 
 type DeletePolicyParams = {
@@ -107,12 +116,15 @@ export async function deletePolicy({
     accessToken,
     apiKey,
 }: DeletePolicyParams): Promise<{ message: string }> {
-    return http<{ message: string }>(`${AUTH_SERVICE_BASE_URL}/api/policies/${policyId}`, {
-        method: "DELETE",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": apiKey,
-            "Content-Type": "application/json",
-        },
-    })
+    return http<{ message: string }>(
+        `${AUTH_SERVICE_BASE_URL}/api/policies/${policyId}`,
+        {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": apiKey,
+                "Content-Type": "application/json",
+            },
+        }
+    )
 }

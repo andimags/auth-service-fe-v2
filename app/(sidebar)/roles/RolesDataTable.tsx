@@ -137,9 +137,12 @@ function getColumns(
             accessorFn: (row) => row.channel?.ref_name,
             id: "channel_ref_name",
             header: ({ column }) => (
-                <DataTableColumnHeader column={column} title="Channel Ref Name" />
+                <DataTableColumnHeader
+                    column={column}
+                    title="Channel Ref Name"
+                />
             ),
-            cell: ({ getValue }) => <div>{getValue() as string ?? "-"}</div>,
+            cell: ({ getValue }) => <div>{(getValue() as string) ?? "-"}</div>,
         },
         {
             accessorKey: "created_at",

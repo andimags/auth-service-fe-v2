@@ -1,5 +1,9 @@
 import { type ChannelDto } from "@/dtos"
-import { useQuery, type UseQueryOptions, type UseQueryResult } from "@tanstack/react-query"
+import {
+    useQuery,
+    type UseQueryOptions,
+    type UseQueryResult,
+} from "@tanstack/react-query"
 
 export interface ChannelsQueryParams {
     page: number
@@ -24,10 +28,21 @@ export const channelsQueryKeys = {
         search?: string,
         sortField?: string,
         sortDesc?: boolean
-    ) => ["channels", "list", page, size, search ?? "", sortField ?? "", sortDesc ?? false] as const,
+    ) =>
+        [
+            "channels",
+            "list",
+            page,
+            size,
+            search ?? "",
+            sortField ?? "",
+            sortDesc ?? false,
+        ] as const,
 }
 
-async function fetchChannels(params: ChannelsQueryParams): Promise<ChannelsQueryResponse> {
+async function fetchChannels(
+    params: ChannelsQueryParams
+): Promise<ChannelsQueryResponse> {
     const searchParams = new URLSearchParams()
     searchParams.set("page", String(params.page))
     searchParams.set("size", String(params.size))
@@ -44,11 +59,9 @@ async function fetchChannels(params: ChannelsQueryParams): Promise<ChannelsQuery
         searchParams.set("sort_desc", String(params.sortDesc))
     }
 
-
-    const response = await fetch(
-        `/api/channels?${searchParams.toString()}`,
-        { cache: "no-store" }
-    )
+    const response = await fetch(`/api/channels?${searchParams.toString()}`, {
+        cache: "no-store",
+    })
     return response.json()
 }
 
@@ -56,23 +69,21 @@ export function useChannelsQuery(
     params: ChannelsQueryParams,
     options?: Record<string, unknown>
 ): UseQueryResult<ChannelsQueryResponse, Error> {
-    return useQuery<ChannelsQueryResponse, Error>(
-        {
-            queryKey: channelsQueryKeys.list(
-                params.page,
-                params.size,
-                params.search,
-                params.sortField,
-                params.sortDesc
-            ),
-            queryFn: () => fetchChannels(params),
-            keepPreviousData: true,
-            ...options,
-        } as UseQueryOptions<
-            ChannelsQueryResponse,
-            Error,
-            ChannelsQueryResponse,
-            readonly unknown[]
-        >
-    )
+    return useQuery<ChannelsQueryResponse, Error>({
+        queryKey: channelsQueryKeys.list(
+            params.page,
+            params.size,
+            params.search,
+            params.sortField,
+            params.sortDesc
+        ),
+        queryFn: () => fetchChannels(params),
+        keepPreviousData: true,
+        ...options,
+    } as UseQueryOptions<
+        ChannelsQueryResponse,
+        Error,
+        ChannelsQueryResponse,
+        readonly unknown[]
+    >)
 }

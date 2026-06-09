@@ -31,11 +31,14 @@ export async function loginWithCredentials({
 export async function refreshAccessToken(
     refreshToken: string
 ): Promise<AuthResponseDto> {
-    return http<AuthResponseDto>(`${AUTH_SERVICE_BASE_URL}/api/auth/refresh-token`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refresh_token: refreshToken }),
-    })
+    return http<AuthResponseDto>(
+        `${AUTH_SERVICE_BASE_URL}/api/auth/refresh-token`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ refresh_token: refreshToken }),
+        }
+    )
 }

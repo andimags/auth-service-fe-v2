@@ -1,6 +1,10 @@
 import { UpdatePolicyDto } from "@/dtos/PolicyDto"
 import { authOptions } from "@/lib/next-auth"
-import { deletePolicy, getPolicy, updatePolicy } from "@/services/policy.service"
+import {
+    deletePolicy,
+    getPolicy,
+    updatePolicy,
+} from "@/services/policy.service"
 import { getServerSession } from "next-auth/next"
 import { NextResponse } from "next/server"
 
@@ -24,7 +28,7 @@ export async function GET(
         const response = await getPolicy({
             policyId,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
@@ -61,7 +65,7 @@ export async function PUT(
             policyId,
             payload,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)
@@ -95,7 +99,7 @@ export async function DELETE(
         const response = await deletePolicy({
             policyId,
             accessToken,
-            apiKey
+            apiKey,
         })
 
         return NextResponse.json(response)

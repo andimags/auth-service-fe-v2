@@ -991,6 +991,5 @@ export {
     type DataTableToolbarProps,
     type DataTableViewOptionsProps,
     type FacetedFilterConfig,
-    type FacetedFilterOption
+    type FacetedFilterOption,
 }
-

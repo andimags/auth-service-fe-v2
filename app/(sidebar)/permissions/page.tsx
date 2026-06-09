@@ -2,7 +2,7 @@ import { PermissionFormDialog } from "@/components/shared/permission-form-dialog
 import { PermissionsDataTable } from "./PermissionsDataTable"
 
 export default function Page() {
-    return(
+    return (
         <>
             <PermissionFormDialog />
             <PermissionsDataTable />

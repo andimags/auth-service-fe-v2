@@ -26,7 +26,6 @@ export async function getUsers({
     })
 }
 
-
 type GetUserParams = {
     userId: string
     accessToken: string
@@ -67,7 +66,7 @@ export async function addUser({
             "x-api-key": apiKey,
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
     })
 }
 
@@ -91,7 +90,7 @@ export async function updateUser({
             "x-api-key": apiKey,
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
     })
 }
 
@@ -112,6 +111,6 @@ export async function DeleteUser({
             Authorization: `Bearer ${accessToken}`,
             "x-api-key": apiKey,
             "Content-Type": "application/json",
-        }
+        },
     })
 }

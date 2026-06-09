@@ -14,9 +14,7 @@ export default async function Page({
     const { permissionId } = await params
     const permission = await getPermissionData(permissionId)
 
-    return (
-        <PermissionInformation permission={permission} />
-    )
+    return <PermissionInformation permission={permission} />
 }
 
 async function getPermissionData(permissionId: string): Promise<PermissionDto> {

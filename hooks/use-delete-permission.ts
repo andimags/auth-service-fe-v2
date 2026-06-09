@@ -11,7 +11,9 @@ interface UseDeletePermissionOptions {
     onSuccess?: () => void
 }
 
-export function useDeletePermission({ onSuccess }: UseDeletePermissionOptions = {}) {
+export function useDeletePermission({
+    onSuccess,
+}: UseDeletePermissionOptions = {}) {
     const confirm = useConfirmDialog()
     const queryClient = useQueryClient()
     const baseUrl = getBaseUrl()
@@ -39,7 +41,9 @@ export function useDeletePermission({ onSuccess }: UseDeletePermissionOptions = 
                             onSuccess?.()
                         } else {
                             const error = await response.text()
-                            toast.warning(error || "Failed to delete permission")
+                            toast.warning(
+                                error || "Failed to delete permission"
+                            )
                         }
                     } catch (error) {
                         console.error(error)

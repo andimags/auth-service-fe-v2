@@ -4,16 +4,16 @@ import { ChannelDto } from "@/dtos/ChannelDto"
 import { create } from "zustand"
 
 type ChannelFormState = {
-    isOpen: boolean,
+    isOpen: boolean
     setIsOpen: (value: boolean) => void
 
-    mode: 'edit' | 'create',
-    setMode: (value: 'edit' | 'create') => void
+    mode: "edit" | "create"
+    setMode: (value: "edit" | "create") => void
 
-    channel: ChannelDto | null,
+    channel: ChannelDto | null
     setChannel: (channel: ChannelDto | null) => void
 
-    onUpdateSuccess?: () => void,
+    onUpdateSuccess?: () => void
     setOnUpdateSuccess: (callback: () => void) => void
 }
 
@@ -22,28 +22,28 @@ export const useChannelFormStore = create<ChannelFormState>((set, get) => ({
 
     setIsOpen: (value: boolean) => {
         set({
-            isOpen: value
+            isOpen: value,
         })
     },
 
-    mode: 'create',
-    setMode: (value: 'edit' | 'create') => {
+    mode: "create",
+    setMode: (value: "edit" | "create") => {
         set({
-            mode: value
+            mode: value,
         })
     },
 
     channel: null,
     setChannel: (channel: ChannelDto | null) => {
         set({
-            channel: channel
+            channel: channel,
         })
     },
 
     onUpdateSuccess: undefined,
     setOnUpdateSuccess: (callback: () => void) => {
         set({
-            onUpdateSuccess: callback
+            onUpdateSuccess: callback,
         })
-    }
+    },
 }))

@@ -1,4 +1,7 @@
-import { ReplacePolicyPermissionsDto, PolicyPermissionDto } from "@/dtos/PolicyPermissionDto"
+import {
+    ReplacePolicyPermissionsDto,
+    PolicyPermissionDto,
+} from "@/dtos/PolicyPermissionDto"
 import { getAuthServiceBaseUrl } from "@/lib/api"
 import http from "./http/fetcher"
 

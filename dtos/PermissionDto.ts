@@ -1,4 +1,7 @@
-import { PermissionAccessLevelType, PermissionIsSystemType } from "@/constants/enums"
+import {
+    PermissionAccessLevelType,
+    PermissionIsSystemType,
+} from "@/constants/enums"
 
 export interface PermissionDto {
     id: number

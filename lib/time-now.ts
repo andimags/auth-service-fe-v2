@@ -1,4 +1,4 @@
-export default function timeNow(){
+export default function timeNow() {
     const now = new Date()
 
     const time = now.toLocaleTimeString("en-US", {

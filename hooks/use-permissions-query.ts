@@ -1,5 +1,9 @@
 import { type PermissionDto } from "@/dtos"
-import { useQuery, type UseQueryOptions, type UseQueryResult } from "@tanstack/react-query"
+import {
+    useQuery,
+    type UseQueryOptions,
+    type UseQueryResult,
+} from "@tanstack/react-query"
 
 export interface PermissionsQueryParams {
     page: number
@@ -41,7 +45,7 @@ export const permissionsQueryKeys = {
             module ?? "",
             sortField ?? "",
             sortDesc ?? false,
-            isSystem ?? ""
+            isSystem ?? "",
         ] as const,
 }
 
@@ -76,11 +80,14 @@ async function fetchPermissions(
         searchParams.set("is_system", params.isSystem)
     }
 
-    const response = await fetch(`/api/permissions?${searchParams.toString()}`, {
-        cache: "no-store",
-    })
+    const response = await fetch(
+        `/api/permissions?${searchParams.toString()}`,
+        {
+            cache: "no-store",
+        }
+    )
 
-    console.log('response xxx', response)
+    console.log("response xxx", response)
 
     if (!response.ok) {
         throw new Error("Failed to fetch permissions")
@@ -93,26 +100,24 @@ export function usePermissionsQuery(
     params: PermissionsQueryParams,
     options?: Record<string, unknown>
 ): UseQueryResult<PermissionsQueryResponse, Error> {
-    return useQuery<PermissionsQueryResponse, Error>(
-        {
-            queryKey: permissionsQueryKeys.list(
-                params.page,
-                params.size,
-                params.search,
-                params.accessLevel,
-                params.module,
-                params.sortField,
-                params.sortDesc,
-                params.isSystem
-            ),
-            queryFn: () => fetchPermissions(params),
-            keepPreviousData: true,
-            ...options,
-        } as UseQueryOptions<
-            PermissionsQueryResponse,
-            Error,
-            PermissionsQueryResponse,
-            readonly unknown[]
-        >
-    )
+    return useQuery<PermissionsQueryResponse, Error>({
+        queryKey: permissionsQueryKeys.list(
+            params.page,
+            params.size,
+            params.search,
+            params.accessLevel,
+            params.module,
+            params.sortField,
+            params.sortDesc,
+            params.isSystem
+        ),
+        queryFn: () => fetchPermissions(params),
+        keepPreviousData: true,
+        ...options,
+    } as UseQueryOptions<
+        PermissionsQueryResponse,
+        Error,
+        PermissionsQueryResponse,
+        readonly unknown[]
+    >)
 }

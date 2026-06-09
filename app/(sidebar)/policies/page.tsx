@@ -2,7 +2,7 @@ import { PolicyFormDialog } from "@/components/shared/policy-form-dialog/PolicyF
 import { PoliciesDataTable } from "./PoliciesDataTable"
 
 export default function Page() {
-    return(
+    return (
         <>
             <PolicyFormDialog />
             <PoliciesDataTable />
