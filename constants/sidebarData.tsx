@@ -15,13 +15,13 @@ export const sidebarData = {
         avatar: "/avatars/shadcn.jpg",
     },
     navMain: [
-        {
-            title: "Dashboard",
-            url: "/",
-            icon: (
-                <HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />
-            ),
-        },
+        // {
+        //     title: "Dashboard",
+        //     url: "/",
+        //     icon: (
+        //         <HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />
+        //     ),
+        // },
         {
             title: "Users",
             url: "/users",
