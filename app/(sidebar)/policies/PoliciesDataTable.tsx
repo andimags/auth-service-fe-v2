@@ -160,7 +160,7 @@ function getColumns(
                     </div>
                 )
             },
-            filterFn: (row, id, value) => value.includes(row.getValue(id)),
+            filterFn: (row, id, value) => value.includes(String(row.getValue(id))),
         },
         {
             accessorKey: "created_at",

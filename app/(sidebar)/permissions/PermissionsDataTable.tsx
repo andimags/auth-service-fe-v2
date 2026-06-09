@@ -183,12 +183,12 @@ function getColumns(
                     <div className="flex w-25 items-center">
                         <Icon className="mr-2 size-4 text-muted-foreground" />
                         {/* <span className="capitalize">
-                                            is_system
-                                        </span> */}
+                            is_system
+                        </span> */}
                     </div>
                 )
             },
-            filterFn: (row, id, value) => value.includes(row.getValue(id)),
+            filterFn: (row, id, value) => value.includes(String(row.getValue(id))),
         },
         {
             accessorKey: "created_at",

@@ -73,12 +73,14 @@ async function fetchPermissions(
     }
 
     if (params.isSystem) {
-        searchParams.set("is_system", String(params.isSystem))
+        searchParams.set("is_system", params.isSystem)
     }
 
     const response = await fetch(`/api/permissions?${searchParams.toString()}`, {
         cache: "no-store",
     })
+
+    console.log('response xxx', response)
 
     if (!response.ok) {
         throw new Error("Failed to fetch permissions")
