@@ -1,4 +1,4 @@
-import { AuthResponseDto } from "@/dtos/AuthDto"
+import { AuthResponseDto, DestroyTokenResponseDto } from "@/dtos/AuthDto"
 import http from "./http/fetcher"
 import { getAuthServiceBaseUrl } from "@/lib/api"
 
@@ -42,3 +42,19 @@ export async function refreshAccessToken(
         }
     )
 }
+
+export async function destroyToken(
+    refreshToken: string
+): Promise<DestroyTokenResponseDto> {
+    return http<DestroyTokenResponseDto>(
+        `${AUTH_SERVICE_BASE_URL}/api/auth/destroy-token`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ refresh_token: refreshToken }),
+        }
+    )
+}
+

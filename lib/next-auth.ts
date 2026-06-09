@@ -1,4 +1,5 @@
 import {
+    destroyToken,
     loginWithCredentials,
     refreshAccessToken as refreshTokenRequest,
 } from "@/services/auth.service"
@@ -205,7 +206,12 @@ export const authOptions: NextAuthOptions = {
             if (url.startsWith("/")) return `${baseUrl}${url}`
             if (new URL(url).origin === baseUrl) return url
             return baseUrl
-        },
+        }
+    },
+    events: {
+        signOut: async ({token}) => {
+            await destroyToken(token.tokens.refresh.value)
+        }
     },
     debug: process.env.NODE_ENV === "development",
 }

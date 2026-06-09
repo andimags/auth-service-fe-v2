@@ -15,3 +15,8 @@ export interface AuthResponseDto {
         }
     }
 }
+
+export interface DestroyTokenResponseDto{
+    message: string,
+    deleted_refresh_token_rows: number
+}

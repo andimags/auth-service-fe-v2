@@ -24,6 +24,11 @@ import {
     Notification03Icon,
     Logout01Icon,
 } from "@hugeicons/core-free-icons"
+import { signOut } from "next-auth/react"
+
+const handleLogout = async () => {
+    await signOut()
+}
 
 export function NavUser({
     user,
@@ -121,7 +126,7 @@ export function NavUser({
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleLogout}>
                             <HugeiconsIcon
                                 icon={Logout01Icon}
                                 strokeWidth={2}
