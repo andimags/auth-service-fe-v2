@@ -134,9 +134,6 @@ export const authOptions: NextAuthOptions = {
     pages: { signIn: "/login" },
     callbacks: {
         async jwt({ token, user }) {
-            // console.log("JWT CALLBACK TOKEN:", token)
-            // console.log("JWT CALLBACK USER:", user)
-
             if (user) {
                 return {
                     ...token,
@@ -160,7 +157,7 @@ export const authOptions: NextAuthOptions = {
             }
 
             if (!token.tokens?.access?.expires_at) {
-                return { ...token, error: "MissingTokenData" }
+                return token
             }
 
             const accessTokenExpires = normalizeExpiresAt(
@@ -173,16 +170,28 @@ export const authOptions: NextAuthOptions = {
             }
 
             // Token expired or about to — refresh it
-            const newRefreshAccessToken = await refreshAccessToken(token)
-            console.log(`[${timeNow()}] Refresh result:`)
-            console.log(`  OLD: ...${token.tokens.access.value.slice(-10)}`)
-            console.log(
-                `  NEW: ...${newRefreshAccessToken.tokens?.access?.value?.slice(-10)}`
-            )
-            console.log(
-                `  SAME TOKEN? ${token.tokens.access.value === newRefreshAccessToken.tokens?.access?.value}`
-            )
-            return newRefreshAccessToken
+            try {
+                const newRefreshAccessToken = await refreshAccessToken(token)
+                
+                // If the refresh failed (returned same token with error), log it safely
+                if (newRefreshAccessToken.error) {
+                    console.warn(`[${timeNow()}] Token refresh failed for user ${token.user?.email}`)
+                    return newRefreshAccessToken
+                }
+
+                console.log(`[${timeNow()}] Refresh result:`)
+                console.log(`  OLD: ...${token.tokens?.access?.value?.slice(-10) ?? "unknown"}`)
+                console.log(
+                    `  NEW: ...${newRefreshAccessToken.tokens?.access?.value?.slice(-10) ?? "unknown"}`
+                )
+                console.log(
+                    `  SAME TOKEN? ${token.tokens?.access?.value === newRefreshAccessToken.tokens?.access?.value}`
+                )
+                return newRefreshAccessToken
+            } catch (error) {
+                console.error("Critical error in JWT refresh callback:", error)
+                return { ...token, error: "RefreshAccessTokenError" }
+            }
         },
 
         async session({ session, token }) {
