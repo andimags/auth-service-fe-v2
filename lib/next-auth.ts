@@ -134,9 +134,6 @@ export const authOptions: NextAuthOptions = {
     pages: { signIn: "/login" },
     callbacks: {
         async jwt({ token, user }) {
-            // console.log("JWT CALLBACK TOKEN:", token)
-            // console.log("JWT CALLBACK USER:", user)
-
             if (user) {
                 return {
                     ...token,
@@ -160,7 +157,7 @@ export const authOptions: NextAuthOptions = {
             }
 
             if (!token.tokens?.access?.expires_at) {
-                return { ...token, error: "MissingTokenData" }
+                return token
             }
 
             const accessTokenExpires = normalizeExpiresAt(
