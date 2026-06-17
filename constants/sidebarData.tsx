@@ -1,6 +1,5 @@
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
-    DashboardSquare01Icon,
     UserGroupIcon,
     CableIcon,
     ShieldUserIcon,
@@ -26,26 +25,31 @@ export const sidebarData = {
             title: "Users",
             url: "/users",
             icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />,
+            requiredPermissions: ['view:user', 'admin:user']
         },
         {
             title: "Channels",
             url: "/channels",
             icon: <HugeiconsIcon icon={CableIcon} strokeWidth={2} />,
+            requiredPermissions: ['view:channel', 'admin:channel']
         },
         {
             title: "Roles",
             url: "/roles",
             icon: <HugeiconsIcon icon={ShieldUserIcon} strokeWidth={2} />,
+            requiredPermissions: ['view:role', 'admin:role']
         },
         {
             title: "Policies",
             url: "/policies",
             icon: <HugeiconsIcon icon={ShieldBlockchainIcon} strokeWidth={2} />,
+            requiredPermissions: ['view:policy', 'admin:policy']
         },
         {
             title: "Permissions",
             url: "/permissions",
             icon: <HugeiconsIcon icon={ShieldKeyIcon} strokeWidth={2} />,
+            requiredPermissions: ['view:permission', 'admin:permission']
         },
     ],
 }

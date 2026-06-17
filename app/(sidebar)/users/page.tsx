@@ -1,5 +1,8 @@
 import { UsersDataTable } from "./UsersDataTable"
+import { ProtectedRoute } from "@/components/shared/ProtectedRoute"
 
 export default function Page() {
-    return <UsersDataTable />
+    return <ProtectedRoute requiredPermission={['view:user', 'admin:user']}>
+        <UsersDataTable />
+    </ProtectedRoute>
 }

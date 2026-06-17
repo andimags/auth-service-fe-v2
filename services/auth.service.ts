@@ -29,7 +29,8 @@ export async function loginWithCredentials({
 }
 
 export async function refreshAccessToken(
-    refreshToken: string
+    refreshToken: string,
+    apiKey: string
 ): Promise<AuthResponseDto> {
     return http<AuthResponseDto>(
         `${AUTH_SERVICE_BASE_URL}/api/auth/refresh-token`,
@@ -37,6 +38,7 @@ export async function refreshAccessToken(
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "x-api-key": apiKey,
             },
             body: JSON.stringify({ refresh_token: refreshToken }),
         }

@@ -15,19 +15,26 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { useRouter } from "next/navigation"
 import { ManageRolesDialog } from "./ManageRolesDialog"
 import { useState } from "react"
+import Link from "next/link"
 
 interface UserInformationProps {
     user: UserDto
-    userRoles: UserRolesDto[]
-    roles: RoleDto[]
+    userRoles?: UserRolesDto[]
+    roles?: RoleDto[]
+    canViewRoles: boolean
+    canViewUserRoles: boolean
+    canManageRoles: boolean
 }
 
 export default function UserInformation({
     user,
-    userRoles,
-    roles,
+    userRoles = [],
+    roles = [],
+    canViewRoles,
+    canViewUserRoles,
+    canManageRoles,
 }: Readonly<UserInformationProps>) {
-    const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [isOpen, setIsOpen] = useState(false)
 
     const userFormDialog = useUserFormDialog()
     const router = useRouter()
@@ -56,17 +63,43 @@ export default function UserInformation({
         value: role.id.toString(),
     }))
 
+    let rolesContent: React.ReactNode
+
+    if (!canViewUserRoles || !canViewRoles) {
+        rolesContent = (
+            <span className="text-sm text-neutral-400 italic dark:text-neutral-500">
+                You do not have permission to view this user's roles.
+            </span>
+        )
+    } else if (userRoles.length === 0) {
+        rolesContent = (
+            <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                No roles assigned to this user
+            </span>
+        )
+    } else {
+        rolesContent = userRoles.map((userRole) => (
+            <Link href={`/roles/${userRole.id}`} key={userRole.id}>
+                <Badge variant="outline">
+                    {userRole.ref_name} | {userRole.scope}
+                </Badge>
+            </Link>
+        ))
+    }
+
     return (
         <>
-            <ManageRolesDialog
-                isOpen={isOpen}
-                setIsOpen={setIsOpen}
-                options={roleOptions}
-                selectedValues={selectedValues}
-                user={user}
-            />
+            {canManageRoles && (
+                <ManageRolesDialog
+                    isOpen={isOpen}
+                    setIsOpen={setIsOpen}
+                    options={roleOptions}
+                    selectedValues={selectedValues}
+                    user={user}
+                />
+            )}
+
             <div className="mx-auto w-full max-w-6xl text-neutral-900 transition-colors duration-200 dark:text-neutral-100">
-                {/* Header */}
                 <div className="flex items-start justify-between pb-6">
                     <div>
                         <h2 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
@@ -76,6 +109,7 @@ export default function UserInformation({
                             Personal details and general information
                         </p>
                     </div>
+
                     <div className="flex gap-2">
                         <Button
                             variant="outline"
@@ -88,17 +122,21 @@ export default function UserInformation({
                             />
                             <span>Edit User</span>
                         </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleManageRoles}
-                        >
-                            <HugeiconsIcon
-                                icon={ShieldUserIcon}
-                                strokeWidth={2}
-                            />
-                            <span>Manage Roles</span>
-                        </Button>
+
+                        {canManageRoles && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleManageRoles}
+                            >
+                                <HugeiconsIcon
+                                    icon={ShieldUserIcon}
+                                    strokeWidth={2}
+                                />
+                                <span>Manage Roles</span>
+                            </Button>
+                        )}
+
                         <Button
                             variant="outline"
                             size="sm"
@@ -113,32 +151,30 @@ export default function UserInformation({
                     </div>
                 </div>
 
-                {/* Detail rows */}
                 <dl className="text-sm">
                     <InfoRow label="Full name">
                         {user.last_name}, {user.first_name}
                     </InfoRow>
+
                     <InfoRow label="Username">{user.username}</InfoRow>
+
                     <InfoRow label="Email address">{user.email}</InfoRow>
+
                     <InfoRow label="Status">{user.status}</InfoRow>
+
                     <InfoRow label="Level">{user.level}</InfoRow>
+
                     <InfoRow label="Created">
                         {formatDate(user.created_at)}
                     </InfoRow>
+
                     <InfoRow label="Last Updated">
                         {formatDate(user.updated_at)}
                     </InfoRow>
+
                     <InfoRow label="Roles">
                         <div className="flex flex-wrap gap-2">
-                            {userRoles.length < 1 ? (
-                                <span>No roles assigned to this user</span>
-                            ) : (
-                                userRoles.map((userRole, index) => (
-                                    <Badge key={index + 1} variant="outline">
-                                        {userRole?.ref_name} | {userRole?.scope}
-                                    </Badge>
-                                ))
-                            )}
+                            {rolesContent}
                         </div>
                     </InfoRow>
                 </dl>
@@ -146,10 +182,6 @@ export default function UserInformation({
         </>
     )
 }
-
-// ---------------------------------------------------------------------------
-// Small presentational helper — reduces the 8× repeated grid/border boilerplate
-// ---------------------------------------------------------------------------
 
 function InfoRow({
     label,

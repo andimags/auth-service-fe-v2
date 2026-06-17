@@ -5,17 +5,17 @@ import http from "./http/fetcher"
 const AUTH_SERVICE_BASE_URL = getAuthServiceBaseUrl()
 
 type GetRolesParams = {
-    search: string
+    search?: string
     accessToken: string
     apiKey: string
 }
 
 export async function getRoles({
-    search,
+    search = '',
     accessToken,
     apiKey,
-}: GetRolesParams): Promise<RoleDto> {
-    return http<RoleDto>(`${AUTH_SERVICE_BASE_URL}/api/roles/${search}`, {
+}: GetRolesParams): Promise<RoleDto[]> {
+    return http<RoleDto[]>(`${AUTH_SERVICE_BASE_URL}/api/roles/${search}`, {
         method: "GET",
         headers: {
             Authorization: `Bearer ${accessToken}`,

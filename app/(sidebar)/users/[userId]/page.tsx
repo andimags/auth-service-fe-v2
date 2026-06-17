@@ -6,6 +6,8 @@ import UserInformation from "./UserInformation"
 import { getUserRoles } from "@/services/user-role.service"
 import { UserRolesDto } from "@/dtos/UserRoleDto"
 import { getRoles } from "@/services/role.service"
+import { ProtectedRoute } from "@/components/shared/ProtectedRoute"
+import { hasPermission } from "@/lib/rbac"
 
 export const dynamic = "force-dynamic"
 
@@ -16,10 +18,39 @@ export default async function Page({
 }>) {
     const { userId } = await params
     const user = await getUserData(userId)
-    const userRoles = await getUserRolesData(userId)
-    const roles = await getRolesData()
 
-    return <UserInformation user={user} userRoles={userRoles} roles={roles} />
+    const session = await getServerSession(authOptions)
+    const authPermissions = session?.permissions;
+    let isSelf: boolean = false;
+
+    if(userId == session?.user.id.toString()){
+        isSelf = true;
+    }
+
+    const [canViewUserRoles, canViewRoles] = [
+        isSelf ? true : hasPermission( [
+            "view:user-role",
+            "admin:user-role",
+        ],
+        authPermissions
+        ),
+        isSelf ? true : hasPermission( [
+            "view:role",
+            "admin:role",
+        ],
+        authPermissions
+        )
+    ]
+
+      // Only fetch if allowed
+    const [userRoles, roles] = await Promise.all([
+        canViewUserRoles ? getUserRolesData(userId) : Promise.resolve(undefined),
+        canViewRoles ? getRolesData() : Promise.resolve(undefined),
+    ])
+
+    return <ProtectedRoute requiredPermission={['view:user', 'admin:user']}>
+        <UserInformation user={user} userRoles={userRoles} roles={roles} />
+    </ProtectedRoute>
 }
 
 async function getUserData(userId: string): Promise<UserDto> {

@@ -38,11 +38,12 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
     refreshLockToken = currentRefreshToken
     refreshPromise = (async (): Promise<JWT> => {
         try {
-            const data = await refreshTokenRequest(currentRefreshToken)
+            const data = await refreshTokenRequest(currentRefreshToken, token.api_key)
 
             return {
                 ...token,
                 user: data.user ?? token.user,
+                permissions: data.permissions ?? token.permissions,
                 api_key: token.api_key,
                 tokens: {
                     access: {
@@ -101,6 +102,7 @@ const credentialsProvider = CredentialsProvider({
                 name: `${data.user.first_name} ${data.user.last_name}`,
                 email: data.user.email,
                 user: data.user,
+                permissions: data.permissions,
                 api_key: credentials.api_key,
                 tokens: {
                     access: {
@@ -139,6 +141,7 @@ export const authOptions: NextAuthOptions = {
                     ...token,
                     user: user.user,
                     api_key: user.api_key,
+                    permissions: user.permissions,
                     tokens: {
                         access: {
                             value: user.tokens.access.value,
@@ -201,6 +204,7 @@ export const authOptions: NextAuthOptions = {
             session.user = token.user
             session.api_key = token.api_key
             session.access_token = token.tokens?.access?.value ?? ""
+            session.permissions = token.permissions
 
             // Expose error to client so it can trigger re-login
             if (token.error) {

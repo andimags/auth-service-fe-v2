@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { Can } from "./shared/Can"
 
 function isActivePath(pathname: string, itemUrl: string) {
     if (itemUrl === "/") return pathname === "/"
@@ -22,7 +23,8 @@ export function NavMain({
     items: {
         title: string
         url: string
-        icon?: React.ReactNode
+        icon?: React.ReactNode,
+        requiredPermissions: string | string[]
     }[]
 }>) {
     const pathname = usePathname()
@@ -35,7 +37,8 @@ export function NavMain({
                         const active = isActivePath(pathname, item.url)
 
                         return (
-                            <SidebarMenuItem key={item.title}>
+                            <Can key={item.title} requiredPermission={item.requiredPermissions}>
+                            <SidebarMenuItem>
                                 <SidebarMenuButton
                                     tooltip={item.title}
                                     asChild
@@ -50,6 +53,7 @@ export function NavMain({
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
+                            </Can>
                         )
                     })}
                 </SidebarMenu>

@@ -2,7 +2,7 @@ import { UserDto } from "./UserDto"
 
 export interface AuthResponseDto {
     user: UserDto
-
+    permissions: string[]
     tokens: {
         access: {
             value: string
