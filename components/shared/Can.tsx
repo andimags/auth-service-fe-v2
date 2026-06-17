@@ -25,9 +25,5 @@ export function Can({
 
     const allowed = hasPermission(requiredPermission, userPermissions, requireAll);
 
-    console.log('requiredPermission', requiredPermission)
-    console.log('userPermissions', userPermissions)
-    console.log('requireAll', requireAll)
-
     return allowed ? <>{children}</> : <>{fallback}</>;
 }

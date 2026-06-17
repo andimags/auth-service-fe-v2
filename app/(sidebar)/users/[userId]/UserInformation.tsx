@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation"
 import { ManageRolesDialog } from "./ManageRolesDialog"
 import { useState } from "react"
 import Link from "next/link"
+import { Can } from "@/components/shared/Can"
 
 interface UserInformationProps {
     user: UserDto
@@ -63,22 +64,24 @@ export default function UserInformation({
         value: role.id.toString(),
     }))
 
-    let rolesContent: React.ReactNode
+    const renderRolesContent = () => {
+        if (!canViewUserRoles || !canViewRoles) {
+            return (
+                <span className="text-sm italic text-neutral-400 dark:text-neutral-500">
+                    You do not have permission to view this user's roles.
+                </span>
+            )
+        }
 
-    if (!canViewUserRoles || !canViewRoles) {
-        rolesContent = (
-            <span className="text-sm text-neutral-400 italic dark:text-neutral-500">
-                You do not have permission to view this user's roles.
-            </span>
-        )
-    } else if (userRoles.length === 0) {
-        rolesContent = (
-            <span className="text-sm text-neutral-500 dark:text-neutral-400">
-                No roles assigned to this user
-            </span>
-        )
-    } else {
-        rolesContent = userRoles.map((userRole) => (
+        if (userRoles.length === 0) {
+            return (
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                    No roles assigned to this user
+                </span>
+            )
+        }
+
+        return userRoles.map((userRole) => (
             <Link href={`/roles/${userRole.id}`} key={userRole.id}>
                 <Badge variant="outline">
                     {userRole.ref_name} | {userRole.scope}
@@ -111,17 +114,19 @@ export default function UserInformation({
                     </div>
 
                     <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleEditUser}
-                        >
-                            <HugeiconsIcon
-                                icon={PencilEdit01Icon}
-                                strokeWidth={2}
-                            />
-                            <span>Edit User</span>
-                        </Button>
+                        <Can requiredPermission={["edit:user", "admin:user"]}>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleEditUser}
+                            >
+                                <HugeiconsIcon
+                                    icon={PencilEdit01Icon}
+                                    strokeWidth={2}
+                                />
+                                <span>Edit User</span>
+                            </Button>
+                        </Can>
 
                         {canManageRoles && (
                             <Button
@@ -137,17 +142,19 @@ export default function UserInformation({
                             </Button>
                         )}
 
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => deleteUser(user)}
-                        >
-                            <HugeiconsIcon
-                                icon={Delete02Icon}
-                                strokeWidth={2}
-                            />
-                            <span>Delete</span>
-                        </Button>
+                        <Can requiredPermission={["delete:user", "admin:user"]}>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => deleteUser(user)}
+                            >
+                                <HugeiconsIcon
+                                    icon={Delete02Icon}
+                                    strokeWidth={2}
+                                />
+                                <span>Delete</span>
+                            </Button>
+                        </Can>
                     </div>
                 </div>
 
@@ -174,7 +181,7 @@ export default function UserInformation({
 
                     <InfoRow label="Roles">
                         <div className="flex flex-wrap gap-2">
-                            {rolesContent}
+                            {renderRolesContent()}
                         </div>
                     </InfoRow>
                 </dl>

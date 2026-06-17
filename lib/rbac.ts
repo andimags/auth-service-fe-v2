@@ -27,3 +27,13 @@ export function isSuperadmin(level?: string): boolean {
         level === 'superadmin'
     );
 }
+
+export function checkPermission(
+    session: { user?: { level?: string }; permissions?: string[] } | null,
+    requiredPermissions: PermissionInput,
+    requireAll: boolean = false
+): boolean {
+    if (!session) return false;
+    if (isSuperadmin(session.user?.level)) return true;
+    return hasPermission(requiredPermissions, session.permissions, requireAll);
+}

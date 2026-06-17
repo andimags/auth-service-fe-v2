@@ -34,6 +34,7 @@ import Link from "next/link"
 import React, { useMemo } from "react"
 import useUserFormDialog from "@/hooks/use-user-form-dialog"
 import { useDebounce } from "@/hooks/use-debounce"
+import { Can } from "@/components/shared/Can"
 
 // ---------------------------------------------------------------------------
 // Status icons map
@@ -218,19 +219,19 @@ function getColumns(
                                 Copy user ID
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            {/*
-                             * FIX: was `row.id` (TanStack's internal string key)
-                             * — should be `user.id` (the actual entity ID).
-                             */}
                             <DropdownMenuItem asChild>
                                 <Link href={`/users/${user.id}`}>View</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onEdit(user)}>
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onDelete(user)}>
-                                Delete
-                            </DropdownMenuItem>
+                            <Can requiredPermission={["edit:user", "admin:user"]}>
+                                <DropdownMenuItem onClick={() => onEdit(user)}>
+                                    Edit
+                                </DropdownMenuItem>
+                            </Can>
+                            <Can requiredPermission={["delete:user", "admin:user"]}>
+                                <DropdownMenuItem onClick={() => onDelete(user)}>
+                                    Delete
+                                </DropdownMenuItem>
+                            </Can>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 )
@@ -341,11 +342,13 @@ export function UsersDataTable() {
             getRowId={(row) => row.id.toString()}
             onRowClick={(row) => console.log("Clicked:", row.id)}
             toolbarChildren={
-                <AddUserButton
-                    onAdd={() => {
-                        userFormDialog.open.create()
-                    }}
-                />
+                <Can requiredPermission={["create:user", "admin:user"]}>
+                    <AddUserButton
+                        onAdd={() => {
+                            userFormDialog.open.create()
+                        }}
+                    />
+                </Can>
             }
             pagination={pagination}
             onPaginationChange={setPagination}
