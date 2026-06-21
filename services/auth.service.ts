@@ -23,7 +23,7 @@ export async function loginWithCredentials({
                 "Content-Type": "application/json",
                 "x-api-key": apiKey,
             },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ email, password, permission_namespace: 'auth' }),
         }
     )
 }
@@ -40,7 +40,7 @@ export async function refreshAccessToken(
                 "Content-Type": "application/json",
                 "x-api-key": apiKey,
             },
-            body: JSON.stringify({ refresh_token: refreshToken }),
+            body: JSON.stringify({ refresh_token: refreshToken, permission_namespace: 'auth' }),
         }
     )
 }

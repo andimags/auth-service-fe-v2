@@ -1,15 +1,24 @@
+import { ApiError } from "@/lib/api-error"
+
 export default async function http<T>(
     url: string,
     options?: RequestInit
 ): Promise<T> {
-    console.log("Backend URL: ", url)
     const res = await fetch(url, options)
-
     const text = await res.text()
 
-    if (!res.ok) {
-        throw new Error(text || `Request failed: ${res.status}`)
+    let body: any
+    
+    try {
+        body = text ? JSON.parse(text) : undefined
+    } catch {
+        body = undefined // backend (or a proxy in front of it) returned non-JSON
     }
 
-    return JSON.parse(text) as T
+    if (!res.ok) {
+        const message = body?.message ?? text ?? `Request failed: ${res.status}`
+        throw new ApiError(message, res.status, body?.errors)
+    }
+
+    return body as T
 }

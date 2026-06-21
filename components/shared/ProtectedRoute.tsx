@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { hasPermission, isSuperadmin } from '@/lib/rbac';
+import { redirectToLogin } from '../../lib/auth';
 
 type ProtectedRouteProps = {
     requiredPermission: string | string[];
@@ -16,8 +17,6 @@ export function ProtectedRoute({
     requireAll,
     children,
 }: Readonly<ProtectedRouteProps>) {
-    const router = useRouter();
-    const pathname = usePathname();
     const { data: session, status } = useSession();
 
     const isAllowed = useMemo(() => {
@@ -36,18 +35,8 @@ export function ProtectedRoute({
         requireAll
     ]);
 
-    useEffect(() => {
-        if (status === 'loading') return;
-
-        if (!isAllowed) {
-            router.replace(
-                `/403?callbackUrl=${encodeURIComponent(pathname || '/')}`
-            );
-        }
-    }, [isAllowed, status, router, pathname]);
-
     if (status === 'loading') return null;
-    if (!isAllowed) return null;
+    if (!isAllowed) redirectToLogin();
 
     return <>{children}</>;
 }
