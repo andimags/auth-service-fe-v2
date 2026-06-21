@@ -3,6 +3,8 @@ import { authOptions } from "@/lib/next-auth"
 import { getChannel } from "@/services/channel.service"
 import { getServerSession } from "next-auth/next"
 import ChannelInformation from "./ChannelInformation"
+import { checkPermission } from "@/lib/rbac"
+import { redirect } from "next/navigation"
 
 export const dynamic = "force-dynamic"
 
@@ -12,6 +14,16 @@ export default async function Page({
     params: Promise<{ channelId: string }>
 }>) {
     const { channelId } = await params
+    const session = await getServerSession(authOptions)
+
+    if (!session) {
+        redirect("/login")
+    }
+
+    if (!checkPermission(session, ["view:channel", "admin:channel"])) {
+        redirect("/403")
+    }
+
     const channel = await getChannelData(channelId)
 
     return <ChannelInformation channel={channel} />

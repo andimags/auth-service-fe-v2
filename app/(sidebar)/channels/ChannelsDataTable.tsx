@@ -34,6 +34,7 @@ import React, { useMemo } from "react"
 import { toast } from "sonner"
 import { useDebounce } from "@/hooks/use-debounce"
 import Link from "next/link"
+import { Can } from "@/components/shared/Can"
 
 // ---------------------------------------------------------------------------
 // Faceted filter config (stable reference — defined outside component)
@@ -194,12 +195,16 @@ function getColumns(
                                     View
                                 </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onEdit(channel)}>
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onDelete(channel)}>
-                                Delete
-                            </DropdownMenuItem>
+                            <Can requiredPermission={["edit:channel", "admin:channel"]}>
+                                <DropdownMenuItem onClick={() => onEdit(channel)}>
+                                    Edit
+                                </DropdownMenuItem>
+                            </Can>
+                            <Can requiredPermission={["delete:channel", "admin:channel"]}>
+                                <DropdownMenuItem onClick={() => onDelete(channel)}>
+                                    Delete
+                                </DropdownMenuItem>
+                            </Can>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 )
@@ -302,11 +307,13 @@ export function ChannelsDataTable() {
             getRowId={(row) => row.id.toString()}
             onRowClick={(row) => console.log("Clicked:", row.id)}
             toolbarChildren={
-                <AddChannelButton
-                    onAdd={() => {
-                        channelFormDialog.open.create()
-                    }}
-                />
+                <Can requiredPermission={["create:channel", "admin:channel"]}>
+                    <AddChannelButton
+                        onAdd={() => {
+                            channelFormDialog.open.create()
+                        }}
+                    />
+                </Can>
             }
             pagination={pagination}
             onPaginationChange={setPagination}
