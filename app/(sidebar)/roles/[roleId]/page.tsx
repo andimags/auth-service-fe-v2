@@ -7,6 +7,8 @@ import { getRolePolicies } from "@/services/role-policy.service"
 import { getRole } from "@/services/role.service"
 import { getServerSession } from "next-auth/next"
 import RoleInformation from "./RoleInformation"
+import { checkPermission } from "@/lib/rbac"
+import { redirect } from "next/navigation"
 
 export const dynamic = "force-dynamic"
 
@@ -16,6 +18,16 @@ export default async function Page({
     params: Promise<{ roleId: string }>
 }>) {
     const { roleId } = await params
+    const session = await getServerSession(authOptions)
+
+    if (!session) {
+        redirect("/login")
+    }
+
+    if (!checkPermission(session, ["view:role", "admin:role"])) {
+        redirect("/403")
+    }
+
     const [role, rolePolicies, policies] = await Promise.all([
         getRoleData(roleId),
         getRolePoliciesData(roleId),

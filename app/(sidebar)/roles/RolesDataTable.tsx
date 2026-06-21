@@ -34,6 +34,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import React, { useMemo } from "react"
+import { Can } from "@/components/shared/Can"
 
 const FACETED_FILTERS: FacetedFilterConfig[] = [
     {
@@ -182,12 +183,22 @@ function getColumns(
                             <DropdownMenuItem asChild>
                                 <Link href={`/roles/${role.id}`}>View</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onEdit(role)}>
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onDelete(role)}>
-                                Delete
-                            </DropdownMenuItem>
+                            <Can requiredPermission={["edit:role", "admin:role"]}>
+                                <DropdownMenuItem onClick={() => onEdit(role)}>
+                                    Edit
+                                </DropdownMenuItem>
+                            </Can>
+                            <Can
+                                requiredPermission={[
+                                    "delete:role",
+                                    "admin:role",
+                                ]}
+                            >
+                                <DropdownMenuItem
+                                    onClick={() => onDelete(role)}>
+                                    Delete
+                                </DropdownMenuItem>
+                            </Can>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 )
@@ -303,11 +314,13 @@ export function RolesDataTable() {
             getRowId={(row) => row.id.toString()}
             onRowClick={(row) => console.log("Clicked:", row.id)}
             toolbarChildren={
-                <AddRoleButton
-                    onAdd={() => {
-                        roleFormDialog.open.create()
-                    }}
-                />
+                <Can requiredPermission={["create:role", "admin:role"]}>
+                    <AddRoleButton
+                        onAdd={() => {
+                            roleFormDialog.open.create()
+                        }}
+                    />
+                </Can>
             }
             pagination={pagination}
             onPaginationChange={setPagination}
