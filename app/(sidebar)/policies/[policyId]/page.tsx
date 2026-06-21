@@ -7,6 +7,8 @@ import { getPolicyPermissions } from "@/services/policy-permission.service"
 import { getPolicy } from "@/services/policy.service"
 import { getServerSession } from "next-auth/next"
 import PolicyInformation from "./PolicyInformation"
+import { checkPermission } from "@/lib/rbac"
+import { redirect } from "next/navigation"
 
 export const dynamic = "force-dynamic"
 
@@ -16,6 +18,16 @@ export default async function Page({
     params: Promise<{ policyId: string }>
 }>) {
     const { policyId } = await params
+    const session = await getServerSession(authOptions)
+
+    if (!session) {
+        redirect("/login")
+    }
+
+    if (!checkPermission(session, ["view:policy", "admin:policy"])) {
+        redirect("/403")
+    }
+
     const [policy, policyPermissions, permissions] = await Promise.all([
         getPolicyData(policyId),
         getPolicyPermissionsData(policyId),

@@ -34,6 +34,7 @@ import { useSession } from "next-auth/react"
 import Link from "next/link"
 import React, { useMemo } from "react"
 import { CheckCircle2Icon, MoreHorizontalIcon, XCircleIcon } from "lucide-react"
+import { Can } from "@/components/shared/Can"
 
 const FACETED_FILTERS: FacetedFilterConfig[] = [
     {
@@ -203,12 +204,23 @@ function getColumns(
                                     View
                                 </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onEdit(policy)}>
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onDelete(policy)}>
-                                Delete
-                            </DropdownMenuItem>
+                            <Can requiredPermission={["edit:policy", "admin:policy"]}>
+                                <DropdownMenuItem onClick={() => onEdit(policy)}>
+                                    Edit
+                                </DropdownMenuItem>
+                            </Can>
+                            <Can
+                                requiredPermission={[
+                                    "delete:policy",
+                                    "admin:policy",
+                                ]}
+                            >
+                                <DropdownMenuItem
+                                    onClick={() => onDelete(policy)}
+                                >
+                                    Delete
+                                </DropdownMenuItem>
+                            </Can>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 )
@@ -324,11 +336,13 @@ export function PoliciesDataTable() {
             getRowId={(row) => row.id.toString()}
             onRowClick={(row) => console.log("Clicked:", row.id)}
             toolbarChildren={
-                <AddPolicyButton
-                    onAdd={() => {
-                        policyFormDialog.open.create()
-                    }}
-                />
+                <Can requiredPermission={["create:policy", "admin:policy"]}>
+                    <AddPolicyButton
+                        onAdd={() => {
+                            policyFormDialog.open.create()
+                        }}
+                    />
+                </Can>
             }
             pagination={pagination}
             onPaginationChange={setPagination}
