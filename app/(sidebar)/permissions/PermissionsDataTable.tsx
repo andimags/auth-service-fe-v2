@@ -37,6 +37,7 @@ import { useSession } from "next-auth/react"
 import Link from "next/link"
 import React, { useMemo } from "react"
 import { CheckCircle2Icon, MoreHorizontalIcon, XCircleIcon } from "lucide-react"
+import { Can } from "@/components/shared/Can"
 
 const FACETED_FILTERS: FacetedFilterConfig[] = [
     {
@@ -234,16 +235,30 @@ function getColumns(
                                     View
                                 </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => onEdit(permission)}
+                            <Can
+                                requiredPermission={[
+                                    "edit:permission",
+                                    "admin:permission",
+                                ]}
                             >
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => onDelete(permission)}
+                                <DropdownMenuItem
+                                    onClick={() => onEdit(permission)}
+                                >
+                                    Edit
+                                </DropdownMenuItem>
+                            </Can>
+                            <Can
+                                requiredPermission={[
+                                    "delete:permission",
+                                    "admin:permission",
+                                ]}
                             >
-                                Delete
-                            </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => onDelete(permission)}
+                                >
+                                    Delete
+                                </DropdownMenuItem>
+                            </Can>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 )
@@ -367,11 +382,18 @@ export function PermissionsDataTable() {
             getRowId={(row) => row.id.toString()}
             onRowClick={(row) => console.log("Clicked:", row.id)}
             toolbarChildren={
-                <AddPermissionButton
-                    onAdd={() => {
-                        permissionFormDialog.open.create()
-                    }}
-                />
+                <Can
+                    requiredPermission={[
+                        "create:permission",
+                        "admin:permission",
+                    ]}
+                >
+                    <AddPermissionButton
+                        onAdd={() => {
+                            permissionFormDialog.open.create()
+                        }}
+                    />
+                </Can>
             }
             pagination={pagination}
             onPaginationChange={setPagination}
