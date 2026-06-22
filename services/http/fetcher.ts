@@ -17,8 +17,16 @@ export default async function http<T>(
 
     if (!res.ok) {
         const message = body?.message ?? text ?? `Request failed: ${res.status}`
-        throw new ApiError(message, res.status, body?.errors)
+        throw new ApiError(message, res.status, body?.details)
     }
 
     return body as T
+}
+
+export function isForbiddenError(error: unknown): boolean {
+    if(error instanceof ApiError){
+        return error.statusCode === 403
+    }
+
+    return false
 }

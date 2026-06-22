@@ -3,8 +3,8 @@ import { authOptions } from "@/lib/next-auth"
 import { getChannel } from "@/services/channel.service"
 import { getServerSession } from "next-auth/next"
 import ChannelInformation from "./ChannelInformation"
-import { checkPermission } from "@/lib/rbac"
 import { redirect } from "next/navigation"
+import { isForbiddenError } from "@/services/http/fetcher"
 
 export const dynamic = "force-dynamic"
 
@@ -14,31 +14,39 @@ export default async function Page({
     params: Promise<{ channelId: string }>
 }>) {
     const { channelId } = await params
-    const session = await getServerSession(authOptions)
 
-    if (!session) {
-        redirect("/login")
-    }
+    const channelResult = await getChannelData(channelId)
 
-    if (!checkPermission(session, ["view:channel", "admin:channel"])) {
+    if (!channelResult.allowed || !channelResult.data) {
         redirect("/403")
     }
 
-    const channel = await getChannelData(channelId)
-
-    return <ChannelInformation channel={channel} />
+    if(channelResult.allowed){
+        return <ChannelInformation channel={channelResult.data} />
+    }
 }
 
-async function getChannelData(channelId: string): Promise<ChannelDto> {
+async function getChannelData(
+    channelId: string
+): Promise<{ data: ChannelDto | null; allowed: boolean }> {
     const session = await getServerSession(authOptions)
 
     if (!session?.access_token || !session.api_key) {
         throw new Error("Unauthorized")
     }
 
-    return await getChannel({
-        channelId,
-        accessToken: session.access_token,
-        apiKey: session.api_key,
-    })
+    try {
+        const channel = await getChannel({
+            channelId,
+            accessToken: session.access_token,
+            apiKey: session.api_key,
+        })
+
+        return { data: channel, allowed: true }
+    } catch (error) {
+        if (isForbiddenError(error)) {
+            return { data: null, allowed: false }
+        }
+        throw error
+    }
 }

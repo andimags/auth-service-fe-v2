@@ -195,13 +195,27 @@ function getColumns(
                                     View
                                 </Link>
                             </DropdownMenuItem>
-                            <Can requiredPermission={["edit:channel", "admin:channel"]}>
-                                <DropdownMenuItem onClick={() => onEdit(channel)}>
+                            <Can
+                                requiredPermission={[
+                                    "update:channel",
+                                    "admin:channel",
+                                ]}
+                            >
+                                <DropdownMenuItem
+                                    onClick={() => onEdit(channel)}
+                                >
                                     Edit
                                 </DropdownMenuItem>
                             </Can>
-                            <Can requiredPermission={["delete:channel", "admin:channel"]}>
-                                <DropdownMenuItem onClick={() => onDelete(channel)}>
+                            <Can
+                                requiredPermission={[
+                                    "delete:channel",
+                                    "admin:channel",
+                                ]}
+                            >
+                                <DropdownMenuItem
+                                    onClick={() => onDelete(channel)}
+                                >
                                     Delete
                                 </DropdownMenuItem>
                             </Can>
@@ -307,7 +321,7 @@ export function ChannelsDataTable() {
             getRowId={(row) => row.id.toString()}
             onRowClick={(row) => console.log("Clicked:", row.id)}
             toolbarChildren={
-                <Can requiredPermission={["create:channel", "admin:channel"]}>
+                <Can requiredPermission={["add:channel", "admin:channel"]}>
                     <AddChannelButton
                         onAdd={() => {
                             channelFormDialog.open.create()

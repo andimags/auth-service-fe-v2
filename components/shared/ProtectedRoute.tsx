@@ -1,13 +1,12 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { hasPermission, isSuperadmin } from '@/lib/rbac';
 import { redirectToLogin } from '../../lib/auth';
 
 type ProtectedRouteProps = {
-    requiredPermission: string | string[];
+    requiredPermission?: string | string[];
     requireAll?: boolean
     children: React.ReactNode;
 };
@@ -20,9 +19,11 @@ export function ProtectedRoute({
     const { data: session, status } = useSession();
 
     const isAllowed = useMemo(() => {
+        if(status == 'unauthenticated') return false
+        if(!requiredPermission) return true
+
         const userPermissions = session?.permissions ?? [];
 
-        // superadmin bypass
         if (isSuperadmin(session?.user?.level)) {
             return true;
         }
@@ -32,7 +33,8 @@ export function ProtectedRoute({
         session?.permissions,
         session?.user?.level,
         requiredPermission,
-        requireAll
+        requireAll,
+        status
     ]);
 
     if (status === 'loading') return null;

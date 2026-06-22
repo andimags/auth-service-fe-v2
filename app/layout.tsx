@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import "./globals.css"
+import { ChannelFormDialog } from "@/components/shared/channel-form-dialog/ChannelFormDialog"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -50,6 +51,7 @@ export default function RootLayout({
                                 <UserFormDialog />
                                 <RoleFormDialog />
                                 <PolicyFormDialog />
+                                <ChannelFormDialog />
                                 {children}
                             </QueryProvider>
                         </SessionProvider>

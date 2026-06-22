@@ -8,7 +8,7 @@ import { getUserRoles } from "@/services/user-role.service"
 import { UserRolesDto } from "@/dtos/UserRoleDto"
 import { getRoles } from "@/services/role.service"
 import { checkPermission } from "@/lib/rbac"
-import { ApiError } from "@/lib/api-error"
+import { isForbiddenError } from "@/services/http/fetcher"
 
 export const dynamic = "force-dynamic"
 
@@ -120,14 +120,4 @@ async function getRolesData(): Promise<{ data: RoleDto[]; allowed: boolean }> {
         }
         throw error
     }
-}
-
-// Adjust to match how your http client (services/http/fetcher.ts)
-// actually surfaces status codes — e.g. error.status, error.response?.status.
-function isForbiddenError(error: unknown): boolean {
-    if(error instanceof ApiError){
-        return error.statusCode === 403
-    }
-
-    return false
 }

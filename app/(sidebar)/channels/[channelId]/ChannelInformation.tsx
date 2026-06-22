@@ -10,6 +10,7 @@ import { Delete02Icon, PencilEdit01Icon } from "@hugeicons/core-free-icons"
 import { CopyIcon } from "lucide-react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useRouter } from "next/navigation"
+import { Can } from "@/components/shared/Can"
 
 interface ChannelInformationProps {
     channel: ChannelDto
@@ -45,25 +46,29 @@ export default function ChannelInformation({
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleEditChannel}
-                    >
-                        <HugeiconsIcon
-                            icon={PencilEdit01Icon}
-                            strokeWidth={2}
-                        />
-                        <span>Edit Channel</span>
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => deleteChannel(channel)}
-                    >
-                        <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-                        <span>Delete</span>
-                    </Button>
+                    <Can requiredPermission={['admin:channel', 'update:channel']}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleEditChannel}
+                        >
+                            <HugeiconsIcon
+                                icon={PencilEdit01Icon}
+                                strokeWidth={2}
+                            />
+                            <span>Edit Channel</span>
+                        </Button>
+                    </Can>
+                    <Can requiredPermission={['admin:channel', 'delete:channel']}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deleteChannel(channel)}
+                        >
+                            <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+                            <span>Delete</span>
+                        </Button>
+                    </Can>
                 </div>
             </div>
 
