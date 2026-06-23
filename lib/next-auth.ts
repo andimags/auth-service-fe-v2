@@ -214,12 +214,12 @@ export const authOptions: NextAuthOptions = {
             return session
         },
 
-        redirect({ url, baseUrl }) {
-            if (url.includes("error=")) return `${baseUrl}/login`
-            if (url.startsWith("/")) return `${baseUrl}${url}`
-            if (new URL(url).origin === baseUrl) return url
-            return baseUrl
-        }
+        // redirect({ url, baseUrl }) {
+        //     if (url.includes("error=")) return `${baseUrl}/`
+        //     if (url.startsWith("/")) return `${baseUrl}${url}`
+        //     if (new URL(url).origin === baseUrl) return url
+        //     return baseUrl
+        // }
     },
     events: {
         signOut: async ({token}) => {
