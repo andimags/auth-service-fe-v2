@@ -1,22 +1,23 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/next-auth';
-import { redirectToDashboard } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 type GuestRouteProps = {
     children: React.ReactNode;
 };
 
-export async function GuestRoute({
-    children,
-}: Readonly<GuestRouteProps>) {
-    try {
-        const session = await getServerSession(authOptions);
+export async function GuestRoute({ children }: Readonly<GuestRouteProps>) {
+    let session = null;
 
-        if (session && !session.error) {
-            redirectToDashboard();
-        }
+    try {
+        session = await getServerSession(authOptions);
     } catch {
-        // Session retrieval failed — treat as unauthenticated, render login page normally
+        // Ignore — token refresh failures, network errors, etc.
+    }
+
+    // redirect() is now OUTSIDE the try/catch so it can't be swallowed
+    if (session && !session.error) {
+        redirect('/');
     }
 
     return <>{children}</>;

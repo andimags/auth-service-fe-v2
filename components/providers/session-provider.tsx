@@ -11,7 +11,11 @@ function SessionWatcher() {
     const { data: session } = useSession()
 
     useEffect(() => {
-        if (session?.error !== "RefreshTokenError") return
+        if (
+            session?.error !== "RefreshAccessTokenError" &&
+            session?.error !== "RefreshTokenError"
+        )
+            return
         signOut()
     }, [session?.error])
 

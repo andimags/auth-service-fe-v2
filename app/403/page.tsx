@@ -18,7 +18,7 @@ export default function Page() {
     const router = useRouter()
     const searchParams = useSearchParams()
 
-    const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
+    const callbackUrl = searchParams.get("callbackUrl") || "/"
 
     return (
         <Empty className="flex min-h-screen justify-center">

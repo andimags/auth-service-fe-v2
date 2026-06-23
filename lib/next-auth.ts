@@ -62,7 +62,11 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
                 error: undefined,
             }
         } catch (error) {
-            console.error("Token refresh failed:", error)
+            console.warn(
+                `[${timeNow()}] Token refresh failed: ${
+                    error instanceof Error ? error.message : String(error)
+                }`
+            )
             return { ...token, error: "RefreshAccessTokenError" }
         } finally {
             // Clear the lock after a short delay so subsequent calls
@@ -192,7 +196,11 @@ export const authOptions: NextAuthOptions = {
                 )
                 return newRefreshAccessToken
             } catch (error) {
-                console.error("Critical error in JWT refresh callback:", error)
+                console.warn(
+                    `[${timeNow()}] Critical error in JWT refresh callback: ${
+                        error instanceof Error ? error.message : String(error)
+                    }`
+                )
                 return { ...token, error: "RefreshAccessTokenError" }
             }
         },

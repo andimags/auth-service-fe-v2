@@ -1,44 +1,28 @@
-'use client';
-
-import { useMemo } from 'react';
-import { useSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '@/lib/next-auth';
 import { hasPermission, isSuperadmin } from '@/lib/rbac';
-import { redirectToLogin } from '../../lib/auth';
 
 type ProtectedRouteProps = {
     requiredPermission?: string | string[];
-    requireAll?: boolean
+    requireAll?: boolean;
     children: React.ReactNode;
 };
 
-export function ProtectedRoute({
+export async function ProtectedRoute({
     requiredPermission,
     requireAll,
     children,
 }: Readonly<ProtectedRouteProps>) {
-    const { data: session, status } = useSession();
+    const session = await getServerSession(authOptions);
 
-    const isAllowed = useMemo(() => {
-        if(status == 'unauthenticated') return false
-        if(!requiredPermission) return true
+    if (!session) redirect('/login');
 
-        const userPermissions = session?.permissions ?? [];
-
-        if (isSuperadmin(session?.user?.level)) {
-            return true;
-        }
-
-        return hasPermission(requiredPermission, userPermissions, requireAll);
-    }, [
-        session?.permissions,
-        session?.user?.level,
-        requiredPermission,
-        requireAll,
-        status
-    ]);
-
-    if (status === 'loading') return null;
-    if (!isAllowed) redirectToLogin();
+    if (requiredPermission && !isSuperadmin(session.user?.level)) {
+        const userPermissions = session.permissions ?? [];
+        const isAllowed = hasPermission(requiredPermission, userPermissions, requireAll);
+        if (!isAllowed) redirect('/403');
+    }
 
     return <>{children}</>;
 }

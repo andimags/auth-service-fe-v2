@@ -36,11 +36,10 @@ export function LoginForm({
         setIsLoading(true)
 
         const result = await signIn("credentials", {
-            redirect: false,
+            redirect: true,
             email,
             password,
-            api_key: apiKey,
-            callbackUrl: "/",
+            api_key: apiKey
         })
 
         setIsLoading(false)

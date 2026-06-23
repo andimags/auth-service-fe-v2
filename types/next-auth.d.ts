@@ -24,7 +24,7 @@ declare module "next-auth" {
         permissions: string[]
         api_key: string
         access_token: string
-        error: string
+        error?: string
     }
 }
 
@@ -36,5 +36,6 @@ declare module "next-auth/jwt" {
         permissions: string[]
         tokens: Tokens
         api_key: string
+        error?: string
     }
 }
