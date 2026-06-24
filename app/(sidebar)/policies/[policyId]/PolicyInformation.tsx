@@ -1,8 +1,10 @@
 "use client"
 
+import { Can } from "@/components/shared/Can"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PermissionDto, PolicyPermissionDto, PolicyDto } from "@/dtos"
+import { PermissionDto, PolicyDto, PolicyPermissionDto } from "@/dtos"
+import { useDeletePolicy } from "@/hooks/use-delete-policy"
 import usePolicyFormDialog from "@/hooks/use-policy-form-dialog"
 import formatDate from "@/lib/format-date"
 import {
@@ -11,21 +13,27 @@ import {
     ShieldUserIcon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ManagePermissionsDialog } from "./ManagePermissionsDialog"
-import { useDeletePolicy } from "@/hooks/use-delete-policy"
 
 interface PolicyInformationProps {
     policy: PolicyDto
     policyPermissions: PolicyPermissionDto[]
     permissions: PermissionDto[]
+    canViewPermissions: boolean
+    canViewPolicyPermissions: boolean
+    canManagePermissions: boolean
 }
 
 export default function PolicyInformation({
     policy,
     policyPermissions,
     permissions,
+    canViewPermissions,
+    canViewPolicyPermissions,
+    canManagePermissions,
 }: Readonly<PolicyInformationProps>) {
     const [isOpen, setIsOpen] = useState(false)
     const policyFormDialog = usePolicyFormDialog()
@@ -57,6 +65,30 @@ export default function PolicyInformation({
         value: permission.id.toString(),
     }))
 
+    const renderPermissionsContent = () => {
+        if (!canViewPolicyPermissions || !canViewPermissions) {
+            return (
+                <span className="text-sm text-neutral-400 italic dark:text-neutral-500">
+                    You do not have permission to view this policy's permissions.
+                </span>
+            )
+        }
+
+        if (policyPermissions.length === 0) {
+            return (
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                    No permissions attached to this policy
+                </span>
+            )
+        }
+
+        return policyPermissions.map((permission) => (
+            <Link href={`/permissions/${permission.id}`} key={permission.id}>
+                <Badge variant="outline">{permission.ref_name}</Badge>
+            </Link>
+        ))
+    }
+
     return (
         <>
             <ManagePermissionsDialog
@@ -77,39 +109,45 @@ export default function PolicyInformation({
                         </p>
                     </div>
                     <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleEditPolicy}
-                        >
-                            <HugeiconsIcon
-                                icon={PencilEdit01Icon}
-                                strokeWidth={2}
-                            />
-                            <span>Edit Policy</span>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleManagePermissions}
-                        >
-                            <HugeiconsIcon
-                                icon={ShieldUserIcon}
-                                strokeWidth={2}
-                            />
-                            <span>Manage Permissions</span>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => deletePolicy(policy)}
-                        >
-                            <HugeiconsIcon
-                                icon={Delete02Icon}
-                                strokeWidth={2}
-                            />
-                            <span>Delete</span>
-                        </Button>
+                        <Can requiredPermission={["update:policy", "admin:policy"]}>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleEditPolicy}
+                            >
+                                <HugeiconsIcon
+                                    icon={PencilEdit01Icon}
+                                    strokeWidth={2}
+                                />
+                                <span>Edit Policy</span>
+                            </Button>
+                        </Can>
+                        {canManagePermissions && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleManagePermissions}
+                            >
+                                <HugeiconsIcon
+                                    icon={ShieldUserIcon}
+                                    strokeWidth={2}
+                                />
+                                <span>Manage Permissions</span>
+                            </Button>
+                        )}
+                        <Can requiredPermission={["delete:policy", "admin:policy"]}>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => deletePolicy(policy)}
+                            >
+                                <HugeiconsIcon
+                                    icon={Delete02Icon}
+                                    strokeWidth={2}
+                                />
+                                <span>Delete</span>
+                            </Button>
+                        </Can>
                     </div>
                 </div>
 
@@ -127,20 +165,7 @@ export default function PolicyInformation({
                     </InfoRow>
                     <InfoRow label="Permissions">
                         <div className="flex flex-wrap gap-2">
-                            {policyPermissions.length < 1 ? (
-                                <span>
-                                    No permissions attached to this role
-                                </span>
-                            ) : (
-                                policyPermissions.map((permission) => (
-                                    <Badge
-                                        key={permission.id}
-                                        variant="outline"
-                                    >
-                                        {permission.ref_name}
-                                    </Badge>
-                                ))
-                            )}
+                            {renderPermissionsContent()}
                         </div>
                     </InfoRow>
                 </dl>

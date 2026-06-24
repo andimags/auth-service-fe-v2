@@ -6,6 +6,7 @@ import {
     type SortingState,
 } from "@tanstack/react-table"
 
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -25,16 +26,15 @@ import { PolicyIsSystemType } from "@/constants/enums"
 import { PolicyDto } from "@/dtos"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useDeletePolicy } from "@/hooks/use-delete-policy"
-import usePolicyFormDialog from "@/hooks/use-policy-form-dialog"
 import { usePoliciesQuery } from "@/hooks/use-policies-query"
+import usePolicyFormDialog from "@/hooks/use-policy-form-dialog"
 import formatDate from "@/lib/format-date"
 import { PlusSignIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
+import { CheckCircle2Icon, MoreHorizontalIcon, XCircleIcon } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import React, { useMemo } from "react"
-import { CheckCircle2Icon, MoreHorizontalIcon, XCircleIcon } from "lucide-react"
-import { Can } from "@/components/shared/Can"
 
 const FACETED_FILTERS: FacetedFilterConfig[] = [
     {
@@ -204,7 +204,7 @@ function getColumns(
                                     View
                                 </Link>
                             </DropdownMenuItem>
-                            <Can requiredPermission={["edit:policy", "admin:policy"]}>
+                            <Can requiredPermission={["update:policy", "admin:policy"]}>
                                 <DropdownMenuItem onClick={() => onEdit(policy)}>
                                     Edit
                                 </DropdownMenuItem>
@@ -336,7 +336,7 @@ export function PoliciesDataTable() {
             getRowId={(row) => row.id.toString()}
             onRowClick={(row) => console.log("Clicked:", row.id)}
             toolbarChildren={
-                <Can requiredPermission={["create:policy", "admin:policy"]}>
+                <Can requiredPermission={["add:policy", "admin:policy"]}>
                     <AddPolicyButton
                         onAdd={() => {
                             policyFormDialog.open.create()

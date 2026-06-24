@@ -1,14 +1,16 @@
+import { ProtectedRoute } from "@/components/shared/ProtectedRoute"
 import { PermissionDto } from "@/dtos/PermissionDto"
 import { PolicyDto } from "@/dtos/PolicyDto"
 import { PolicyPermissionDto } from "@/dtos/PolicyPermissionDto"
 import { authOptions } from "@/lib/next-auth"
+import { checkPermission } from "@/lib/rbac"
+import { isForbiddenError } from "@/services/http/fetcher"
 import { getPermissions } from "@/services/permission.service"
 import { getPolicyPermissions } from "@/services/policy-permission.service"
 import { getPolicy } from "@/services/policy.service"
 import { getServerSession } from "next-auth/next"
-import PolicyInformation from "./PolicyInformation"
-import { checkPermission } from "@/lib/rbac"
 import { redirect } from "next/navigation"
+import PolicyInformation from "./PolicyInformation"
 
 export const dynamic = "force-dynamic"
 
@@ -24,64 +26,109 @@ export default async function Page({
         redirect("/login")
     }
 
-    if (!checkPermission(session, ["view:policy", "admin:policy"])) {
-        redirect("/403")
-    }
+    const canManagePermissions = checkPermission(session, [
+        "admin:policy_permission",
+        "assign:policy_permission",
+        "update:policy_permission",
+        "update:policy",
+        "admin:policy",
+    ])
 
-    const [policy, policyPermissions, permissions] = await Promise.all([
+    const [policyResult, policyPermissionsResult, permissionsResult] = await Promise.all([
         getPolicyData(policyId),
         getPolicyPermissionsData(policyId),
         getPermissionsData(),
     ])
 
+    if (!policyResult.allowed || !policyResult.data) {
+        redirect("/403")
+    }
+
     return (
-        <PolicyInformation
-            policy={policy}
-            policyPermissions={policyPermissions}
-            permissions={permissions}
-        />
+        <ProtectedRoute>
+            <PolicyInformation
+                policy={policyResult.data}
+                policyPermissions={policyPermissionsResult.data}
+                permissions={permissionsResult.data}
+                canViewPermissions={permissionsResult.allowed}
+                canViewPolicyPermissions={policyPermissionsResult.allowed}
+                canManagePermissions={canManagePermissions}
+            />
+        </ProtectedRoute>
     )
 }
 
-async function getPolicyData(policyId: string): Promise<PolicyDto> {
+async function getPolicyData(
+    policyId: string
+): Promise<{ data: PolicyDto | null; allowed: boolean }> {
     const session = await getServerSession(authOptions)
 
     if (!session?.access_token || !session.api_key) {
         throw new Error("Unauthorized")
     }
 
-    return await getPolicy({
-        policyId,
-        accessToken: session.access_token,
-        apiKey: session.api_key,
-    })
+    try {
+        const policy = await getPolicy({
+            policyId,
+            accessToken: session.access_token,
+            apiKey: session.api_key,
+        })
+
+        return { data: policy, allowed: true }
+    } catch (error) {
+        if (isForbiddenError(error)) {
+            return { data: null, allowed: false }
+        }
+        throw error
+    }
 }
 
 async function getPolicyPermissionsData(
     policyId: string
-): Promise<PolicyPermissionDto[]> {
+): Promise<{ data: PolicyPermissionDto[]; allowed: boolean }> {
     const session = await getServerSession(authOptions)
 
     if (!session?.access_token || !session.api_key) {
         throw new Error("Unauthorized")
     }
 
-    return await getPolicyPermissions({
-        policyId: Number.parseInt(policyId, 10),
-        accessToken: session.access_token,
-        apiKey: session.api_key,
-    })
+    try {
+        const policyPermissions = await getPolicyPermissions({
+            policyId: Number.parseInt(policyId, 10),
+            accessToken: session.access_token,
+            apiKey: session.api_key,
+        })
+
+        return { data: policyPermissions, allowed: true }
+    } catch (error) {
+        if (isForbiddenError(error)) {
+            return { data: [], allowed: false }
+        }
+        throw error
+    }
 }
 
-async function getPermissionsData(): Promise<PermissionDto[]> {
+async function getPermissionsData(): Promise<{
+    data: PermissionDto[]
+    allowed: boolean
+}> {
     const session = await getServerSession(authOptions)
 
     if (!session?.access_token || !session.api_key) {
         throw new Error("Unauthorized")
     }
 
-    return await getPermissions({
-        accessToken: session.access_token,
-        apiKey: session.api_key,
-    })
+    try {
+        const permissions = await getPermissions({
+            accessToken: session.access_token,
+            apiKey: session.api_key,
+        })
+
+        return { data: permissions, allowed: true }
+    } catch (error) {
+        if (isForbiddenError(error)) {
+            return { data: [], allowed: false }
+        }
+        throw error
+    }
 }
