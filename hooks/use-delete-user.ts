@@ -1,5 +1,5 @@
-import useConfirmDialog from "@/hooks/use-confirm-dialog"
 import { UserDto } from "@/dtos"
+import useConfirmDialog from "@/hooks/use-confirm-dialog"
 import { getBaseUrl } from "@/lib/api"
 import { useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
@@ -46,7 +46,7 @@ export function useDeleteUser({ onSuccess }: UseDeleteUserOptions = {}) {
                             toast.warning(error || "Failed to delete user")
                         }
                     } catch (error) {
-                        console.error(error)
+                        console.warn(error)
                         toast.error("Network error. Please try again.")
                     }
                 },

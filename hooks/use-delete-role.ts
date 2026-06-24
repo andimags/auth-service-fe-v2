@@ -42,7 +42,7 @@ export function useDeleteRole({ onSuccess }: UseDeleteRoleOptions = {}) {
                             toast.warning(error || "Failed to delete role")
                         }
                     } catch (error) {
-                        console.error(error)
+                        console.warn(error)
                         toast.error("Network error. Please try again.")
                     }
                 },
