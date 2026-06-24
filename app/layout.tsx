@@ -12,6 +12,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import "./globals.css"
 import { ChannelFormDialog } from "@/components/shared/channel-form-dialog/ChannelFormDialog"
+import { PermissionFormDialog } from "@/components/shared/permission-form-dialog/PermissionFormDialog"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -52,6 +53,7 @@ export default function RootLayout({
                                 <RoleFormDialog />
                                 <PolicyFormDialog />
                                 <ChannelFormDialog />
+                                <PermissionFormDialog />
                                 {children}
                             </QueryProvider>
                         </SessionProvider>
