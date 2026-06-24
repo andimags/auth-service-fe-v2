@@ -1,7 +1,7 @@
 "use client"
 
-import useConfirmDialog from "@/hooks/use-confirm-dialog"
 import { ChannelDto } from "@/dtos"
+import useConfirmDialog from "@/hooks/use-confirm-dialog"
 import { getBaseUrl } from "@/lib/api"
 import { useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
@@ -52,7 +52,7 @@ export function useDeleteChannel({ onSuccess }: UseDeleteChannelOptions = {}) {
                             )
                         }
                     } catch (error) {
-                        console.error(error)
+                        console.warn(error)
                         toast.error("Network error. Please try again.")
                     }
                 },

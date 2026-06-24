@@ -46,7 +46,7 @@ export function useDeletePermission({
                             )
                         }
                     } catch (error) {
-                        console.error(error)
+                        console.warn(error)
                         toast.error("Network error. Please try again.")
                     }
                 },

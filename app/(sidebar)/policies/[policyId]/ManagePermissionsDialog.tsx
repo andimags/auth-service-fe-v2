@@ -84,7 +84,7 @@ export function ManagePermissionsDialog({
                 toast.warning(error || "Failed to update policy permissions")
             }
         } catch (error) {
-            console.error(error)
+            console.warn(error)
             toast.error("Network error. Please try again.")
         } finally {
             setIsLoading(false)

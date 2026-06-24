@@ -1,5 +1,10 @@
 "use client"
 
+import {
+    MultiSelect,
+    MultiSelectGroup,
+    MultiSelectOption,
+} from "@/components/multi-select"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -14,14 +19,9 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { Label } from "@/components/ui/label"
 import { UserDto } from "@/dtos/UserDto"
 import { getBaseUrl } from "@/lib/api"
-import { useEffect, useState } from "react"
-import {
-    MultiSelect,
-    MultiSelectGroup,
-    MultiSelectOption,
-} from "@/components/multi-select"
-import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
 
 import * as React from "react"
 
@@ -96,7 +96,7 @@ export function ManageRolesDialog({
                 toast.warning(error || "Failed to update user's roles")
             }
         } catch (error) {
-            console.error(error)
+            console.warn(error)
             toast.error("Network error. Please try again.")
         } finally {
             setIsLoading(false)

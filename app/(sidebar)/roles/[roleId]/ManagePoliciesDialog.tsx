@@ -80,7 +80,7 @@ export function ManagePoliciesDialog({
                 toast.warning(error || "Failed to update role policies")
             }
         } catch (error) {
-            console.error(error)
+            console.warn(error)
             toast.error("Network error. Please try again.")
         } finally {
             setIsLoading(false)

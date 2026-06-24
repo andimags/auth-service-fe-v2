@@ -42,7 +42,7 @@ export function useDeletePolicy({ onSuccess }: UseDeletePolicyOptions = {}) {
                             toast.warning(error || "Failed to delete policy")
                         }
                     } catch (error) {
-                        console.error(error)
+                        console.warn(error)
                         toast.error("Network error. Please try again.")
                     }
                 },
