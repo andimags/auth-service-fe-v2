@@ -183,7 +183,7 @@ function getColumns(
                             <DropdownMenuItem asChild>
                                 <Link href={`/roles/${role.id}`}>View</Link>
                             </DropdownMenuItem>
-                            <Can requiredPermission={["edit:role", "admin:role"]}>
+                            <Can requiredPermission={["update:role", "admin:role"]}>
                                 <DropdownMenuItem onClick={() => onEdit(role)}>
                                     Edit
                                 </DropdownMenuItem>
@@ -314,7 +314,7 @@ export function RolesDataTable() {
             getRowId={(row) => row.id.toString()}
             onRowClick={(row) => console.log("Clicked:", row.id)}
             toolbarChildren={
-                <Can requiredPermission={["create:role", "admin:role"]}>
+                <Can requiredPermission={["add:role", "admin:role"]}>
                     <AddRoleButton
                         onAdd={() => {
                             roleFormDialog.open.create()

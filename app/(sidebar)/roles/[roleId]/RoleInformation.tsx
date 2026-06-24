@@ -15,17 +15,25 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ManagePoliciesDialog } from "./ManagePoliciesDialog"
+import Link from "next/link"
+import { Can } from "@/components/shared/Can"
 
 interface RoleInformationProps {
     role: RoleDto
     rolePolicies: RolePolicyDto[]
     policies: PolicyDto[]
+    canViewPolicies: boolean
+    canViewRolePolicies: boolean
+    canManagePolicies: boolean
 }
 
 export default function RoleInformation({
     role,
     rolePolicies,
     policies,
+    canViewPolicies,
+    canViewRolePolicies,
+    canManagePolicies,
 }: Readonly<RoleInformationProps>) {
     const [isOpen, setIsOpen] = useState(false)
     const roleFormDialog = useRoleFormDialog()
@@ -55,6 +63,30 @@ export default function RoleInformation({
         value: policy.id.toString(),
     }))
 
+    const renderPoliciesContent = () => {
+        if (!canViewRolePolicies || !canViewPolicies) {
+            return (
+                <span className="text-sm text-neutral-400 italic dark:text-neutral-500">
+                    You do not have permission to view this role's policies.
+                </span>
+            )
+        }
+
+        if (rolePolicies.length === 0) {
+            return (
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                    No policies assigned to this role
+                </span>
+            )
+        }
+
+        return rolePolicies.map((rolePolicy) => (
+            <Link href={`/policies/${rolePolicy.id}`} key={rolePolicy.id}>
+                <Badge variant="outline">{rolePolicy.ref_name}</Badge>
+            </Link>
+        ))
+    }
+
     return (
         <>
             <ManagePoliciesDialog
@@ -75,39 +107,45 @@ export default function RoleInformation({
                         </p>
                     </div>
                     <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleEditRole}
-                        >
-                            <HugeiconsIcon
-                                icon={PencilEdit01Icon}
-                                strokeWidth={2}
-                            />
-                            <span>Edit Role</span>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleManagePolicies}
-                        >
-                            <HugeiconsIcon
-                                icon={ShieldUserIcon}
-                                strokeWidth={2}
-                            />
-                            <span>Manage Policies</span>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => deleteRole(role)}
-                        >
-                            <HugeiconsIcon
-                                icon={Delete02Icon}
-                                strokeWidth={2}
-                            />
-                            <span>Delete</span>
-                        </Button>
+                        <Can requiredPermission={["update:role", "admin:role"]}>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleEditRole}
+                            >
+                                <HugeiconsIcon
+                                    icon={PencilEdit01Icon}
+                                    strokeWidth={2}
+                                />
+                                <span>Edit Role</span>
+                            </Button>
+                        </Can>
+                        {canManagePolicies && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleManagePolicies}
+                            >
+                                <HugeiconsIcon
+                                    icon={ShieldUserIcon}
+                                    strokeWidth={2}
+                                />
+                                <span>Manage Policies</span>
+                            </Button>
+                        )}
+                        <Can requiredPermission={["delete:role", "admin:role"]}>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => deleteRole(role)}
+                            >
+                                <HugeiconsIcon
+                                    icon={Delete02Icon}
+                                    strokeWidth={2}
+                                />
+                                <span>Delete</span>
+                            </Button>
+                        </Can>
                     </div>
                 </div>
 
@@ -129,15 +167,7 @@ export default function RoleInformation({
                     </InfoRow>
                     <InfoRow label="Policies">
                         <div className="flex flex-wrap gap-2">
-                            {rolePolicies.length < 1 ? (
-                                <span>No policies attached to this role</span>
-                            ) : (
-                                rolePolicies.map((policy) => (
-                                    <Badge key={policy.id} variant="outline">
-                                        {policy.ref_name}
-                                    </Badge>
-                                ))
-                            )}
+                            {renderPoliciesContent()}
                         </div>
                     </InfoRow>
                 </dl>
