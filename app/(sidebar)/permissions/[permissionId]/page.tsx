@@ -3,8 +3,9 @@ import { authOptions } from "@/lib/next-auth"
 import { getPermission } from "@/services/permission.service"
 import { getServerSession } from "next-auth/next"
 import PermissionInformation from "./PermissionInformation"
-import { checkPermission } from "@/lib/rbac"
 import { redirect } from "next/navigation"
+import { isForbiddenError } from "@/services/http/fetcher"
+import { ProtectedRoute } from "@/components/shared/ProtectedRoute"
 
 export const dynamic = "force-dynamic"
 
@@ -20,25 +21,40 @@ export default async function Page({
         redirect("/login")
     }
 
-    if (!checkPermission(session, ["view:permission", "admin:permission"])) {
+    const permissionResult = await getPermissionData(permissionId)
+
+    if (!permissionResult.allowed || !permissionResult.data) {
         redirect("/403")
     }
 
-    const permission = await getPermissionData(permissionId)
-
-    return <PermissionInformation permission={permission} />
+    return (
+        <ProtectedRoute>
+            <PermissionInformation permission={permissionResult.data} />
+        </ProtectedRoute>
+    )
 }
 
-async function getPermissionData(permissionId: string): Promise<PermissionDto> {
+async function getPermissionData(
+    permissionId: string
+): Promise<{ data: PermissionDto | null; allowed: boolean }> {
     const session = await getServerSession(authOptions)
 
     if (!session?.access_token || !session.api_key) {
         throw new Error("Unauthorized")
     }
 
-    return await getPermission({
-        permissionId,
-        accessToken: session.access_token,
-        apiKey: session.api_key,
-    })
+    try {
+        const permission = await getPermission({
+            permissionId,
+            accessToken: session.access_token,
+            apiKey: session.api_key,
+        })
+
+        return { data: permission, allowed: true }
+    } catch (error) {
+        if (isForbiddenError(error)) {
+            return { data: null, allowed: false }
+        }
+        throw error
+    }
 }

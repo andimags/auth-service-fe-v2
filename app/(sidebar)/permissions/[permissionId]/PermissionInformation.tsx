@@ -1,5 +1,6 @@
 "use client"
 
+import { Can } from "@/components/shared/Can"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { PermissionDto } from "@/dtos"
@@ -44,25 +45,29 @@ export default function PermissionInformation({
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleEditPermission}
-                    >
-                        <HugeiconsIcon
-                            icon={PencilEdit01Icon}
-                            strokeWidth={2}
-                        />
-                        <span>Edit Permission</span>
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => deletePermission(permission)}
-                    >
-                        <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-                        <span>Delete</span>
-                    </Button>
+                    <Can requiredPermission={["update:permission", "admin:permission"]}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleEditPermission}
+                        >
+                            <HugeiconsIcon
+                                icon={PencilEdit01Icon}
+                                strokeWidth={2}
+                            />
+                            <span>Edit Permission</span>
+                        </Button>
+                    </Can>
+                    <Can requiredPermission={["delete:permission", "admin:permission"]}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deletePermission(permission)}
+                        >
+                            <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+                            <span>Delete</span>
+                        </Button>
+                    </Can>
                 </div>
             </div>
 

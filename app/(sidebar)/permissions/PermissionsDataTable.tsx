@@ -6,6 +6,7 @@ import {
     type SortingState,
 } from "@tanstack/react-table"
 
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -33,11 +34,10 @@ import { usePermissionsQuery } from "@/hooks/use-permissions-query"
 import formatDate from "@/lib/format-date"
 import { PlusSignIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
+import { CheckCircle2Icon, MoreHorizontalIcon, XCircleIcon } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import React, { useMemo } from "react"
-import { CheckCircle2Icon, MoreHorizontalIcon, XCircleIcon } from "lucide-react"
-import { Can } from "@/components/shared/Can"
 
 const FACETED_FILTERS: FacetedFilterConfig[] = [
     {
@@ -237,7 +237,7 @@ function getColumns(
                             </DropdownMenuItem>
                             <Can
                                 requiredPermission={[
-                                    "edit:permission",
+                                    "update:permission",
                                     "admin:permission",
                                 ]}
                             >
@@ -384,7 +384,7 @@ export function PermissionsDataTable() {
             toolbarChildren={
                 <Can
                     requiredPermission={[
-                        "create:permission",
+                        "add:permission",
                         "admin:permission",
                     ]}
                 >
