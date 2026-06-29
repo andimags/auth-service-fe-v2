@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-table"
 import { MoreHorizontalIcon } from "lucide-react"
 
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -23,7 +24,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { RoleScopeType } from "@/constants/enums"
-import { ChannelDto, RoleDto } from "@/dtos"
+import { RoleDto } from "@/dtos"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useDeleteRole } from "@/hooks/use-delete-role"
 import useRoleFormDialog from "@/hooks/use-role-form-dialog"
@@ -34,7 +35,6 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import React, { useMemo } from "react"
-import { Can } from "@/components/shared/Can"
 
 const FACETED_FILTERS: FacetedFilterConfig[] = [
     {
@@ -183,15 +183,15 @@ function getColumns(
                             <DropdownMenuItem asChild>
                                 <Link href={`/roles/${role.id}`}>View</Link>
                             </DropdownMenuItem>
-                            <Can requiredPermission={["update:role", "admin:role"]}>
+                            <Can requiredPermission={["auth:update:role", "auth:admin:role"]}>
                                 <DropdownMenuItem onClick={() => onEdit(role)}>
                                     Edit
                                 </DropdownMenuItem>
                             </Can>
                             <Can
                                 requiredPermission={[
-                                    "delete:role",
-                                    "admin:role",
+                                    "auth:delete:role",
+                                    "auth:admin:role",
                                 ]}
                             >
                                 <DropdownMenuItem
@@ -314,7 +314,7 @@ export function RolesDataTable() {
             getRowId={(row) => row.id.toString()}
             onRowClick={(row) => console.log("Clicked:", row.id)}
             toolbarChildren={
-                <Can requiredPermission={["add:role", "admin:role"]}>
+                <Can requiredPermission={["auth:add:role", "auth:admin:role"]}>
                     <AddRoleButton
                         onAdd={() => {
                             roleFormDialog.open.create()

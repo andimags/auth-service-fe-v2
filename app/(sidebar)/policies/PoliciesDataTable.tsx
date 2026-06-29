@@ -204,15 +204,15 @@ function getColumns(
                                     View
                                 </Link>
                             </DropdownMenuItem>
-                            <Can requiredPermission={["update:policy", "admin:policy"]}>
+                            <Can requiredPermission={["auth:update:policy", "auth:admin:policy"]}>
                                 <DropdownMenuItem onClick={() => onEdit(policy)}>
                                     Edit
                                 </DropdownMenuItem>
                             </Can>
                             <Can
                                 requiredPermission={[
-                                    "delete:policy",
-                                    "admin:policy",
+                                    "auth:delete:policy",
+                                    "auth:admin:policy",
                                 ]}
                             >
                                 <DropdownMenuItem
@@ -336,7 +336,7 @@ export function PoliciesDataTable() {
             getRowId={(row) => row.id.toString()}
             onRowClick={(row) => console.log("Clicked:", row.id)}
             toolbarChildren={
-                <Can requiredPermission={["add:policy", "admin:policy"]}>
+                <Can requiredPermission={["auth:add:policy", "auth:admin:policy"]}>
                     <AddPolicyButton
                         onAdd={() => {
                             policyFormDialog.open.create()

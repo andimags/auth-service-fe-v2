@@ -19,6 +19,7 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { Label } from "@/components/ui/label"
 import { RoleDto } from "@/dtos/RoleDto"
 import { getBaseUrl } from "@/lib/api"
+import { ApiError } from "@/lib/api-error"
 import { useRouter } from "next/navigation"
 import { type SyntheticEvent, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -64,24 +65,32 @@ export function ManagePoliciesDialog({
                 `${BASE_URL}/api/role-policy/role/${role.id}`,
                 {
                     method: "PUT",
-                    body: JSON.stringify({
-                        policy_ids: selectedValues,
-                    }),
+                    body: JSON.stringify({ policy_ids: selectedValues }),
                     headers: { "Content-Type": "application/json" },
                 }
             )
 
+            const data = await response.json().catch(() => ({}))
+
             if (response.ok) {
-                handleClose()
                 toast.success("Role policies have been updated")
+                handleClose()
                 setTimeout(() => router.refresh(), 1000)
-            } else {
-                const error = await response.text()
-                toast.warning(error || "Failed to update role policies")
+            }
+            else{
+                throw new ApiError(
+                    data.message ?? "Something went wrong",
+                    response.status,
+                    data.details
+                )
             }
         } catch (error) {
-            console.warn(error)
-            toast.error("Network error. Please try again.")
+            if (error instanceof ApiError) {
+                toast.error(error.message)
+            } else {
+                console.warn("Unexpected error:", error)
+                toast.error("Something went wrong")
+            }
         } finally {
             setIsLoading(false)
         }

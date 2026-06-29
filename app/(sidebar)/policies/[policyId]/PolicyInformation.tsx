@@ -109,7 +109,7 @@ export default function PolicyInformation({
                         </p>
                     </div>
                     <div className="flex gap-2">
-                        <Can requiredPermission={["update:policy", "admin:policy"]}>
+                        <Can requiredPermission={["auth:update:policy", "auth:admin:policy"]}>
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -135,7 +135,7 @@ export default function PolicyInformation({
                                 <span>Manage Permissions</span>
                             </Button>
                         )}
-                        <Can requiredPermission={["delete:policy", "admin:policy"]}>
+                        <Can requiredPermission={["auth:delete:policy", "auth:admin:policy"]}>
                             <Button
                                 variant="outline"
                                 size="sm"

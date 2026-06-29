@@ -1,16 +1,16 @@
+import { ProtectedRoute } from "@/components/shared/ProtectedRoute"
 import { PolicyDto } from "@/dtos/PolicyDto"
 import { RoleDto } from "@/dtos/RoleDto"
 import { RolePolicyDto } from "@/dtos/RolePolicyDto"
 import { authOptions } from "@/lib/next-auth"
+import { checkPermission } from "@/lib/rbac"
+import { isForbiddenError } from "@/services/http/fetcher"
 import { getPolicies } from "@/services/policy.service"
 import { getRolePolicies } from "@/services/role-policy.service"
 import { getRole } from "@/services/role.service"
 import { getServerSession } from "next-auth/next"
-import RoleInformation from "./RoleInformation"
-import { checkPermission } from "@/lib/rbac"
 import { redirect } from "next/navigation"
-import { isForbiddenError } from "@/services/http/fetcher"
-import { ProtectedRoute } from "@/components/shared/ProtectedRoute"
+import RoleInformation from "./RoleInformation"
 
 export const dynamic = "force-dynamic"
 
@@ -21,7 +21,7 @@ export default async function Page({
 }>) {
     const { roleId } = await params
     const session = await getServerSession(authOptions)
-    const canManagePolicies = checkPermission(session, ["admin:user_role", "assign:user_role", "update:user_role"])
+    const canManagePolicies = checkPermission(session, ["auth:admin:role_policy", "auth:update:role_policy"])
     
     const [roleResult, rolePoliciesResult, policiesResult] = await Promise.all([
         getRoleData(roleId),

@@ -45,7 +45,7 @@ export default function PermissionInformation({
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Can requiredPermission={["update:permission", "admin:permission"]}>
+                    <Can requiredPermission={["auth:update:permission", "auth:admin:permission"]}>
                         <Button
                             variant="outline"
                             size="sm"
@@ -58,7 +58,7 @@ export default function PermissionInformation({
                             <span>Edit Permission</span>
                         </Button>
                     </Can>
-                    <Can requiredPermission={["delete:permission", "admin:permission"]}>
+                    <Can requiredPermission={["auth:delete:permission", "auth:admin:permission"]}>
                         <Button
                             variant="outline"
                             size="sm"

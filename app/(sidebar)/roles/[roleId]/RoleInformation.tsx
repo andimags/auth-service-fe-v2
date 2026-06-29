@@ -1,5 +1,6 @@
 "use client"
 
+import { Can } from "@/components/shared/Can"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { PolicyDto, RoleDto, RolePolicyDto } from "@/dtos"
@@ -12,11 +13,10 @@ import {
     ShieldUserIcon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ManagePoliciesDialog } from "./ManagePoliciesDialog"
-import Link from "next/link"
-import { Can } from "@/components/shared/Can"
 
 interface RoleInformationProps {
     role: RoleDto
@@ -107,7 +107,7 @@ export default function RoleInformation({
                         </p>
                     </div>
                     <div className="flex gap-2">
-                        <Can requiredPermission={["update:role", "admin:role"]}>
+                        <Can requiredPermission={["auth:update:role", "auth:admin:role"]}>
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -133,7 +133,7 @@ export default function RoleInformation({
                                 <span>Manage Policies</span>
                             </Button>
                         )}
-                        <Can requiredPermission={["delete:role", "admin:role"]}>
+                        <Can requiredPermission={["auth:delete:role", "auth:admin:role"]}>
                             <Button
                                 variant="outline"
                                 size="sm"

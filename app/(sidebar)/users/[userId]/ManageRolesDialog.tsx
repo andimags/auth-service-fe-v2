@@ -88,7 +88,6 @@ export function ManageRolesDialog({
 
         try {
             if (response.ok) {
-                handleClose()
                 toast.success("User's roles have been updated")
                 setTimeout(() => router.refresh(), 1000)
             } else {
@@ -100,6 +99,7 @@ export function ManageRolesDialog({
             toast.error("Network error. Please try again.")
         } finally {
             setIsLoading(false)
+            handleClose()
         }
     }
 

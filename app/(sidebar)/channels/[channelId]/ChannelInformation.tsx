@@ -1,16 +1,16 @@
 "use client"
 
-import { toast } from "sonner"
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { ChannelDto } from "@/dtos"
-import { useDeleteChannel } from "@/hooks/use-delete-channel"
 import useChannelFormDialog from "@/hooks/use-channel-form-dialog"
+import { useDeleteChannel } from "@/hooks/use-delete-channel"
 import formatDate from "@/lib/format-date"
 import { Delete02Icon, PencilEdit01Icon } from "@hugeicons/core-free-icons"
-import { CopyIcon } from "lucide-react"
 import { HugeiconsIcon } from "@hugeicons/react"
+import { CopyIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { Can } from "@/components/shared/Can"
+import { toast } from "sonner"
 
 interface ChannelInformationProps {
     channel: ChannelDto
@@ -46,7 +46,7 @@ export default function ChannelInformation({
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Can requiredPermission={['admin:channel', 'update:channel']}>
+                    <Can requiredPermission={['auth:admin:channel', 'auth:update:channel']}>
                         <Button
                             variant="outline"
                             size="sm"
@@ -59,7 +59,7 @@ export default function ChannelInformation({
                             <span>Edit Channel</span>
                         </Button>
                     </Can>
-                    <Can requiredPermission={['admin:channel', 'delete:channel']}>
+                    <Can requiredPermission={['auth:admin:channel', 'auth:delete:channel']}>
                         <Button
                             variant="outline"
                             size="sm"

@@ -27,11 +27,9 @@ export default async function Page({
     }
 
     const canManagePermissions = checkPermission(session, [
-        "admin:policy_permission",
-        "assign:policy_permission",
-        "update:policy_permission",
-        "update:policy",
-        "admin:policy",
+        "auth:admin:policy_permission",
+        "auth:assign:policy_permission",
+        "auth:update:policy_permission"
     ])
 
     const [policyResult, policyPermissionsResult, permissionsResult] = await Promise.all([

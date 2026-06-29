@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-table"
 import { CheckCircle2Icon, MoreHorizontalIcon, XCircleIcon } from "lucide-react"
 
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -24,7 +25,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { UserLevelType, UserStatusType } from "@/constants/enums"
 import { UserDto } from "@/dtos"
+import { useDebounce } from "@/hooks/use-debounce"
 import { useDeleteUser } from "@/hooks/use-delete-user"
+import useUserFormDialog from "@/hooks/use-user-form-dialog"
 import { useUsersQuery } from "@/hooks/use-users-query"
 import formatDate from "@/lib/format-date"
 import { PlusSignIcon } from "@hugeicons/core-free-icons"
@@ -32,9 +35,6 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import React, { useMemo } from "react"
-import useUserFormDialog from "@/hooks/use-user-form-dialog"
-import { useDebounce } from "@/hooks/use-debounce"
-import { Can } from "@/components/shared/Can"
 
 // ---------------------------------------------------------------------------
 // Status icons map
@@ -222,12 +222,12 @@ function getColumns(
                             <DropdownMenuItem asChild>
                                 <Link href={`/users/${user.id}`}>View</Link>
                             </DropdownMenuItem>
-                            <Can requiredPermission={["edit:user", "admin:user"]}>
+                            <Can requiredPermission={["edit:user", "auth:admin:user"]}>
                                 <DropdownMenuItem onClick={() => onEdit(user)}>
                                     Edit
                                 </DropdownMenuItem>
                             </Can>
-                            <Can requiredPermission={["delete:user", "admin:user"]}>
+                            <Can requiredPermission={["auth:delete:user", "auth:admin:user"]}>
                                 <DropdownMenuItem onClick={() => onDelete(user)}>
                                     Delete
                                 </DropdownMenuItem>
@@ -342,7 +342,7 @@ export function UsersDataTable() {
             getRowId={(row) => row.id.toString()}
             onRowClick={(row) => console.log("Clicked:", row.id)}
             toolbarChildren={
-                <Can requiredPermission={["create:user", "admin:user"]}>
+                <Can requiredPermission={["create:user", "auth:admin:user"]}>
                     <AddUserButton
                         onAdd={() => {
                             userFormDialog.open.create()

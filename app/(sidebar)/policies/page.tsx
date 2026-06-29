@@ -1,10 +1,10 @@
 import { PolicyFormDialog } from "@/components/shared/policy-form-dialog/PolicyFormDialog"
-import { PoliciesDataTable } from "./PoliciesDataTable"
 import { ProtectedRoute } from "@/components/shared/ProtectedRoute"
+import { PoliciesDataTable } from "./PoliciesDataTable"
 
 export default async function Page() {
     return (
-        <ProtectedRoute requiredPermission={["view:policy", "admin:policy"]}>
+        <ProtectedRoute requiredPermission={["auth:view:policy", "auth:admin:policy"]}>
             <PolicyFormDialog />
             <PoliciesDataTable />
         </ProtectedRoute>

@@ -237,8 +237,8 @@ function getColumns(
                             </DropdownMenuItem>
                             <Can
                                 requiredPermission={[
-                                    "update:permission",
-                                    "admin:permission",
+                                    "auth:update:permission",
+                                    "auth:admin:permission",
                                 ]}
                             >
                                 <DropdownMenuItem
@@ -249,8 +249,8 @@ function getColumns(
                             </Can>
                             <Can
                                 requiredPermission={[
-                                    "delete:permission",
-                                    "admin:permission",
+                                    "auth:delete:permission",
+                                    "auth:admin:permission",
                                 ]}
                             >
                                 <DropdownMenuItem
@@ -384,8 +384,8 @@ export function PermissionsDataTable() {
             toolbarChildren={
                 <Can
                     requiredPermission={[
-                        "add:permission",
-                        "admin:permission",
+                        "auth:add:permission",
+                        "auth:admin:permission",
                     ]}
                 >
                     <AddPermissionButton

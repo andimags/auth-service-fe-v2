@@ -1,14 +1,14 @@
-import { redirect } from "next/navigation"
-import { RoleDto, UserDto } from "@/dtos"
-import { authOptions } from "@/lib/next-auth"
-import { getUser } from "@/services/user.service"
-import { getServerSession } from "next-auth/next"
 import UserInformation from "@/app/(sidebar)/users/[userId]/UserInformation"
-import { getUserRoles } from "@/services/user-role.service"
+import { RoleDto, UserDto } from "@/dtos"
 import { UserRolesDto } from "@/dtos/UserRoleDto"
-import { getRoles } from "@/services/role.service"
+import { authOptions } from "@/lib/next-auth"
 import { checkPermission } from "@/lib/rbac"
 import { isForbiddenError } from "@/services/http/fetcher"
+import { getRoles } from "@/services/role.service"
+import { getUserRoles } from "@/services/user-role.service"
+import { getUser } from "@/services/user.service"
+import { getServerSession } from "next-auth/next"
+import { redirect } from "next/navigation"
 
 export const dynamic = "force-dynamic"
 
@@ -26,7 +26,7 @@ export default async function Page({
 
     // This one isn't tied to a fetch — it's purely "should the button
     // render," so it's fine as a plain permission check.
-    const canManageRoles = checkPermission(session, ["admin:user-role", "assign:user_role", "update:user_role"])
+    const canManageRoles = checkPermission(session, ["auth:admin:user-role", "auth:assign:user_role", "auth:update:user_role"])
 
     const [userResult, userRolesResult, rolesResult] = await Promise.all([
         getUserData(userId),

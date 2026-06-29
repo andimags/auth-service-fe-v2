@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-table"
 import { CopyIcon, MoreHorizontalIcon } from "lucide-react"
 
+import { Can } from "@/components/shared/Can"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -25,16 +26,15 @@ import {
 import { ChannelDto } from "@/dtos"
 import useChannelFormDialog from "@/hooks/use-channel-form-dialog"
 import { useChannelsQuery } from "@/hooks/use-channels-query"
+import { useDebounce } from "@/hooks/use-debounce"
 import { useDeleteChannel } from "@/hooks/use-delete-channel"
 import formatDate from "@/lib/format-date"
 import { PlusSignIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useSession } from "next-auth/react"
+import Link from "next/link"
 import React, { useMemo } from "react"
 import { toast } from "sonner"
-import { useDebounce } from "@/hooks/use-debounce"
-import Link from "next/link"
-import { Can } from "@/components/shared/Can"
 
 // ---------------------------------------------------------------------------
 // Faceted filter config (stable reference — defined outside component)
@@ -197,8 +197,8 @@ function getColumns(
                             </DropdownMenuItem>
                             <Can
                                 requiredPermission={[
-                                    "update:channel",
-                                    "admin:channel",
+                                    "auth:update:channel",
+                                    "auth:admin:channel",
                                 ]}
                             >
                                 <DropdownMenuItem
@@ -209,8 +209,8 @@ function getColumns(
                             </Can>
                             <Can
                                 requiredPermission={[
-                                    "delete:channel",
-                                    "admin:channel",
+                                    "auth:delete:channel",
+                                    "auth:admin:channel",
                                 ]}
                             >
                                 <DropdownMenuItem
@@ -321,7 +321,7 @@ export function ChannelsDataTable() {
             getRowId={(row) => row.id.toString()}
             onRowClick={(row) => console.log("Clicked:", row.id)}
             toolbarChildren={
-                <Can requiredPermission={["add:channel", "admin:channel"]}>
+                <Can requiredPermission={["auth:add:channel", "auth:admin:channel"]}>
                     <AddChannelButton
                         onAdd={() => {
                             channelFormDialog.open.create()

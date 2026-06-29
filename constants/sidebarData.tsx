@@ -1,11 +1,11 @@
-import { HugeiconsIcon } from "@hugeicons/react"
 import {
-    UserGroupIcon,
     CableIcon,
-    ShieldUserIcon,
     ShieldBlockchainIcon,
     ShieldKeyIcon,
+    ShieldUserIcon,
+    UserGroupIcon,
 } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 
 export const sidebarData = {
     user: {
@@ -25,31 +25,31 @@ export const sidebarData = {
             title: "Users",
             url: "/users",
             icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />,
-            requiredPermissions: ['view:user', 'admin:user']
+            requiredPermissions: ['auth:view:user', 'auth:admin:user']
         },
         {
             title: "Channels",
             url: "/channels",
             icon: <HugeiconsIcon icon={CableIcon} strokeWidth={2} />,
-            requiredPermissions: ['view:channel', 'admin:channel']
+            requiredPermissions: ['auth:view:channel', 'auth:admin:channel']
         },
         {
             title: "Roles",
             url: "/roles",
             icon: <HugeiconsIcon icon={ShieldUserIcon} strokeWidth={2} />,
-            requiredPermissions: ['view:role', 'admin:role']
+            requiredPermissions: ['auth:view:role', 'auth:admin:role']
         },
         {
             title: "Policies",
             url: "/policies",
             icon: <HugeiconsIcon icon={ShieldBlockchainIcon} strokeWidth={2} />,
-            requiredPermissions: ['view:policy', 'admin:policy']
+            requiredPermissions: ['auth:view:policy', 'auth:admin:policy']
         },
         {
             title: "Permissions",
             url: "/permissions",
             icon: <HugeiconsIcon icon={ShieldKeyIcon} strokeWidth={2} />,
-            requiredPermissions: ['view:permission', 'admin:permission']
+            requiredPermissions: ['auth:view:permission', 'auth:admin:permission']
         },
     ],
 }

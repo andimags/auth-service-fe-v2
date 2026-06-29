@@ -8,16 +8,18 @@ export default async function http<T>(
     const text = await res.text()
 
     let body: any
-    
     try {
         body = text ? JSON.parse(text) : undefined
     } catch {
-        body = undefined // backend (or a proxy in front of it) returned non-JSON
+        body = undefined
     }
 
     if (!res.ok) {
-        const message = body?.message ?? text ?? `Request failed: ${res.status}`
-        throw new ApiError(message, res.status, body?.details)
+        throw new ApiError(
+            body?.message ?? "Something went wrong",
+            res.status,
+            body?.errors,
+        )
     }
 
     return body as T
