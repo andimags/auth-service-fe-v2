@@ -57,11 +57,11 @@ export default function UserInformation({
         setIsOpen(true)
     }
 
-    const selectedValues = userRoles.map((userRole) => userRole.id.toString())
+    const selectedValues = userRoles.map((userRole) => userRole.ref_name)
 
     const roleOptions = roles.map((role) => ({
         label: `${role.ref_name} | ${role.scope}`,
-        value: role.id.toString(),
+        value: role.ref_name,
     }))
 
     const renderRolesContent = () => {
