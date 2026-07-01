@@ -69,7 +69,7 @@ export function ManagePermissionsDialog({
                 {
                     method: "PUT",
                     body: JSON.stringify({
-                        permission_ids: selectedValues,
+                        permission_ref_names: selectedValues,
                     }),
                     headers: { "Content-Type": "application/json" },
                 }

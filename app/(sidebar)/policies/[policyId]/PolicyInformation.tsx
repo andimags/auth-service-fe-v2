@@ -57,12 +57,12 @@ export default function PolicyInformation({
     }
 
     const selectedValues = policyPermissions.map((permission) =>
-        permission.id.toString()
+        permission.ref_name
     )
 
     const permissionOptions = permissions.map((permission) => ({
         label: `${permission.ref_name} | ${permission.name}`,
-        value: permission.id.toString(),
+        value: permission.ref_name,
     }))
 
     const renderPermissionsContent = () => {
