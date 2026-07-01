@@ -56,11 +56,11 @@ export default function RoleInformation({
         setIsOpen(true)
     }
 
-    const selectedValues = rolePolicies.map((policy) => policy.id.toString())
+    const selectedValues = rolePolicies.map((policy) => policy.ref_name)
 
     const policyOptions = policies.map((policy) => ({
         label: `${policy.ref_name} | ${policy.name}`,
-        value: policy.id.toString(),
+        value: policy.ref_name,
     }))
 
     const renderPoliciesContent = () => {

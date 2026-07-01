@@ -65,7 +65,7 @@ export function ManagePoliciesDialog({
                 `${BASE_URL}/api/role-policy/role/${role.id}`,
                 {
                     method: "PUT",
-                    body: JSON.stringify({ policy_ids: selectedValues }),
+                    body: JSON.stringify({ policy_ref_names: selectedValues }),
                     headers: { "Content-Type": "application/json" },
                 }
             )
