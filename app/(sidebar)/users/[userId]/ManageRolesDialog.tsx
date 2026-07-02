@@ -80,7 +80,7 @@ export function ManageRolesDialog({
             {
                 method: "PUT",
                 body: JSON.stringify({
-                    role_ids: selectedValues,
+                    role_ref_names: selectedValues,
                 }),
                 headers: { "Content-Type": "application/json" },
             }
